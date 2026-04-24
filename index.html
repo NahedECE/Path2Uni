@@ -3,13 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login | Path2Uni</title>
+<title>Path2Uni | University Admission Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<style>
-  .admin-container { max-width: 450px; margin: 0 auto; margin-top: 50px; }
-  .error-msg { color: #f87171; text-align: center; margin-top: 1rem; display: none; }
-</style>
 </head>
 <body>
 
@@ -17,54 +13,88 @@
 <div class="bg-grid"></div>
 
 <div class="page-wrap">
-  <div class="admin-container">
-    <div class="glass-card">
-      <div class="logo" style="text-align: center; margin-bottom: 1.5rem;">Admin Access</div>
-      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
-        <div class="field">
-          <label>Email Address</label>
-          <input type="email" id="admin-email" placeholder="admin@path2uni.com" required>
+  <nav class="navbar">
+    <div class="logo">Path2Uni</div>
+    <div class="nav-links">
+      <a href="#" class="nav-link" onclick="showAlert()">Dashboard</a>
+      <a href="#" class="nav-link" onclick="showAlert()">Circular</a>
+      <a href="#" class="nav-link" onclick="showAlert()">Deadlines</a>
+      <a href="#" class="nav-link" onclick="showAlert()">Eligibility Checker</a>
+      <a href="#" class="nav-link" onclick="showContactAlert(event)">Contact Us</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow">Your Gateway to Higher Education</div>
+    <h1>Path2Uni<br>Admission Hub</h1>
+    <p>Centralized admission tracking, automated eligibility checking, and real-time result alerts for Bangladeshi students.</p>
+  </div>
+
+  <div class="main-content">
+    <div class="carousel-section">
+      <div class="carousel-container glass-card">
+        <div class="carousel-slide active">
+          <div class="uni-image"><img src="https://placehold.co/120x120/1a1a2e/ffffff?text=BUET" alt="BUET" class="uni-img"></div>
+          <h3 class="uni-name">BUET</h3>
+          <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution.</p>
+          <div class="uni-stats"><span>Est. 1912</span><span>Dhaka</span></div>
         </div>
-        <div class="field">
-          <label>Password</label>
-          <input type="password" id="admin-password" placeholder="Enter password" required>
+        <div class="carousel-dots">
+          <span class="dot active"></span>
         </div>
-        <button type="submit" class="calc-btn">Login to Admin Panel</button>
-        <div class="error-msg" id="errorMsg">Invalid credentials!</div>
-        <p class="hint" style="text-align: center; margin-top: 1rem;">Default: admin@path2uni.com / admin123</p>
-      </form>
+      </div>
+    </div>
+
+    <div class="auth-section">
+      <div class="glass-card auth-card">
+        <div class="tab-auth">
+          <div class="auth-tab active" onclick="switchAuth('login')">Login</div>
+          <div class="auth-tab" onclick="switchAuth('register')">Register</div>
+        </div>
+
+        <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="login-email" placeholder="student@path2uni.com" required>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="Enter your password" required>
+          </div>
+          <button type="submit" class="calc-btn">Login to Dashboard</button>
+          <p class="hint" style="text-align: center; margin-top: 1rem;">Demo: any email / any password</p>
+          <p class="hint" style="text-align: center;">Admin: admin@path2uni.com / admin123</p>
+        </form>
+
+        <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+          <div class="row2">
+            <div class="field"><label>Full Name</label><input type="text" id="reg-name" required></div>
+            <div class="field"><label>HSC Roll</label><input type="text" id="reg-roll"></div>
+          </div>
+          <div class="field"><label>Email</label><input type="email" id="reg-email" required></div>
+          <div class="field"><label>Password</label><input type="password" id="reg-password" required></div>
+          <div class="field"><label>Confirm Password</label><input type="password" id="reg-confirm" required></div>
+          <button type="submit" class="calc-btn">Create Account</button>
+        </form>
+      </div>
     </div>
   </div>
+
+  <div class="founders-section">
+    <div class="sec-title">Meet Our Founders</div>
+    <div class="founders-grid">
+      <div class="founder-card glass-card"><div class="founder-avatar">SA</div><h3 class="founder-name">Shakil Ahmed</h3><p class="founder-title">CEO & Co-Founder</p><p class="founder-bio">Former BUET student with a vision to simplify university admissions.</p></div>
+      <div class="founder-card glass-card"><div class="founder-avatar">RH</div><h3 class="founder-name">Rifat Hasan</h3><p class="founder-title">CTO & Co-Founder</p><p class="founder-bio">Full-stack developer passionate about educational technology.</p></div>
+      <div class="founder-card glass-card"><div class="founder-avatar">NI</div><h3 class="founder-name">Nafis Islam</h3><p class="founder-title">COO & Co-Founder</p><p class="founder-bio">Education consultant helping thousands of students achieve their dreams.</p></div>
+    </div>
+  </div>
+
+  <div class="copyright">© 2026 Path2Uni Team. All rights reserved.</div>
 </div>
 
+<script src="script.js"></script>
 <script>
-const API_URL = 'https://YOUR_RENDER_URL_HERE.onrender.com/api';
-
-async function handleAdminLogin(e) {
-  e.preventDefault();
-  const email = document.getElementById('admin-email').value;
-  const password = document.getElementById('admin-password').value;
-  
-  try {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    
-    const data = await response.json();
-    
-    if (response.ok && data.user.isAdmin) {
-      localStorage.setItem('path2uni_token', data.token);
-      localStorage.setItem('path2uni_admin', JSON.stringify(data.user));
-      window.location.href = 'admin-dashboard.html';
-    } else {
-      document.getElementById('errorMsg').style.display = 'block';
-    }
-  } catch (error) {
-    document.getElementById('errorMsg').style.display = 'block';
-  }
-}
+  function showAlert() { alert('Please login or register first.'); }
 </script>
 </body>
 </html>
