@@ -4,74 +4,125 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard | Path2Uni</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* Dashboard Specific Styles */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #05050f 0%, #0a0a1a 50%, #0d0d22 100%);
+    min-height: 100vh;
+    color: white;
+  }
+  
+  .bg-mesh {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  .page-wrap {
+    position: relative;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 4rem;
+    z-index: 1;
+  }
+  
+  /* Navbar */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(120deg, #fff, #a0a0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .nav-link {
+    padding: 0.5rem 1rem;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  
+  .nav-link:hover {
+    color: white;
+  }
+  
+  .logout-btn:hover {
+    color: #f87171;
+  }
+  
+  /* Dashboard Grid */
   .dashboard-grid {
     display: grid;
     grid-template-columns: 320px 1fr;
     gap: 1.5rem;
-    margin-bottom: 2rem;
   }
   
-  .profile-sidebar {
-    text-align: center;
+  /* Glass Card */
+  .glass-card {
+    background: rgba(10, 10, 26, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 1.5rem;
   }
   
+  /* Profile Sidebar */
   .profile-avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 60px;
-    margin: 0 auto 1rem;
+    width: 100px;
+    height: 100px;
     background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
-    border: 3px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    position: relative;
-    cursor: pointer;
-  }
-  
-  .profile-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .profile-avatar .avatar-placeholder {
-    font-size: 48px;
-    font-family: 'Syne', sans-serif;
+    margin: 0 auto 1rem;
+    font-size: 40px;
     font-weight: 800;
-  }
-  
-  .avatar-upload-btn {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,0.7);
-    padding: 5px;
-    font-size: 10px;
-    display: none;
-  }
-  
-  .profile-avatar:hover .avatar-upload-btn {
-    display: block;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.2);
   }
   
   .user-name {
-    font-family: 'Syne', sans-serif;
+    text-align: center;
     font-size: 20px;
     font-weight: 700;
     margin-bottom: 0.25rem;
   }
   
   .user-email {
+    text-align: center;
     font-size: 12px;
-    color: var(--white-50);
-    margin-bottom: 1rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 1.5rem;
   }
   
   .stat-cards {
@@ -81,45 +132,29 @@
     margin-top: 1rem;
   }
   
-  .stat-card-dashboard {
+  .stat-item {
     text-align: center;
     padding: 0.75rem;
     background: rgba(255,255,255,0.03);
     border-radius: 16px;
   }
   
-  .stat-number-large {
-    font-family: 'Syne', sans-serif;
+  .stat-number {
     font-size: 28px;
     font-weight: 800;
-    background: linear-gradient(135deg, #ffffff, #a0a0ff);
+    background: linear-gradient(135deg, #fff, #a0a0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   
-  .search-bar {
-    margin-bottom: 1.5rem;
+  .stat-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
   }
   
-  .search-input {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 30px;
-    color: white;
-    font-size: 14px;
-  }
-  
-  .search-input:focus {
-    outline: none;
-    border-color: rgba(255,255,255,0.3);
-  }
-  
+  /* Countdown */
   .countdown-timer {
-    background: rgba(0,0,0,0.3);
-    border-radius: 20px;
-    padding: 1.25rem;
     text-align: center;
     margin-bottom: 1.5rem;
   }
@@ -128,36 +163,36 @@
     display: flex;
     justify-content: center;
     gap: 1.5rem;
-    margin-top: 0.75rem;
+    margin: 1rem 0;
   }
   
   .countdown-block {
     text-align: center;
   }
   
-  .countdown-number {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
+  .countdown-value {
+    font-size: 32px;
     font-weight: 800;
-    background: linear-gradient(135deg, #ffffff, #a0a0ff);
+    background: linear-gradient(135deg, #fff, #a0a0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   
   .countdown-label {
     font-size: 10px;
-    color: var(--white-50);
+    color: rgba(255,255,255,0.5);
   }
   
-  .circular-item {
+  /* Circular Item */
+  .circular-item, .uni-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
   }
   
-  .circular-item:last-child {
+  .circular-item:last-child, .uni-item:last-child {
     border-bottom: none;
   }
   
@@ -171,353 +206,135 @@
     color: #fcd34d;
   }
   
-  .apply-btn {
-    background: linear-gradient(135deg, rgba(30,30,60,0.8), rgba(20,20,50,0.9));
-    border: 1px solid rgba(255,255,255,0.2);
+  .btn-small {
     padding: 6px 16px;
+    background: rgba(59,130,246,0.2);
+    border: 1px solid rgba(59,130,246,0.3);
     border-radius: 20px;
     font-size: 11px;
     cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .apply-btn:hover {
-    background: rgba(124,58,237,0.3);
-  }
-  
-  .university-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 12px;
-    margin-bottom: 8px;
-    transition: all 0.2s;
-  }
-  
-  .university-item:hover {
-    background: rgba(255,255,255,0.08);
+    color: #60a5fa;
   }
   
   .eligibility-badge {
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 20px;
+    padding: 4px 12px;
     background: rgba(34,197,94,0.2);
+    border-radius: 20px;
+    font-size: 11px;
     color: #4ade80;
   }
   
-  .apply-now-btn {
-    font-size: 11px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    background: rgba(59,130,246,0.2);
-    color: #60a5fa;
-    cursor: pointer;
-    border: none;
-  }
-  
-  .apply-now-btn:hover {
-    background: rgba(59,130,246,0.4);
-  }
-  
-  /* Notification Bell */
-  .notification-bell {
-    position: relative;
-    cursor: pointer;
-  }
-  
-  .notification-badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #ef4444;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    min-width: 18px;
-    text-align: center;
-  }
-  
-  .notification-dropdown {
-    position: absolute;
-    top: 40px;
-    right: 0;
-    width: 320px;
-    background: rgba(10,10,26,0.95);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    display: none;
-    z-index: 100;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  
-  .notification-dropdown.show {
-    display: block;
-  }
-  
-  .notification-item {
-    padding: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    cursor: pointer;
-  }
-  
-  .notification-item:hover {
+  .search-input {
+    width: 100%;
+    padding: 12px 16px;
     background: rgba(255,255,255,0.05);
-  }
-  
-  .notification-title {
-    font-size: 13px;
-    font-weight: 600;
-  }
-  
-  .notification-message {
-    font-size: 11px;
-    color: var(--white-50);
-    margin-top: 4px;
-  }
-  
-  /* Chatbot */
-  .chatbot-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-  }
-  
-  .chatbot-button {
-    width: 55px;
-    height: 55px;
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    transition: all 0.3s;
-  }
-  
-  .chatbot-button:hover {
-    transform: scale(1.05);
-  }
-  
-  .chatbot-window {
-    position: absolute;
-    bottom: 70px;
-    right: 0;
-    width: 350px;
-    height: 450px;
-    background: rgba(10, 10, 26, 0.95);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  }
-  
-  .chatbot-window.open {
-    display: flex;
-  }
-  
-  .chatbot-header {
-    padding: 15px;
-    background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .chatbot-close {
-    cursor: pointer;
-    font-size: 24px;
-    line-height: 1;
-  }
-  
-  .chatbot-messages {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 15px;
-  }
-  
-  .message {
-    margin-bottom: 12px;
-    display: flex;
-  }
-  
-  .message.user {
-    justify-content: flex-end;
-  }
-  
-  .message-content {
-    max-width: 80%;
-    padding: 8px 12px;
-    border-radius: 15px;
-    font-size: 13px;
-    line-height: 1.4;
-  }
-  
-  .message.bot .message-content {
-    background: rgba(255,255,255,0.1);
-    border-radius: 15px 15px 15px 5px;
-  }
-  
-  .message.user .message-content {
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
-    border-radius: 15px 15px 5px 15px;
-  }
-  
-  .chatbot-input {
-    padding: 15px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    gap: 10px;
-  }
-  
-  .chatbot-input input {
-    flex-grow: 1;
-    padding: 10px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
     color: white;
-    font-size: 13px;
-  }
-  
-  .chatbot-input input:focus {
-    outline: none;
-    border-color: rgba(255,255,255,0.3);
-  }
-  
-  .chatbot-input button {
-    padding: 10px 15px;
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
-    border: none;
-    border-radius: 20px;
-    color: white;
-    cursor: pointer;
-    font-size: 12px;
+    margin-bottom: 1rem;
   }
   
   .loading {
     text-align: center;
-    padding: 20px;
-    color: var(--white-50);
+    padding: 2rem;
+    color: rgba(255,255,255,0.5);
+  }
+  
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  button {
+    background: linear-gradient(135deg, #3b82f6, #7c3aed);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
   }
   
   @media (max-width: 900px) {
-    .dashboard-grid {
-      grid-template-columns: 1fr;
-    }
-    .stat-cards {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    .countdown-numbers {
-      gap: 0.8rem;
-    }
-    .countdown-number {
-      font-size: 20px;
-    }
-    .chatbot-window {
-      width: 300px;
-      right: -40px;
-    }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .page-wrap { padding: 1rem; }
+    .navbar { flex-direction: column; }
+    .nav-links { justify-content: center; }
   }
 </style>
 </head>
 <body>
-
 <div class="bg-mesh"></div>
-<div class="bg-grid"></div>
-
 <div class="page-wrap">
-  <!-- Navigation Bar -->
+
   <nav class="navbar">
     <div class="logo">Path2Uni</div>
     <div class="nav-links">
       <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="eligibility.html" class="nav-link">Eligibility Checker</a>
-      <a href="calendar.html" class="nav-link">Admission Calendar</a>
-      <a href="study-tracker.html" class="nav-link">Study Tracker</a>
-      <a href="circular-archive.html" class="nav-link">Circular Archive</a>
-      <a href="applications.html" class="nav-link">Application Status</a>
-      <a href="question-banks.html" class="nav-link">Question Banks</a>
-      <a href="#" class="nav-link notification-bell" onclick="toggleNotifications(event)">
-        🔔
-        <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
-        <div id="notificationDropdown" class="notification-dropdown">
-          <div class="loading">Loading notifications...</div>
-        </div>
-      </a>
-      <a href="#" class="nav-link logout-btn" onclick="handleLogout(event)">Logout</a>
+      <a href="#" class="nav-link" onclick="comingSoon()">Eligibility Checker</a>
+      <a href="#" class="nav-link" onclick="comingSoon()">Admission Calendar</a>
+      <a href="#" class="nav-link" onclick="comingSoon()">Study Tracker</a>
+      <a href="#" class="nav-link" onclick="comingSoon()">Circular Archive</a>
+      <a href="#" class="nav-link" onclick="comingSoon()">Application Status</a>
+      <a href="#" class="nav-link" onclick="comingSoon()">Question Banks</a>
+      <a href="#" class="nav-link logout-btn" onclick="logout()">Logout</a>
     </div>
   </nav>
 
   <div class="dashboard-grid">
-    <!-- Left Sidebar - Profile -->
-    <div class="profile-sidebar">
-      <div class="glass-card">
-        <div class="profile-avatar" id="avatarContainer" onclick="document.getElementById('avatarUpload').click()">
-          <img id="profileImage" src="" style="display: none;">
-          <div id="avatarPlaceholder" class="avatar-placeholder"></div>
-          <div class="avatar-upload-btn">Change Photo</div>
+    <!-- Left Sidebar -->
+    <div class="glass-card">
+      <div class="profile-avatar" id="avatarPlaceholder" onclick="triggerAvatarUpload()">
+        👤
+      </div>
+      <input type="file" id="avatarInput" style="display:none" accept="image/*" onchange="updateAvatar(this)">
+      <h3 class="user-name" id="userName">Student</h3>
+      <p class="user-email" id="userEmail">student@path2uni.com</p>
+      
+      <div class="stat-cards">
+        <div class="stat-item">
+          <div class="stat-number" id="eligibleCount">0</div>
+          <div class="stat-label">Eligible</div>
         </div>
-        <input type="file" id="avatarUpload" accept="image/*" style="display: none;" onchange="uploadAvatar(this)">
-        <h3 class="user-name" id="userName">Loading...</h3>
-        <p class="user-email" id="userEmail">loading@path2uni.com</p>
-        
-        <div class="stat-cards">
-          <div class="stat-card-dashboard">
-            <div class="stat-number-large" id="eligibleCount">-</div>
-            <div class="hint">Eligible</div>
-          </div>
-          <div class="stat-card-dashboard">
-            <div class="stat-number-large" id="appliedCount">-</div>
-            <div class="hint">Applied</div>
-          </div>
-          <div class="stat-card-dashboard">
-            <div class="stat-number-large" id="studyHours">-</div>
-            <div class="hint">Study Hours</div>
-          </div>
+        <div class="stat-item">
+          <div class="stat-number" id="appliedCount">0</div>
+          <div class="stat-label">Applied</div>
         </div>
-        
-        <div style="margin-top: 1rem;">
-          <button class="calc-btn" onclick="window.location.href='eligibility.html'" style="padding: 10px; font-size: 12px;">Update Eligibility</button>
+        <div class="stat-item">
+          <div class="stat-number" id="notifCount">0</div>
+          <div class="stat-label">Notifications</div>
         </div>
       </div>
+      
+      <button onclick="window.location.href='eligibility.html'" style="margin-top: 1rem;">Update Eligibility</button>
     </div>
 
-    <!-- Right Main Content -->
+    <!-- Right Content -->
     <div>
-      <!-- Search Bar -->
-      <div class="search-bar">
-        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search universities by name (e.g., BUET, DU, RUET)..." onkeyup="searchUniversities()">
-      </div>
+      <!-- Search -->
+      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search universities..." onkeyup="searchUniversities()">
 
-      <!-- Next Exam Countdown -->
-      <div class="countdown-timer glass-card">
-        <div class="sec-title" style="justify-content: center;">Next Exam Countdown</div>
-        <div class="countdown-numbers" id="countdownContainer">
-          <div class="countdown-block"><div class="countdown-number" id="days">0</div><div class="countdown-label">Days</div></div>
-          <div class="countdown-block"><div class="countdown-number" id="hours">0</div><div class="countdown-label">Hours</div></div>
-          <div class="countdown-block"><div class="countdown-number" id="minutes">0</div><div class="countdown-label">Minutes</div></div>
-          <div class="countdown-block"><div class="countdown-number" id="seconds">0</div><div class="countdown-label">Seconds</div></div>
+      <!-- Countdown -->
+      <div class="glass-card countdown-timer">
+        <div class="section-title" style="justify-content: center;">📅 Next Exam Countdown</div>
+        <div class="countdown-numbers">
+          <div class="countdown-block"><div class="countdown-value" id="days">0</div><div class="countdown-label">Days</div></div>
+          <div class="countdown-block"><div class="countdown-value" id="hours">0</div><div class="countdown-label">Hours</div></div>
+          <div class="countdown-block"><div class="countdown-value" id="minutes">0</div><div class="countdown-label">Minutes</div></div>
+          <div class="countdown-block"><div class="countdown-value" id="seconds">0</div><div class="countdown-label">Seconds</div></div>
         </div>
-        <div class="hint" id="nextExamName">Loading exam schedule...</div>
+        <div class="circular-deadline" id="nextExamName"></div>
       </div>
 
       <!-- Live Circulars -->
       <div class="glass-card">
-        <div class="sec-title" style="justify-content: space-between;">
+        <div class="section-title">
           <span>📢 Live Circulars</span>
-          <span class="hint" id="circularCount">0 active</span>
+          <span id="circularCount" class="circular-deadline">0 active</span>
         </div>
         <div id="circularsList">
           <div class="loading">Loading circulars...</div>
@@ -526,422 +343,213 @@
 
       <!-- Eligible Universities -->
       <div class="glass-card" style="margin-top: 1rem;">
-        <div class="sec-title" style="justify-content: space-between;">
+        <div class="section-title">
           <span>🎓 Eligible Universities</span>
-          <span class="hint" id="eligibleUniCount">0 found</span>
+          <span id="uniCount" class="circular-deadline">0 found</span>
         </div>
-        <div id="eligibleUniversitiesList">
+        <div id="universitiesList">
           <div class="loading">Loading eligible universities...</div>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="copyright">© 2026 Path2Uni Team. All rights reserved.</div>
 </div>
 
-<!-- AI Chatbot -->
-<div class="chatbot-container">
-  <div class="chatbot-button" onclick="toggleChatbot()">
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      <path d="M8 10h.01M12 10h.01M16 10h.01"/>
-    </svg>
-  </div>
-  <div class="chatbot-window" id="chatbotWindow">
-    <div class="chatbot-header">
-      <span>🤖 UniAid Assistant</span>
-      <span class="chatbot-close" onclick="toggleChatbot()">×</span>
-    </div>
-    <div class="chatbot-messages" id="chatMessages">
-      <div class="message bot">
-        <div class="message-content">Hello! I'm your admission assistant. Ask me anything about:<br>• University admission requirements<br>• Application deadlines<br>• Exam schedules<br>• Eligibility criteria<br>• And more!</div>
-      </div>
-    </div>
-    <div class="chatbot-input">
-      <input type="text" id="chatInput" placeholder="Type your question..." onkeypress="if(event.key==='Enter') sendMessage()">
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
-</div>
-
-<script src="script.js"></script>
 <script>
-  // API Configuration
-  const API_URL = 'https://path2uni-236v.onrender.com/api';
-  let authToken = localStorage.getItem('path2uni_token');
-  let currentUser = null;
-  let allCirculars = [];
-  let allUniversities = [];
-  let countdownInterval;
+const API_URL = 'https://path2uni-236v.onrender.com/api';
+let authToken = localStorage.getItem('path2uni_token');
+let currentUser = null;
+let allUniversities = [];
+let countdownInterval;
 
-  // ==================== API HELPER ====================
-  async function apiCall(endpoint, options = {}) {
-    const headers = { 'Content-Type': 'application/json' };
-    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-    
-    try {
-      const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
-      if (response.status === 401) {
-        localStorage.removeItem('path2uni_token');
-        localStorage.removeItem('path2uni_user');
-        window.location.href = 'index.html';
-      }
-      return response;
-    } catch (error) {
-      console.error('API Error:', error);
-      throw error;
-    }
-  }
-
-  // ==================== LOAD DASHBOARD DATA ====================
-  async function loadDashboard() {
-    try {
-      const response = await apiCall('/dashboard');
-      const data = await response.json();
-      
-      if (response.ok) {
-        // Update user info
-        currentUser = data.user;
-        if (data.user) {
-          document.getElementById('userName').textContent = data.user.name || 'Student';
-          document.getElementById('userEmail').textContent = data.user.email || '';
-          
-          // Load avatar
-          const savedAvatar = localStorage.getItem(`avatar_${data.user.email}`);
-          if (savedAvatar) {
-            document.getElementById('profileImage').src = savedAvatar;
-            document.getElementById('profileImage').style.display = 'block';
-            document.getElementById('avatarPlaceholder').style.display = 'none';
-          } else if (data.user.avatar) {
-            document.getElementById('profileImage').src = data.user.avatar;
-            document.getElementById('profileImage').style.display = 'block';
-            document.getElementById('avatarPlaceholder').style.display = 'none';
-          } else {
-            const initial = (data.user.name || 'S').charAt(0).toUpperCase();
-            document.getElementById('avatarPlaceholder').textContent = initial;
-          }
-        }
-        
-        // Update stats
-        const eligibleCount = data.eligibleUniversities ? data.eligibleUniversities.length : 0;
-        document.getElementById('eligibleCount').textContent = eligibleCount;
-        document.getElementById('eligibleUniCount').textContent = `${eligibleCount} found`;
-        document.getElementById('appliedCount').textContent = data.applications ? data.applications.length : 0;
-        
-        // Update circulars
-        if (data.circulars && data.circulars.length > 0) {
-          allCirculars = data.circulars;
-          displayCirculars(data.circulars);
-          document.getElementById('circularCount').textContent = `${data.circulars.length} active`;
-        } else {
-          document.getElementById('circularsList').innerHTML = '<div class="hint" style="text-align: center; padding: 1rem;">No active circulars at the moment.</div>';
-        }
-        
-        // Update eligible universities
-        if (data.eligibleUniversities && data.eligibleUniversities.length > 0) {
-          allUniversities = data.eligibleUniversities;
-          displayEligibleUniversities(data.eligibleUniversities);
-        } else {
-          document.getElementById('eligibleUniversitiesList').innerHTML = '<div class="hint" style="text-align: center; padding: 1rem;">No eligible universities found. Please update your academic info in Eligibility Checker.</div>';
-        }
-        
-        // Update next exam countdown
-        if (data.nextExam) {
-          startCountdown(data.nextExam.exam_date, data.nextExam.university);
-        }
-        
-        // Load notifications
-        loadNotifications();
-      }
-    } catch (error) {
-      console.error('Load dashboard error:', error);
-      document.getElementById('circularsList').innerHTML = '<div class="hint" style="text-align: center; padding: 1rem;">Error loading data. Please refresh.</div>';
-    }
-  }
-
-  // ==================== DISPLAY FUNCTIONS ====================
-  function displayCirculars(circulars) {
-    const container = document.getElementById('circularsList');
-    container.innerHTML = circulars.map(c => `
-      <div class="circular-item">
-        <div>
-          <div class="circular-title">${c.title}</div>
-          <div class="circular-deadline">📅 Deadline: ${c.application_deadline}</div>
-          <div class="hint" style="font-size: 10px;">🏛️ ${c.university}</div>
-        </div>
-        <button class="apply-btn" onclick="window.open('${c.link || '#'}', '_blank')">Apply</button>
-      </div>
-    `).join('');
-  }
-
-  function displayEligibleUniversities(universities) {
-    const container = document.getElementById('eligibleUniversitiesList');
-    container.innerHTML = universities.map(uni => `
-      <div class="university-item">
-        <div>
-          <strong>${uni.name}</strong>
-          <div class="hint" style="font-size: 10px;">📅 Exam: ${uni.exam_date || 'TBA'}</div>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <span class="eligibility-badge">Eligible</span>
-          <button class="apply-now-btn" onclick="applyToUniversity('${uni.name}')">Apply</button>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function searchUniversities() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = allUniversities.filter(uni => uni.name.toLowerCase().includes(searchTerm));
-    
-    if (filtered.length === 0 && searchTerm) {
-      document.getElementById('eligibleUniversitiesList').innerHTML = '<div class="hint" style="text-align: center; padding: 1rem;">No matching universities found.</div>';
-    } else if (searchTerm) {
-      displayEligibleUniversities(filtered);
-    } else {
-      displayEligibleUniversities(allUniversities);
-    }
-  }
-
-  // ==================== COUNTDOWN TIMER ====================
-  function startCountdown(examDate, examName) {
-    if (countdownInterval) clearInterval(countdownInterval);
-    
-    document.getElementById('nextExamName').textContent = examName ? `Next: ${examName} on ${examDate}` : 'No upcoming exams scheduled';
-    
-    countdownInterval = setInterval(() => {
-      const targetDate = new Date(examDate);
-      const now = new Date();
-      const diff = targetDate - now;
-      
-      if (diff <= 0) {
-        document.getElementById('days').textContent = '0';
-        document.getElementById('hours').textContent = '0';
-        document.getElementById('minutes').textContent = '0';
-        document.getElementById('seconds').textContent = '0';
-        clearInterval(countdownInterval);
-        return;
-      }
-      
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (3600000)) / (1000 * 60));
-      const seconds = Math.floor((diff % (60000)) / 1000);
-      
-      document.getElementById('days').textContent = days;
-      document.getElementById('hours').textContent = hours;
-      document.getElementById('minutes').textContent = minutes;
-      document.getElementById('seconds').textContent = seconds;
-    }, 1000);
-  }
-
-  // ==================== NOTIFICATIONS ====================
-  async function loadNotifications() {
-    try {
-      const response = await apiCall('/notifications');
-      const data = await response.json();
-      
-      if (response.ok && data.notifications) {
-        const unreadCount = data.notifications.filter(n => !n.is_read).length;
-        const badge = document.getElementById('notificationBadge');
-        if (unreadCount > 0) {
-          badge.textContent = unreadCount;
-          badge.style.display = 'block';
-        } else {
-          badge.style.display = 'none';
-        }
-        
-        const dropdown = document.getElementById('notificationDropdown');
-        dropdown.innerHTML = data.notifications.map(n => `
-          <div class="notification-item" onclick="markNotificationRead(${n.id})">
-            <div class="notification-title">${n.title}</div>
-            <div class="notification-message">${n.message}</div>
-            <div class="hint" style="font-size: 9px; margin-top: 4px;">${new Date(n.created_at).toLocaleDateString()}</div>
-          </div>
-        `).join('');
-        
-        if (data.notifications.length === 0) {
-          dropdown.innerHTML = '<div class="notification-item">No notifications</div>';
-        }
-      }
-    } catch (error) {
-      console.error('Load notifications error:', error);
-    }
-  }
-
-  async function markNotificationRead(id) {
-    try {
-      await apiCall(`/notifications/${id}/read`, { method: 'PUT' });
-      loadNotifications();
-    } catch (error) {
-      console.error('Mark read error:', error);
-    }
-  }
-
-  function toggleNotifications(event) {
-    event.stopPropagation();
-    const dropdown = document.getElementById('notificationDropdown');
-    dropdown.classList.toggle('show');
-  }
-
-  // Close notifications when clicking outside
-  document.addEventListener('click', function() {
-    const dropdown = document.getElementById('notificationDropdown');
-    dropdown.classList.remove('show');
-  });
-
-  // ==================== AVATAR UPLOAD ====================
-  function uploadAvatar(input) {
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        const imageUrl = e.target.result;
-        document.getElementById('profileImage').src = imageUrl;
-        document.getElementById('profileImage').style.display = 'block';
-        document.getElementById('avatarPlaceholder').style.display = 'none';
-        localStorage.setItem(`avatar_${currentUser.email}`, imageUrl);
-        
-        // Save to backend
-        try {
-          await apiCall('/auth/profile', {
-            method: 'PUT',
-            body: JSON.stringify({ avatar: imageUrl })
-          });
-        } catch (error) {
-          console.error('Avatar save error:', error);
-        }
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
-
-  // ==================== APPLY TO UNIVERSITY ====================
-  async function applyToUniversity(universityName) {
-    const applicationDate = new Date().toISOString().split('T')[0];
-    
-    try {
-      const response = await apiCall('/applications', {
-        method: 'POST',
-        body: JSON.stringify({
-          universityName: universityName,
-          applicationDate: applicationDate
-        })
-      });
-      
-      if (response.ok) {
-        alert(`Application submitted for ${universityName}! You can track it in Application Status.`);
-        loadDashboard();
-      } else {
-        alert('Failed to submit application. Please try again.');
-      }
-    } catch (error) {
-      console.error('Apply error:', error);
-      alert('Error submitting application.');
-    }
-  }
-
-  // ==================== AI CHATBOT ====================
-  function toggleChatbot() {
-    const window = document.getElementById('chatbotWindow');
-    window.classList.toggle('open');
-  }
-
-  async function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    if (!message) return;
-    
-    addMessage(message, 'user');
-    input.value = '';
-    
-    // Show typing indicator
-    addMessage('Typing...', 'bot', true);
-    
-    try {
-      // Call backend chatbot API (you can implement NLP later)
-      const response = await fetch(`${API_URL}/chatbot`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-      });
-      
-      const data = await response.json();
-      
-      // Remove typing indicator
-      const messagesDiv = document.getElementById('chatMessages');
-      const lastMessage = messagesDiv.lastChild;
-      if (lastMessage && lastMessage.querySelector('.message-content')?.textContent === 'Typing...') {
-        lastMessage.remove();
-      }
-      
-      addMessage(data.reply || getBotResponse(message), 'bot');
-    } catch (error) {
-      // Remove typing indicator
-      const messagesDiv = document.getElementById('chatMessages');
-      const lastMessage = messagesDiv.lastChild;
-      if (lastMessage && lastMessage.querySelector('.message-content')?.textContent === 'Typing...') {
-        lastMessage.remove();
-      }
-      addMessage(getBotResponse(message), 'bot');
-    }
-  }
+// Helper function
+async function apiCall(endpoint, options = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
   
-  function getBotResponse(message) {
-    const lowerMsg = message.toLowerCase();
-    
-    if (lowerMsg.includes('buet')) {
-      return 'BUET admission requires SSC & HSC GPA ≥ 3.50 each, combined ≥ 8.00. Application usually starts in March. Exam is typically in May.';
-    } else if (lowerMsg.includes('du') || lowerMsg.includes('dhaka university')) {
-      return 'Dhaka University has multiple units. Ka Unit (Science) requires combined GPA ≥ 7.5. Application通常在 March-April. Exam in May.';
-    } else if (lowerMsg.includes('medical') || lowerMsg.includes('mbbs')) {
-      return 'Medical admission requires SSC & HSC GPA ≥ 3.50, Biology ≥ 3.50. Exam typically in February. Apply through DGHS portal.';
-    } else if (lowerMsg.includes('deadline') || lowerMsg.includes('when')) {
-      return 'Check our Admission Calendar page for all upcoming deadlines! Current active circulars are shown in the dashboard.';
-    } else if (lowerMsg.includes('eligible') || lowerMsg.includes('qualify')) {
-      return 'Use our Eligibility Checker page to see which universities you can apply to based on your SSC and HSC GPA!';
-    } else if (lowerMsg.includes('apply') || lowerMsg.includes('application')) {
-      return 'You can apply through each university\'s official admission portal. Links are provided in the circulars section.';
-    } else if (lowerMsg.includes('result')) {
-      return 'Results are typically published 2-3 months after exams. Check individual university websites for updates.';
-    } else if (lowerMsg.includes('gpa')) {
-      return 'Your combined GPA is SSC + HSC. Most good universities require total ≥ 6.5-8.0 depending on the institution.';
-    } else if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
-      return 'Hello! How can I help you with your admission journey today?';
-    } else {
-      return 'I can help you with university admission requirements, deadlines, eligibility criteria, and application processes. What specific information are you looking for?';
-    }
-  }
-  
-  function addMessage(text, sender, isTyping = false) {
-    const messagesDiv = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
-    messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
-    messagesDiv.appendChild(messageDiv);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  }
-
-  // ==================== LOGOUT ====================
-  async function handleLogout(event) {
-    if (event) event.preventDefault();
-    try {
-      await apiCall('/auth/logout', { method: 'POST' });
-    } catch (error) {}
+  const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+  if (response.status === 401) {
     localStorage.removeItem('path2uni_token');
     localStorage.removeItem('path2uni_user');
     window.location.href = 'index.html';
+    throw new Error('Unauthorized');
   }
+  return response;
+}
 
-  // ==================== INITIALIZE ====================
-  function initDashboard() {
-    if (!localStorage.getItem('path2uni_token')) {
-      window.location.href = 'index.html';
+// Load dashboard data
+async function loadDashboard() {
+  try {
+    const response = await apiCall('/dashboard');
+    const data = await response.json();
+    
+    if (response.ok) {
+      currentUser = data.user;
+      
+      // Update user info
+      document.getElementById('userName').textContent = data.user?.name || 'Student';
+      document.getElementById('userEmail').textContent = data.user?.email || '';
+      
+      const initial = (data.user?.name?.charAt(0) || 'S').toUpperCase();
+      document.getElementById('avatarPlaceholder').textContent = initial;
+      
+      // Update stats
+      const eligibleCount = data.eligibleUniversities?.length || 0;
+      document.getElementById('eligibleCount').textContent = eligibleCount;
+      document.getElementById('uniCount').textContent = `${eligibleCount} found`;
+      document.getElementById('appliedCount').textContent = data.applications?.length || 0;
+      document.getElementById('notifCount').textContent = data.notifications?.length || 0;
+      
+      // Store universities for search
+      allUniversities = data.eligibleUniversities || [];
+      displayUniversities(allUniversities);
+      
+      // Display circulars
+      displayCirculars(data.circulars || []);
+      document.getElementById('circularCount').textContent = `${data.circulars?.length || 0} active`;
+      
+      // Start countdown
+      if (data.nextExam) {
+        startCountdown(data.nextExam.deadline, data.nextExam.university);
+      }
+    } else {
+      console.error('Dashboard error:', data);
     }
-    loadDashboard();
+  } catch (error) {
+    console.error('Load error:', error);
+    document.getElementById('circularsList').innerHTML = '<div class="loading">Error loading data. Please refresh.</div>';
+    document.getElementById('universitiesList').innerHTML = '<div class="loading">Please update your GPA in Eligibility Checker</div>';
+  }
+}
+
+// Display circulars
+function displayCirculars(circulars) {
+  const container = document.getElementById('circularsList');
+  if (!circulars.length) {
+    container.innerHTML = '<div class="loading">No active circulars</div>';
+    return;
   }
   
-  initDashboard();
+  container.innerHTML = circulars.map(c => `
+    <div class="circular-item">
+      <div>
+        <div class="circular-title">${c.title}</div>
+        <div class="circular-deadline">🏛️ ${c.university} • Deadline: ${c.deadline}</div>
+      </div>
+      <button class="btn-small" onclick="alert('Apply at ${c.university} official website')">Apply</button>
+    </div>
+  `).join('');
+}
+
+// Display universities
+function displayUniversities(universities) {
+  const container = document.getElementById('universitiesList');
+  if (!universities.length) {
+    container.innerHTML = '<div class="loading">No eligible universities. Update your GPA in Eligibility Checker</div>';
+    return;
+  }
+  
+  container.innerHTML = universities.map(uni => `
+    <div class="uni-item">
+      <div>
+        <strong>${uni.name}</strong>
+        <div class="circular-deadline">📅 Exam: ${uni.exam_date || 'TBA'}</div>
+      </div>
+      <span class="eligibility-badge">Eligible</span>
+    </div>
+  `).join('');
+}
+
+// Search universities
+function searchUniversities() {
+  const term = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allUniversities.filter(uni => uni.name.toLowerCase().includes(term));
+  displayUniversities(filtered);
+  document.getElementById('uniCount').textContent = `${filtered.length} found`;
+}
+
+// Countdown timer
+function startCountdown(examDate, examName) {
+  if (countdownInterval) clearInterval(countdownInterval);
+  
+  document.getElementById('nextExamName').textContent = examName ? `${examName} on ${examDate}` : 'No upcoming exams';
+  
+  countdownInterval = setInterval(() => {
+    const target = new Date(examDate);
+    const now = new Date();
+    const diff = target - now;
+    
+    if (diff <= 0) {
+      document.getElementById('days').textContent = '0';
+      document.getElementById('hours').textContent = '0';
+      document.getElementById('minutes').textContent = '0';
+      document.getElementById('seconds').textContent = '0';
+      clearInterval(countdownInterval);
+      return;
+    }
+    
+    document.getElementById('days').textContent = Math.floor(diff / (1000 * 60 * 60 * 24));
+    document.getElementById('hours').textContent = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
+    document.getElementById('minutes').textContent = Math.floor((diff % (3600000)) / (1000 * 60));
+    document.getElementById('seconds').textContent = Math.floor((diff % (60000)) / 1000);
+  }, 1000);
+}
+
+// Avatar upload
+function triggerAvatarUpload() {
+  document.getElementById('avatarInput').click();
+}
+
+function updateAvatar(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = function() {
+        localStorage.setItem(`avatar_${currentUser?.email}`, e.target.result);
+      };
+    };
+    reader.readAsDataURL(input.files[0]);
+    
+    const reader2 = new FileReader();
+    reader2.onload = function(e) {
+      document.getElementById('avatarPlaceholder').innerHTML = '<img src="' + e.target.result + '" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">';
+    };
+    reader2.readAsDataURL(input.files[0]);
+  }
+}
+
+// Load saved avatar
+function loadSavedAvatar() {
+  if (currentUser?.email) {
+    const saved = localStorage.getItem(`avatar_${currentUser.email}`);
+    if (saved) {
+      document.getElementById('avatarPlaceholder').innerHTML = '<img src="' + saved + '" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">';
+    }
+  }
+}
+
+// Logout
+async function logout() {
+  try {
+    await apiCall('/auth/logout', { method: 'POST' });
+  } catch(e) {}
+  localStorage.removeItem('path2uni_token');
+  localStorage.removeItem('path2uni_user');
+  window.location.href = 'index.html';
+}
+
+function comingSoon() {
+  alert('This feature is coming soon!');
+}
+
+// Initialize
+if (!authToken) {
+  window.location.href = 'index.html';
+} else {
+  loadDashboard();
+}
 </script>
 </body>
 </html>
