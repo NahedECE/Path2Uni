@@ -7,20 +7,113 @@ const sqlite3 = require('sqlite3');
 const sqlite = require('sqlite');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
+const nodemailer = require('nodemailer');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = 'path2uni_super_secret_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'path2uni_super_secret_key_2026';
 
-// Create uploads directory
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Initialize Gemini AI
+let geminiAI = null;
+if (process.env.GEMINI_API_KEY) {
+  geminiAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  console.log('✅ Gemini AI initialized');
+} else {
+  console.log('⚠️ GEMINI_API_KEY not set. Chatbot will use fallback responses.');
 }
 
+// Email transporter setup
+let transporter = null;
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+  console.log('✅ Email notifications enabled');
+} else {
+  console.log('⚠️ Email not configured - notifications will be in-app only');
+}
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 } });
+
 let db;
+
+// Email sending function
+async function sendEmailNotification(userEmail, userName, title, message, type = 'info') {
+  if (!transporter) {
+    console.log('Email not configured - skipping email notification');
+    return false;
+  }
+  
+  try {
+    const emailHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background: #0a0a1a; }
+          .container { max-width: 600px; margin: 0 auto; background: #0f0f23; border-radius: 16px; overflow: hidden; }
+          .header { background: linear-gradient(135deg, #3b82f6, #7c3aed); padding: 30px; text-align: center; }
+          .header h1 { color: white; margin: 0; font-size: 28px; }
+          .content { padding: 30px; color: #e0e0e0; }
+          .content h2 { color: white; margin-top: 0; }
+          .button { display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #3b82f6, #7c3aed); color: white; text-decoration: none; border-radius: 30px; margin-top: 20px; }
+          .footer { padding: 20px; text-align: center; border-top: 1px solid #1a1a3a; font-size: 12px; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Path2Uni</h1>
+            <p style="color: #ccc; margin: 5px 0 0;">University Admission Hub</p>
+          </div>
+          <div class="content">
+            <h2>${title}</h2>
+            <p>Dear ${userName},</p>
+            <p>${message}</p>
+            <a href="https://nahedece.github.io/Path2Uni/dashboard.html" class="button">Go to Dashboard</a>
+          </div>
+          <div class="footer">
+            <p>© 2026 Path2Uni. All rights reserved.</p>
+            <p>This is an automated notification. Please do not reply to this email.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    await transporter.sendMail({
+      from: `"Path2Uni" <${process.env.EMAIL_USER}>`,
+      to: userEmail,
+      subject: title,
+      html: emailHtml
+    });
+    console.log(`📧 Email sent to ${userEmail}: ${title}`);
+    return true;
+  } catch(error) {
+    console.error('Email error:', error);
+    return false;
+  }
+}
 
 async function initDB() {
   db = await sqlite.open({
@@ -28,7 +121,7 @@ async function initDB() {
     driver: sqlite3.Database
   });
 
-  // Users table with avatar field
+  // Users table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +132,9 @@ async function initDB() {
       hsc_gpa REAL,
       biology_gpa REAL,
       avatar TEXT,
+      phone TEXT,
       is_admin INTEGER DEFAULT 0,
+      email_notifications INTEGER DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       last_login DATETIME
     )
@@ -79,12 +174,13 @@ async function initDB() {
       message TEXT NOT NULL,
       type TEXT DEFAULT 'info',
       is_read INTEGER DEFAULT 0,
+      email_sent INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
   `);
 
-  // Circulars table (admin managed)
+  // Circulars table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS circulars (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,10 +191,69 @@ async function initDB() {
       application_start DATE,
       application_deadline DATE,
       exam_date DATE,
+      pdf_path TEXT,
       is_active INTEGER DEFAULT 1,
       created_by INTEGER,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (created_by) REFERENCES users (id)
+    )
+  `);
+
+  // Question Banks table
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS question_banks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      university TEXT NOT NULL,
+      subject TEXT,
+      year INTEGER,
+      pdf_path TEXT NOT NULL,
+      uploaded_by INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (uploaded_by) REFERENCES users (id)
+    )
+  `);
+
+  // Study Tasks table
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS study_tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      task_title TEXT NOT NULL,
+      task_time TEXT,
+      task_date DATE,
+      is_completed INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    )
+  `);
+
+  // Exam Dates table
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS exam_dates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      university TEXT NOT NULL,
+      exam_date DATE NOT NULL,
+      exam_time TEXT,
+      venue TEXT,
+      description TEXT,
+      added_by INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (added_by) REFERENCES users (id)
+    )
+  `);
+
+  // Chatbot conversations table
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS chatbot_conversations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      question TEXT,
+      answer TEXT,
+      ai_provider TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -115,18 +270,6 @@ async function initDB() {
       min_biology_gpa REAL,
       exam_date TEXT,
       website TEXT,
-      logo TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-
-  // Chatbot conversations table
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS chatbot_conversations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
-      question TEXT,
-      answer TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -141,24 +284,30 @@ async function initDB() {
       ('Chittagong University of Engineering and Technology', 'CUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://cuet.ac.bd/admission'),
       ('Khulna University of Engineering and Technology', 'KUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://admission.kuet.ac.bd'),
       ('Dhaka Medical College', 'DMC', 'medical', 3.5, 3.5, 7.0, 3.5, '2026-02-10', 'http://dgsh.teletalk.com.bd'),
-      ('Mymensingh Medical College', 'MMC', 'medical', 3.5, 3.5, 7.0, 3.5, '2026-02-10', 'http://dgsh.teletalk.com.bd'),
-      ('Sir Salimullah Medical College', 'SHMC', 'medical', 3.5, 3.5, 7.0, 3.5, '2026-02-10', 'http://dgsh.teletalk.com.bd'),
       ('Rajshahi University', 'RU', 'general', 3.0, 3.0, 6.5, NULL, '2026-05-20', 'https://admission.ru.ac.bd'),
       ('Chittagong University', 'CU', 'general', 3.0, 3.0, 6.5, NULL, '2026-06-15', 'https://admission.cu.ac.bd'),
-      ('Jahangirnagar University', 'JU', 'general', 3.0, 3.0, 6.5, NULL, '2026-06-10', 'https://admission.juniv.edu'),
-      ('Khulna University', 'KU', 'general', 3.0, 3.0, 6.5, NULL, '2026-06-25', 'https://ku.ac.bd/admission')
+      ('Jahangirnagar University', 'JU', 'general', 3.0, 3.0, 6.5, NULL, '2026-06-10', 'https://admission.juniv.edu')
     `);
   }
 
-  // Insert sample circulars (admin managed)
+  // Insert sample exam dates
+  const examCount = await db.get('SELECT COUNT(*) as c FROM exam_dates');
+  if (examCount.c === 0) {
+    await db.run(`INSERT INTO exam_dates (title, university, exam_date, exam_time, venue) VALUES 
+      ('BUET Admission Test', 'BUET', '2026-05-25', '10:00 AM', 'BUET Campus'),
+      ('DU Ka Unit Exam', 'DU', '2026-05-15', '10:00 AM', 'DU Campus'),
+      ('RUET Admission Test', 'RUET', '2026-05-25', '10:00 AM', 'RUET Campus'),
+      ('Medical Admission Test', 'DGHS', '2026-02-10', '10:00 AM', 'Various Centers')
+    `);
+  }
+
+  // Insert sample circulars
   const circCount = await db.get('SELECT COUNT(*) as c FROM circulars');
   if (circCount.c === 0) {
     await db.run(`INSERT INTO circulars (title, university, description, application_link, application_start, application_deadline, exam_date) VALUES 
-      ('BUET Admission 2026', 'BUET', 'Applications are invited for admission into undergraduate programs in Engineering, Architecture, and Planning', 'https://ugadmission.buet.ac.bd', '2026-03-01', '2026-03-30', '2026-05-25'),
-      ('DU Ka Unit Admission', 'DU', 'Admission circular for Science unit (Ka). Apply online through admission portal', 'https://admission.eis.du.ac.bd', '2026-03-10', '2026-04-05', '2026-05-15'),
-      ('RUET Admission Circular', 'RUET', 'Engineering admission for 2025-26 session. Application fee 1000 BDT', 'https://admission.ruet.ac.bd', '2026-03-05', '2026-04-05', '2026-05-25'),
-      ('Medical Admission Test 2026', 'DGHS', 'Combined medical admission test for MBBS/BDS courses', 'http://dgsh.teletalk.com.bd', '2025-12-01', '2025-12-31', '2026-02-10'),
-      ('CUET Admission 2026', 'CUET', 'Applications for Engineering programs', 'https://cuet.ac.bd/admission', '2026-03-15', '2026-04-15', '2026-05-25')
+      ('BUET Admission 2026', 'BUET', 'Applications for undergraduate programs in Engineering', 'https://ugadmission.buet.ac.bd', '2026-03-01', '2026-03-30', '2026-05-25'),
+      ('DU Ka Unit Admission', 'DU', 'Admission for Science unit (Ka)', 'https://admission.eis.du.ac.bd', '2026-03-10', '2026-04-05', '2026-05-15'),
+      ('RUET Admission Circular', 'RUET', 'Engineering admission for 2025-26 session', 'https://admission.ruet.ac.bd', '2026-03-05', '2026-04-05', '2026-05-25')
     `);
   }
 
@@ -180,7 +329,7 @@ async function initDB() {
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-app.use('/uploads', express.static(uploadsDir));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Auth middleware
 async function auth(req, res, next) {
@@ -202,7 +351,7 @@ async function auth(req, res, next) {
 // ============ AUTH ROUTES ============
 
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password, ssc_gpa, hsc_gpa, biology_gpa } = req.body;
+  const { name, email, password, ssc_gpa, hsc_gpa, biology_gpa, phone } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'All fields required' });
   }
@@ -216,8 +365,8 @@ app.post('/api/auth/register', async (req, res) => {
     
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await db.run(
-      'INSERT INTO users (name, email, password, ssc_gpa, hsc_gpa, biology_gpa) VALUES (?, ?, ?, ?, ?, ?)',
-      [name, email, hashedPassword, ssc_gpa || null, hsc_gpa || null, biology_gpa || null]
+      'INSERT INTO users (name, email, password, ssc_gpa, hsc_gpa, biology_gpa, phone) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, ssc_gpa || null, hsc_gpa || null, biology_gpa || null, phone || null]
     );
     
     const token = jwt.sign({ userId: result.lastID, isAdmin: false }, JWT_SECRET, { expiresIn: '7d' });
@@ -225,9 +374,12 @@ app.post('/api/auth/register', async (req, res) => {
     expiresAt.setDate(expiresAt.getDate() + 7);
     await db.run('INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)', [result.lastID, token, expiresAt.toISOString()]);
     
-    // Welcome notification
+    // Create welcome notification
     await db.run('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)',
       [result.lastID, 'Welcome to Path2Uni!', 'Thank you for joining. Start by checking your eligibility for universities.', 'success']);
+    
+    // Send welcome email
+    await sendEmailNotification(email, name, 'Welcome to Path2Uni!', 'Thank you for registering with Path2Uni. Start your admission journey today by checking your eligibility for universities across Bangladesh.');
     
     res.json({ token, user: { id: result.lastID, name, email, isAdmin: false } });
   } catch(e) {
@@ -247,7 +399,6 @@ app.post('/api/auth/login', async (req, res) => {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
     
-    // Delete old sessions (single session per user)
     await db.run('DELETE FROM sessions WHERE user_id = ?', [user.id]);
     
     const token = jwt.sign({ userId: user.id, isAdmin: user.is_admin === 1 }, JWT_SECRET, { expiresIn: '7d' });
@@ -255,7 +406,6 @@ app.post('/api/auth/login', async (req, res) => {
     expiresAt.setDate(expiresAt.getDate() + 7);
     await db.run('INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)', [user.id, token, expiresAt.toISOString()]);
     
-    // Update last login
     await db.run('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', [user.id]);
     
     res.json({ 
@@ -265,6 +415,7 @@ app.post('/api/auth/login', async (req, res) => {
         name: user.name, 
         email: user.email, 
         avatar: user.avatar,
+        phone: user.phone,
         ssc_gpa: user.ssc_gpa,
         hsc_gpa: user.hsc_gpa,
         isAdmin: user.is_admin === 1 
@@ -283,12 +434,12 @@ app.post('/api/auth/logout', auth, async (req, res) => {
 });
 
 app.get('/api/auth/me', auth, async (req, res) => {
-  const user = await db.get('SELECT id, name, email, ssc_gpa, hsc_gpa, biology_gpa, avatar, is_admin FROM users WHERE id = ?', [req.userId]);
+  const user = await db.get('SELECT id, name, email, ssc_gpa, hsc_gpa, biology_gpa, avatar, phone, is_admin FROM users WHERE id = ?', [req.userId]);
   res.json({ user });
 });
 
 app.put('/api/auth/profile', auth, async (req, res) => {
-  const { name, phone, ssc_gpa, hsc_gpa, biology_gpa, avatar } = req.body;
+  const { name, phone, ssc_gpa, hsc_gpa, biology_gpa, avatar, email_notifications } = req.body;
   const updates = [];
   const values = [];
   
@@ -298,6 +449,7 @@ app.put('/api/auth/profile', auth, async (req, res) => {
   if (hsc_gpa !== undefined) { updates.push('hsc_gpa = ?'); values.push(hsc_gpa); }
   if (biology_gpa !== undefined) { updates.push('biology_gpa = ?'); values.push(biology_gpa); }
   if (avatar !== undefined) { updates.push('avatar = ?'); values.push(avatar); }
+  if (email_notifications !== undefined) { updates.push('email_notifications = ?'); values.push(email_notifications ? 1 : 0); }
   
   if (updates.length === 0) {
     return res.json({ message: 'No updates' });
@@ -308,7 +460,6 @@ app.put('/api/auth/profile', auth, async (req, res) => {
   res.json({ message: 'Profile updated' });
 });
 
-// Avatar upload - save as base64 in database
 app.post('/api/auth/avatar', auth, async (req, res) => {
   const { avatar } = req.body;
   await db.run('UPDATE users SET avatar = ? WHERE id = ?', [avatar, req.userId]);
@@ -323,6 +474,7 @@ app.get('/api/dashboard', auth, async (req, res) => {
     const applications = await db.all('SELECT * FROM applications WHERE user_id = ? ORDER BY created_at DESC', [req.userId]);
     const circulars = await db.all('SELECT * FROM circulars WHERE is_active = 1 AND application_deadline >= date("now") ORDER BY application_deadline ASC');
     const notifications = await db.all('SELECT * FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC LIMIT 10', [req.userId]);
+    const studyTasks = await db.all('SELECT * FROM study_tasks WHERE user_id = ? AND task_date >= date("now", "-7 days") ORDER BY task_date DESC, task_time ASC', [req.userId]);
     
     let eligibleUniversities = [];
     if (user.ssc_gpa && user.hsc_gpa) {
@@ -338,17 +490,24 @@ app.get('/api/dashboard', auth, async (req, res) => {
       eligibleUniversities = await db.all(query, params);
     }
     
-    const nextExam = await db.get('SELECT * FROM circulars WHERE exam_date >= date("now") ORDER BY exam_date LIMIT 1');
+    const nextExam = await db.get('SELECT * FROM exam_dates WHERE exam_date >= date("now") ORDER BY exam_date LIMIT 1');
     
-    // Create automatic deadline notifications
+    // Check deadlines and create notifications
     for (const circ of circulars) {
       const daysLeft = Math.ceil((new Date(circ.application_deadline) - new Date()) / (1000 * 60 * 60 * 24));
       if (daysLeft <= 7 && daysLeft > 0) {
         const existing = await db.get('SELECT id FROM notifications WHERE user_id = ? AND title LIKE ? AND date(created_at) = date("now")', 
           [req.userId, `%${circ.title}%`]);
         if (!existing) {
+          const message = `Application deadline for ${circ.university} is in ${daysLeft} days on ${circ.application_deadline}. Apply now!`;
           await db.run('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)',
-            [req.userId, `⚠️ Deadline Approaching: ${circ.title}`, `Application deadline for ${circ.university} is in ${daysLeft} days on ${circ.application_deadline}. Apply now!`, 'deadline']);
+            [req.userId, `⚠️ Deadline Approaching: ${circ.title}`, message, 'deadline']);
+          
+          // Send email notification if user has email notifications enabled
+          if (user.email_notifications && user.email) {
+            await sendEmailNotification(user.email, user.name, `Deadline Approaching: ${circ.title}`, message);
+            await db.run('UPDATE notifications SET email_sent = 1 WHERE user_id = ? AND title LIKE ?', [req.userId, `%${circ.title}%`]);
+          }
         }
       }
     }
@@ -359,11 +518,256 @@ app.get('/api/dashboard', auth, async (req, res) => {
       circulars: circulars || [],
       notifications: notifications || [],
       eligibleUniversities: eligibleUniversities || [],
-      nextExam
+      nextExam,
+      studyTasks: studyTasks || []
     });
   } catch(e) {
     console.error(e);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ============ STUDY TRACKER ROUTES ============
+
+app.get('/api/study/tasks', auth, async (req, res) => {
+  const { date } = req.query;
+  let query = 'SELECT * FROM study_tasks WHERE user_id = ?';
+  const params = [req.userId];
+  
+  if (date) {
+    query += ' AND task_date = ?';
+    params.push(date);
+  }
+  
+  query += ' ORDER BY task_time ASC';
+  const tasks = await db.all(query, params);
+  res.json({ tasks });
+});
+
+app.post('/api/study/task', auth, async (req, res) => {
+  const { task_title, task_time, task_date } = req.body;
+  if (!task_title) return res.status(400).json({ error: 'Task title required' });
+  
+  const result = await db.run(
+    'INSERT INTO study_tasks (user_id, task_title, task_time, task_date) VALUES (?, ?, ?, ?)',
+    [req.userId, task_title, task_time || null, task_date || new Date().toISOString().split('T')[0]]
+  );
+  
+  res.json({ message: 'Task added', id: result.lastID });
+});
+
+app.put('/api/study/task/:id/toggle', auth, async (req, res) => {
+  const task = await db.get('SELECT is_completed FROM study_tasks WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+  if (!task) return res.status(404).json({ error: 'Task not found' });
+  
+  const newStatus = task.is_completed ? 0 : 1;
+  await db.run('UPDATE study_tasks SET is_completed = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [newStatus, req.params.id]);
+  
+  if (newStatus === 1) {
+    const user = await db.get('SELECT name, email, email_notifications FROM users WHERE id = ?', [req.userId]);
+    await db.run('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)',
+      [req.userId, 'Task Completed!', 'Great job! Keep up the good work on your study plan.', 'success']);
+    
+    if (user.email_notifications && user.email) {
+      await sendEmailNotification(user.email, user.name, 'Study Task Completed!', 'Congratulations on completing your study task! Keep up the great work on your admission preparation.');
+    }
+  }
+  
+  res.json({ message: 'Task updated', completed: newStatus === 1 });
+});
+
+app.delete('/api/study/task/:id', auth, async (req, res) => {
+  await db.run('DELETE FROM study_tasks WHERE id = ? AND user_id = ?', [req.params.id, req.userId]);
+  res.json({ message: 'Task deleted' });
+});
+
+// ============ CALENDAR / EXAM DATES ROUTES ============
+
+app.get('/api/exam-dates', async (req, res) => {
+  const examDates = await db.all('SELECT * FROM exam_dates ORDER BY exam_date ASC');
+  res.json({ examDates });
+});
+
+app.post('/api/admin/exam-date', auth, async (req, res) => {
+  if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
+  
+  const { title, university, exam_date, exam_time, venue, description } = req.body;
+  if (!title || !university || !exam_date) {
+    return res.status(400).json({ error: 'Title, university, and exam date required' });
+  }
+  
+  const result = await db.run(
+    'INSERT INTO exam_dates (title, university, exam_date, exam_time, venue, description, added_by) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [title, university, exam_date, exam_time || null, venue || null, description || null, req.userId]
+  );
+  
+  // Notify all users about new exam date
+  const users = await db.all('SELECT id, name, email, email_notifications FROM users');
+  for (const user of users) {
+    await db.run('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)',
+      [user.id, `📅 New Exam Date Added: ${title}`, `${university} exam will be held on ${exam_date}. Prepare accordingly!`, 'info']);
+    
+    if (user.email_notifications && user.email) {
+      await sendEmailNotification(user.email, user.name, `New Exam Date: ${title}`, `The ${title} for ${university} has been scheduled on ${exam_date} at ${exam_time || 'TBA'}. Good luck with your preparation!`);
+    }
+  }
+  
+  res.json({ message: 'Exam date added', id: result.lastID });
+});
+
+app.delete('/api/admin/exam-date/:id', auth, async (req, res) => {
+  if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
+  await db.run('DELETE FROM exam_dates WHERE id = ?', [req.params.id]);
+  res.json({ message: 'Exam date deleted' });
+});
+
+// ============ CIRCULAR ROUTES ============
+
+app.get('/api/circulars', async (req, res) => {
+  const circulars = await db.all('SELECT * FROM circulars WHERE is_active = 1 ORDER BY application_deadline ASC');
+  res.json({ circulars });
+});
+
+app.post('/api/admin/circulars', auth, upload.single('pdf'), async (req, res) => {
+  if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
+  
+  const { title, university, description, application_link, application_start, application_deadline, exam_date } = req.body;
+  const pdfPath = req.file ? `/uploads/${req.file.filename}` : null;
+  
+  const result = await db.run(
+    `INSERT INTO circulars (title, university, description, application_link, application_start, application_deadline, exam_date, pdf_path, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [title, university, description, application_link, application_start, application_deadline, exam_date, pdfPath, req.userId]
+  );
+  
+  // Notify all users about new circular
+  const users = await db.all('SELECT id, name, email, email_notifications FROM users');
+  for (const user of users) {
+    await db.run('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)',
+      [user.id, `📢 New Circular: ${title}`, `${university} has published admission circular. Deadline: ${application_deadline}`, 'info']);
+    
+    if (user.email_notifications && user.email) {
+      await sendEmailNotification(user.email, user.name, `New Admission Circular: ${title}`, `${university} has published their admission circular. Application deadline is ${application_deadline}. Apply before the deadline!`);
+    }
+  }
+  
+  res.json({ message: 'Circular created', id: result.lastID, pdfPath });
+});
+
+app.delete('/api/admin/circulars/:id', auth, async (req, res) => {
+  if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
+  
+  const circular = await db.get('SELECT pdf_path FROM circulars WHERE id = ?', [req.params.id]);
+  if (circular?.pdf_path) {
+    const filePath = path.join(__dirname, circular.pdf_path);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  }
+  
+  await db.run('DELETE FROM circulars WHERE id = ?', [req.params.id]);
+  res.json({ message: 'Circular deleted' });
+});
+
+// ============ QUESTION BANK ROUTES ============
+
+app.get('/api/question-banks', async (req, res) => {
+  const { university, subject } = req.query;
+  let query = 'SELECT * FROM question_banks WHERE 1=1';
+  const params = [];
+  
+  if (university) {
+    query += ' AND university = ?';
+    params.push(university);
+  }
+  if (subject) {
+    query += ' AND subject = ?';
+    params.push(subject);
+  }
+  
+  query += ' ORDER BY year DESC, created_at DESC';
+  const questions = await db.all(query, params);
+  res.json({ questions });
+});
+
+app.post('/api/admin/question-banks', auth, upload.single('pdf'), async (req, res) => {
+  if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
+  
+  const { title, university, subject, year } = req.body;
+  if (!req.file) return res.status(400).json({ error: 'PDF file required' });
+  
+  const pdfPath = `/uploads/${req.file.filename}`;
+  
+  const result = await db.run(
+    `INSERT INTO question_banks (title, university, subject, year, pdf_path, uploaded_by)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [title, university, subject, year || null, pdfPath, req.userId]
+  );
+  
+  res.json({ message: 'Question bank added', id: result.lastID, pdfPath });
+});
+
+app.delete('/api/admin/question-banks/:id', auth, async (req, res) => {
+  if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
+  
+  const qb = await db.get('SELECT pdf_path FROM question_banks WHERE id = ?', [req.params.id]);
+  if (qb?.pdf_path) {
+    const filePath = path.join(__dirname, qb.pdf_path);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  }
+  
+  await db.run('DELETE FROM question_banks WHERE id = ?', [req.params.id]);
+  res.json({ message: 'Question bank deleted' });
+});
+
+// ============ UNIBUDDY AI CHATBOT WITH GEMINI ============
+
+app.post('/api/chatbuddy', auth, async (req, res) => {
+  const { message } = req.body;
+  
+  try {
+    const user = await db.get('SELECT name, ssc_gpa, hsc_gpa, biology_gpa FROM users WHERE id = ?', [req.userId]);
+    
+    const systemPrompt = `You are UniBuddy, a helpful AI assistant for Bangladeshi students seeking university admissions.
+    
+User Information:
+- Name: ${user?.name || 'Student'}
+- SSC GPA: ${user?.ssc_gpa || 'Not set'}
+- HSC GPA: ${user?.hsc_gpa || 'Not set'}
+- Biology GPA: ${user?.biology_gpa || 'Not set'}
+
+You have knowledge about:
+- BUET, DU, RUET, CUET, KUET, RU, CU, JU universities
+- Medical colleges (DMC, MMC, SHMC)
+- GST Cluster universities
+- Application deadlines and requirements
+- Exam schedules and admit cards
+- Admission eligibility criteria based on GPA
+
+Provide helpful, accurate, and friendly responses. Be specific with GPA requirements. If user's GPA is available, give personalized advice. Keep responses concise but informative.`;
+
+    let reply = '';
+
+    if (geminiAI) {
+      const model = geminiAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const result = await model.generateContent({
+        contents: [
+          { role: 'user', parts: [{ text: systemPrompt }] },
+          { role: 'user', parts: [{ text: message }] }
+        ]
+      });
+      reply = result.response.text();
+    } else {
+      reply = "I'm UniBuddy. I need a Gemini API key to work properly. Please add your GEMINI_API_KEY to the .env file. Get a free key from https://makersuite.google.com/app/apikey";
+    }
+    
+    await db.run(
+      'INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)',
+      [req.userId, message, reply, geminiAI ? 'gemini' : 'none']
+    );
+    
+    res.json({ reply });
+  } catch (error) {
+    console.error('Chat error:', error);
+    res.json({ reply: "I'm having trouble connecting to Gemini AI. Please check your API key or try again later." });
   }
 });
 
@@ -376,8 +780,14 @@ app.post('/api/applications', auth, async (req, res) => {
     [req.userId, university_name, application_date || new Date().toISOString().split('T')[0]]
   );
   
+  const user = await db.get('SELECT name, email, email_notifications FROM users WHERE id = ?', [req.userId]);
+  
   await db.run('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)', 
     [req.userId, 'Application Submitted', `Your application to ${university_name} has been submitted successfully!`, 'success']);
+  
+  if (user.email_notifications && user.email) {
+    await sendEmailNotification(user.email, user.name, 'Application Submitted Successfully', `Your application to ${university_name} has been submitted. We will notify you about any updates.`);
+  }
   
   res.json({ message: 'Applied successfully', id: result.lastID });
 });
@@ -404,96 +814,11 @@ app.put('/api/notifications/read-all', auth, async (req, res) => {
   res.json({ message: 'All notifications marked read' });
 });
 
-// ============ CIRCULAR ROUTES ============
-
-app.get('/api/circulars', async (req, res) => {
-  const circulars = await db.all('SELECT * FROM circulars WHERE is_active = 1 ORDER BY application_deadline ASC');
-  res.json({ circulars });
-});
-
-// Admin: Create circular
-app.post('/api/admin/circulars', auth, async (req, res) => {
-  if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
-  
-  const { title, university, description, application_link, application_start, application_deadline, exam_date } = req.body;
-  const result = await db.run(
-    `INSERT INTO circulars (title, university, description, application_link, application_start, application_deadline, exam_date, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [title, university, description, application_link, application_start, application_deadline, exam_date, req.userId]
-  );
-  res.json({ message: 'Circular created', id: result.lastID });
-});
-
-// Admin: Update circular
-app.put('/api/admin/circulars/:id', auth, async (req, res) => {
-  if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
-  
-  const { title, university, description, application_link, application_start, application_deadline, exam_date, is_active } = req.body;
-  await db.run(
-    `UPDATE circulars SET title = ?, university = ?, description = ?, application_link = ?, application_start = ?, application_deadline = ?, exam_date = ?, is_active = ? WHERE id = ?`,
-    [title, university, description, application_link, application_start, application_deadline, exam_date, is_active, req.params.id]
-  );
-  res.json({ message: 'Circular updated' });
-});
-
-// Admin: Delete circular
-app.delete('/api/admin/circulars/:id', auth, async (req, res) => {
-  if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
-  await db.run('DELETE FROM circulars WHERE id = ?', [req.params.id]);
-  res.json({ message: 'Circular deleted' });
-});
-
 // ============ UNIVERSITIES ROUTES ============
 
 app.get('/api/universities', async (req, res) => {
   const universities = await db.all('SELECT * FROM universities ORDER BY name');
   res.json({ universities });
-});
-
-// ============ CHATBOT ROUTE (UniBuddy) ============
-
-const chatbotKnowledge = {
-  'buet': 'BUET (Bangladesh University of Engineering and Technology) requires SSC GPA ≥ 3.50, HSC GPA ≥ 3.50, and combined GPA ≥ 8.00. Application starts in March, exam in May. Website: https://ugadmission.buet.ac.bd',
-  'du': 'Dhaka University has multiple units. For Science (Ka Unit), you need SSC+HSC combined GPA ≥ 7.5. Application通常在 March-April, exam in May. Website: https://admission.eis.du.ac.bd',
-  'ruet': 'RUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00. Application March-April, exam May. Website: https://admission.ruet.ac.bd',
-  'cuet': 'CUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00. Website: https://cuet.ac.bd/admission',
-  'kuet': 'KUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00. Website: https://admission.kuet.ac.bd',
-  'medical': 'Medical admission requires SSC GPA ≥ 3.50, HSC GPA ≥ 3.50, and Biology GPA ≥ 3.50. Exam通常在 February. Apply through DGHS portal: http://dgsh.teletalk.com.bd',
-  'deadline': 'Current application deadlines: Check the circulars section on dashboard for the most up-to-date deadlines.',
-  'eligibility': 'To check eligibility, go to Eligibility Checker page and enter your SSC and HSC GPA. The system will show all universities you qualify for.',
-  'apply': 'To apply, go to the circulars section and click the Apply button next to the university you want to apply to.',
-  'result': 'Results are typically published 2-3 months after exams. Check the respective university website for updates.',
-  'gpa': 'Combined GPA = SSC GPA + HSC GPA. Most public universities require 7.0-8.5 combined GPA.',
-  'admit': 'Admit cards are usually available 1-2 weeks before the exam on the university admission portal.',
-  'fee': 'Application fees range from 500-1500 BDT depending on the university.',
-  'help': 'I can help you with information about BUET, DU, RUET, CUET, KUET, medical admission, deadlines, eligibility criteria, application process, and more!'
-};
-
-app.post('/api/chatbot', auth, async (req, res) => {
-  const { message } = req.body;
-  const lowerMsg = message.toLowerCase();
-  let reply = "I'm UniBuddy, your admission assistant. I can help you with information about BUET, DU, RUET, CUET, KUET, medical colleges, deadlines, eligibility criteria, and application processes. What would you like to know?";
-  
-  if (lowerMsg.includes('buet')) reply = chatbotKnowledge.buet;
-  else if (lowerMsg.includes('du') || lowerMsg.includes('dhaka university')) reply = chatbotKnowledge.du;
-  else if (lowerMsg.includes('ruet')) reply = chatbotKnowledge.ruet;
-  else if (lowerMsg.includes('cuet')) reply = chatbotKnowledge.cuet;
-  else if (lowerMsg.includes('kuet')) reply = chatbotKnowledge.kuet;
-  else if (lowerMsg.includes('medical') || lowerMsg.includes('mbbs') || lowerMsg.includes('dmc')) reply = chatbotKnowledge.medical;
-  else if (lowerMsg.includes('deadline') || lowerMsg.includes('date')) reply = chatbotKnowledge.deadline;
-  else if (lowerMsg.includes('eligible') || lowerMsg.includes('qualify')) reply = chatbotKnowledge.eligibility;
-  else if (lowerMsg.includes('apply') || lowerMsg.includes('application')) reply = chatbotKnowledge.apply;
-  else if (lowerMsg.includes('result')) reply = chatbotKnowledge.result;
-  else if (lowerMsg.includes('gpa')) reply = chatbotKnowledge.gpa;
-  else if (lowerMsg.includes('admit') || lowerMsg.includes('admit card')) reply = chatbotKnowledge.admit;
-  else if (lowerMsg.includes('fee') || lowerMsg.includes('cost')) reply = chatbotKnowledge.fee;
-  else if (lowerMsg.includes('help') || lowerMsg.includes('what can you do')) reply = chatbotKnowledge.help;
-  else if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) reply = "Hello! I'm UniBuddy. How can I help you with your admission journey today?";
-  
-  // Save conversation
-  await db.run('INSERT INTO chatbot_conversations (user_id, question, answer) VALUES (?, ?, ?)', [req.userId, message, reply]);
-  
-  res.json({ reply });
 });
 
 // ============ ADMIN ROUTES ============
@@ -509,6 +834,7 @@ app.delete('/api/admin/users/:id', auth, async (req, res) => {
   await db.run('DELETE FROM sessions WHERE user_id = ?', [req.params.id]);
   await db.run('DELETE FROM notifications WHERE user_id = ?', [req.params.id]);
   await db.run('DELETE FROM applications WHERE user_id = ?', [req.params.id]);
+  await db.run('DELETE FROM study_tasks WHERE user_id = ?', [req.params.id]);
   await db.run('DELETE FROM users WHERE id = ?', [req.params.id]);
   res.json({ message: 'User deleted' });
 });
@@ -518,7 +844,9 @@ app.get('/api/admin/stats', auth, async (req, res) => {
   const userCount = await db.get('SELECT COUNT(*) as count FROM users');
   const appCount = await db.get('SELECT COUNT(*) as count FROM applications');
   const circCount = await db.get('SELECT COUNT(*) as count FROM circulars');
-  res.json({ users: userCount.count, applications: appCount.count, circulars: circCount.count });
+  const qbCount = await db.get('SELECT COUNT(*) as count FROM question_banks');
+  const taskCount = await db.get('SELECT COUNT(*) as count FROM study_tasks');
+  res.json({ users: userCount.count, applications: appCount.count, circulars: circCount.count, questionBanks: qbCount.count, studyTasks: taskCount.count });
 });
 
 // Health check
@@ -531,5 +859,7 @@ initDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`👑 Admin login: admin@path2uni.com / admin123`);
+    console.log(`🤖 Gemini AI: ${geminiAI ? 'Enabled' : 'Disabled - Add GEMINI_API_KEY'}`);
+    console.log(`📧 Email Notifications: ${transporter ? 'Enabled' : 'Disabled'}`);
   });
 });
