@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Tracker | Path2Uni</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #05050f, #0a0a1a, #0d0d22);
+    min-height: 100vh;
+    color: white;
+  }
+  .bg-mesh { position: fixed; inset: 0; background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.08) 0%, transparent 50%); pointer-events: none; }
+  .page-wrap { position: relative; max-width: 900px; margin: 0 auto; padding: 1.5rem; z-index: 1; }
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 50px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(120deg, #fff, #a0a0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .nav-link {
+    padding: 0.5rem 1rem;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+    border-radius: 30px;
+  }
+  .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
+  .glass-card {
+    background: rgba(10,10,26,0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 1.5rem;
+  }
+  .date-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .date-nav button {
+    background: rgba(59,130,246,0.2);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+  }
+  .current-date { font-size: 18px; font-weight: 600; }
+  .add-task-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .add-task-form input, .add-task-form select {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: white;
+  }
+  button {
+    background: linear-gradient(135deg, #3b82f6, #7c3aed);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+  }
+  .task-list { margin-top: 1rem; }
+  .task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+  }
+  .task-item:hover { background: rgba(255,255,255,0.06); }
+  .task-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    cursor: pointer;
+    accent-color: #4ade80;
+  }
+  .task-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .task-title {
+    font-weight: 500;
+    font-size: 14px;
+  }
+  .task-title.completed {
+    text-decoration: line-through;
+    color: rgba(255,255,255,0.4);
+  }
+  .task-time {
+    font-size: 11px;
+    color: #fcd34d;
+    margin-top: 2px;
+  }
+  .delete-task {
+    background: none;
+    border: none;
+    color: #f87171;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 8px;
+    width: auto;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .stat-box {
+    text-align: center;
+    padding: 0.75rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+  }
+  .stat-number { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #fff, #a0a0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  @media (max-width: 700px) { .add-task-form { flex-direction: column; } }
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="page-wrap">
+  <nav class="navbar">
+    <div class="logo">Path2Uni</div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="eligibility.html" class="nav-link">Eligibility Checker</a>
+      <a href="admission-calendar.html" class="nav-link">Admission Calendar</a>
+      <a href="study-tracker.html" class="nav-link">Study Tracker</a>
+      <a href="circular-archive.html" class="nav-link">Circular Archive</a>
+      <a href="question-banks.html" class="nav-link">Question Banks</a>
+      <a href="application-status.html" class="nav-link">Application Status</a>
+      <a href="#" class="nav-link logout-btn" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <div class="glass-card">
+    <div class="date-selector">
+      <div class="date-nav">
+        <button onclick="changeDate(-1)">◀ Previous Day</button>
+        <button onclick="changeDate(1)">Next Day ▶</button>
+      </div>
+      <div class="current-date" id="currentDateDisplay"></div>
+      <button onclick="goToToday()">Today</button>
+    </div>
+
+    <div class="add-task-form">
+      <input type="text" id="taskTitle" placeholder="Study task (e.g., Physics Chapter 5)" style="flex:2;">
+      <select id="taskTime" style="width: 120px;">
+        <option value="09:00 AM">09:00 AM</option><option value="10:00 AM">10:00 AM</option>
+        <option value="11:00 AM">11:00 AM</option><option value="12:00 PM">12:00 PM</option>
+        <option value="01:00 PM">01:00 PM</option><option value="02:00 PM">02:00 PM</option>
+        <option value="03:00 PM">03:00 PM</option><option value="04:00 PM">04:00 PM</option>
+        <option value="05:00 PM">05:00 PM</option><option value="06:00 PM">06:00 PM</option>
+        <option value="07:00 PM">07:00 PM</option><option value="08:00 PM">08:00 PM</option>
+        <option value="09:00 PM">09:00 PM</option>
+      </select>
+      <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <div id="taskList" class="task-list"><div class="loading">Loading tasks...</div></div>
+
+    <div class="stats">
+      <div class="stat-box"><div class="stat-number" id="totalTasks">0</div><div class="stat-label">Total Tasks</div></div>
+      <div class="stat-box"><div class="stat-number" id="completedTasks">0</div><div class="stat-label">Completed</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://path2uni-236v.onrender.com/api';
+let authToken = localStorage.getItem('path2uni_token');
+let currentTasks = [];
+let selectedDate = new Date();
+
+function formatDate(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function updateDateDisplay() {
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('currentDateDisplay').textContent = selectedDate.toLocaleDateString('en-US', options);
+}
+
+async function loadTasks() {
+  const dateStr = formatDate(selectedDate);
+  const response = await apiCall(`/study/tasks?date=${dateStr}`);
+  const data = await response.json();
+  currentTasks = data.tasks || [];
+  renderTasks();
+}
+
+function renderTasks() {
+  const container = document.getElementById('taskList');
+  if (currentTasks.length === 0) {
+    container.innerHTML = '<div class="loading">No study tasks for this day. Add a task to start!</div>';
+  } else {
+    container.innerHTML = currentTasks.map(task => `
+      <div class="task-item">
+        <input type="checkbox" class="task-checkbox" ${task.is_completed ? 'checked' : ''} onchange="toggleTask(${task.id}, this.checked)">
+        <div class="task-content">
+          <div class="task-title ${task.is_completed ? 'completed' : ''}">${escapeHtml(task.task_title)}</div>
+          ${task.task_time ? `<div class="task-time">⏰ ${task.task_time}</div>` : ''}
+        </div>
+        <button class="delete-task" onclick="deleteTask(${task.id})">🗑️</button>
+      </div>
+    `).join('');
+  }
+  
+  const total = currentTasks.length;
+  const completed = currentTasks.filter(t => t.is_completed).length;
+  document.getElementById('totalTasks').textContent = total;
+  document.getElementById('completedTasks').textContent = completed;
+}
+
+async function addTask() {
+  const title = document.getElementById('taskTitle').value.trim();
+  const time = document.getElementById('taskTime').value;
+  if (!title) { alert('Please enter a task'); return; }
+  
+  const response = await apiCall('/study/task', {
+    method: 'POST',
+    body: JSON.stringify({ task_title: title, task_time: time, task_date: formatDate(selectedDate) })
+  });
+  
+  if (response.ok) {
+    document.getElementById('taskTitle').value = '';
+    loadTasks();
+  } else { alert('Failed to add task'); }
+}
+
+async function toggleTask(id, completed) {
+  await apiCall(`/study/task/${id}/toggle`, { method: 'PUT' });
+  loadTasks();
+}
+
+async function deleteTask(id) {
+  if (confirm('Delete this task?')) {
+    await apiCall(`/study/task/${id}`, { method: 'DELETE' });
+    loadTasks();
+  }
+}
+
+function changeDate(delta) {
+  selectedDate.setDate(selectedDate.getDate() + delta);
+  updateDateDisplay();
+  loadTasks();
+}
+
+function goToToday() {
+  selectedDate = new Date();
+  updateDateDisplay();
+  loadTasks();
+}
+
+async function apiCall(endpoint, options = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+  const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+  if (response.status === 401) { localStorage.removeItem('path2uni_token'); window.location.href = 'index.html'; }
+  return response;
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+async function logout() {
+  await apiCall('/auth/logout', { method: 'POST' });
+  localStorage.removeItem('path2uni_token');
+  window.location.href = 'index.html';
+}
+
+if (!authToken) { window.location.href = 'index.html'; } else { updateDateDisplay(); loadTasks(); }
+</script>
+</body>
+</html>
