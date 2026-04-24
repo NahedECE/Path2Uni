@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eligibility Checker | Path2Uni</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #05050f, #0a0a1a, #0d0d22);
+    min-height: 100vh;
+    color: white;
+  }
+  .bg-mesh { position: fixed; inset: 0; background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.08) 0%, transparent 50%); pointer-events: none; }
+  .page-wrap { position: relative; max-width: 800px; margin: 0 auto; padding: 1.5rem; z-index: 1; }
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 50px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(120deg, #fff, #a0a0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .nav-link {
+    padding: 0.5rem 1rem;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+    border-radius: 30px;
+  }
+  .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
+  .glass-card {
+    background: rgba(10,10,26,0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 1.5rem;
+  }
+  .field { margin-bottom: 1rem; }
+  .field label { font-size: 12px; color: rgba(255,255,255,0.6); display: block; margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: white;
+  }
+  button {
+    background: linear-gradient(135deg, #3b82f6, #7c3aed);
+    border: none;
+    padding: 12px;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+  }
+  .result {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(34,197,94,0.1);
+    border-radius: 16px;
+    display: none;
+  }
+  .uni-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="page-wrap">
+  <nav class="navbar">
+    <div class="logo">Path2Uni</div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="eligibility.html" class="nav-link">Eligibility Checker</a>
+      <a href="admission-calendar.html" class="nav-link">Admission Calendar</a>
+      <a href="study-tracker.html" class="nav-link">Study Tracker</a>
+      <a href="circular-archive.html" class="nav-link">Circular Archive</a>
+      <a href="question-banks.html" class="nav-link">Question Banks</a>
+      <a href="application-status.html" class="nav-link">Application Status</a>
+      <a href="#" class="nav-link logout-btn" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <div class="glass-card">
+    <h2 style="margin-bottom: 1rem;">🎓 Eligibility Checker</h2>
+    <p class="circular-deadline" style="margin-bottom: 1rem;">Enter your GPA to see which universities you qualify for</p>
+    
+    <div class="field">
+      <label>SSC GPA (out of 5.00)</label>
+      <input type="number" id="sscGpa" step="0.01" min="1" max="5" placeholder="e.g., 5.00">
+    </div>
+    <div class="field">
+      <label>HSC GPA (out of 5.00)</label>
+      <input type="number" id="hscGpa" step="0.01" min="1" max="5" placeholder="e.g., 5.00">
+    </div>
+    <div class="field">
+      <label>Biology GPA (for Medical - optional)</label>
+      <input type="number" id="bioGpa" step="0.01" min="0" max="5" placeholder="e.g., 4.50">
+    </div>
+    
+    <button onclick="checkEligibility()">Check Eligibility</button>
+    
+    <div id="result" class="result"></div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://path2uni-236v.onrender.com/api';
+let authToken = localStorage.getItem('path2uni_token');
+
+async function apiCall(endpoint, options = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+  const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+  return response;
+}
+
+async function checkEligibility() {
+  const ssc = parseFloat(document.getElementById('sscGpa').value);
+  const hsc = parseFloat(document.getElementById('hscGpa').value);
+  const bio = parseFloat(document.getElementById('bioGpa').value);
+  
+  if (isNaN(ssc) || isNaN(hsc)) { alert('Please enter both SSC and HSC GPA'); return; }
+  
+  const resultDiv = document.getElementById('result');
+  resultDiv.style.display = 'block';
+  resultDiv.innerHTML = '<div class="loading">Checking eligibility...</div>';
+  
+  try {
+    // Save GPA to profile
+    await apiCall('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify({ ssc_gpa: ssc, hsc_gpa: hsc, biology_gpa: bio })
+    });
+    
+    // Get dashboard to see eligible universities
+    const response = await apiCall('/dashboard');
+    const data = await response.json();
+    
+    if (data.eligibleUniversities && data.eligibleUniversities.length > 0) {
+      resultDiv.innerHTML = `
+        <strong>✅ You are eligible for ${data.eligibleUniversities.length} universities!</strong><br><br>
+        ${data.eligibleUniversities.map(u => `<div class="uni-result"><span>${u.name}</span><span class="eligibility-badge">Eligible</span></div>`).join('')}
+      `;
+      resultDiv.style.background = 'rgba(34,197,94,0.1)';
+    } else {
+      resultDiv.innerHTML = '❌ No universities found with your current GPA. Try improving your grades.';
+      resultDiv.style.background = 'rgba(239,68,68,0.1)';
+    }
+  } catch(e) {
+    resultDiv.innerHTML = 'Error checking eligibility';
+  }
+}
+
+async function logout() {
+  await apiCall('/auth/logout', { method: 'POST' });
+  localStorage.removeItem('path2uni_token');
+  window.location.href = 'index.html';
+}
+
+if (!authToken) { window.location.href = 'index.html'; }
+</script>
+</body>
+</html>
