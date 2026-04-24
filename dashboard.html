@@ -32,7 +32,6 @@
     z-index: 1;
   }
   
-  /* Navbar */
   .navbar {
     display: flex;
     justify-content: space-between;
@@ -44,7 +43,7 @@
     border-radius: 50px;
     margin-bottom: 2rem;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.5rem;
   }
   
   .logo {
@@ -79,84 +78,14 @@
     background: rgba(255,255,255,0.05);
   }
   
-  .logout-btn:hover {
-    color: #f87171;
-  }
+  .logout-btn:hover { color: #f87171; }
   
-  /* Notification Bell */
-  .notification-bell {
-    position: relative;
-    cursor: pointer;
-  }
-  
-  .notification-badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #ef4444;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    min-width: 18px;
-    text-align: center;
-  }
-  
-  .notification-dropdown {
-    position: absolute;
-    top: 40px;
-    right: 0;
-    width: 350px;
-    background: rgba(10,10,26,0.95);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    display: none;
-    z-index: 100;
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  
-  .notification-dropdown.show {
-    display: block;
-  }
-  
-  .notification-item {
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  
-  .notification-item:hover {
-    background: rgba(255,255,255,0.05);
-  }
-  
-  .notification-title {
-    font-size: 13px;
-    font-weight: 600;
-  }
-  
-  .notification-message {
-    font-size: 11px;
-    color: rgba(255,255,255,0.6);
-    margin-top: 4px;
-  }
-  
-  .notification-time {
-    font-size: 9px;
-    color: rgba(255,255,255,0.3);
-    margin-top: 4px;
-  }
-  
-  /* Dashboard Grid */
   .dashboard-grid {
     display: grid;
     grid-template-columns: 320px 1fr;
     gap: 1.5rem;
   }
   
-  /* Glass Card */
   .glass-card {
     background: rgba(10, 10, 26, 0.6);
     backdrop-filter: blur(12px);
@@ -166,11 +95,8 @@
     transition: all 0.3s;
   }
   
-  .glass-card:hover {
-    border-color: rgba(255,255,255,0.15);
-  }
+  .glass-card:hover { border-color: rgba(255,255,255,0.15); }
   
-  /* Profile Sidebar */
   .profile-avatar {
     width: 100px;
     height: 100px;
@@ -185,32 +111,13 @@
     cursor: pointer;
     border: 2px solid rgba(255,255,255,0.2);
     overflow: hidden;
-    transition: all 0.3s;
   }
   
-  .profile-avatar:hover {
-    border-color: #3b82f6;
-  }
+  .profile-avatar:hover { border-color: #3b82f6; }
+  .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
   
-  .profile-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .user-name {
-    text-align: center;
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-  }
-  
-  .user-email {
-    text-align: center;
-    font-size: 12px;
-    color: rgba(255,255,255,0.5);
-    margin-bottom: 1.5rem;
-  }
+  .user-name { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 0.25rem; }
+  .user-email { text-align: center; font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 1.5rem; }
   
   .stat-cards {
     display: grid;
@@ -224,11 +131,6 @@
     padding: 0.75rem;
     background: rgba(255,255,255,0.03);
     border-radius: 16px;
-    transition: all 0.3s;
-  }
-  
-  .stat-item:hover {
-    background: rgba(255,255,255,0.06);
   }
   
   .stat-number {
@@ -239,11 +141,7 @@
     -webkit-text-fill-color: transparent;
   }
   
-  .stat-label {
-    font-size: 10px;
-    color: rgba(255,255,255,0.5);
-    margin-top: 4px;
-  }
+  .stat-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 4px; }
   
   button {
     background: linear-gradient(135deg, #3b82f6, #7c3aed);
@@ -257,90 +155,8 @@
     width: 100%;
   }
   
-  button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px -10px rgba(59,130,246,0.5);
-  }
-  
-  .btn-small {
-    width: auto;
-    padding: 6px 16px;
-    font-size: 11px;
-    background: rgba(59,130,246,0.2);
-    border: 1px solid rgba(59,130,246,0.3);
-  }
-  
-  /* Countdown */
-  .countdown-timer {
-    text-align: center;
-    margin-bottom: 1.5rem;
-  }
-  
-  .countdown-numbers {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin: 1rem 0;
-  }
-  
-  .countdown-block {
-    text-align: center;
-  }
-  
-  .countdown-value {
-    font-size: 32px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #fff, #a0a0ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
-  .countdown-label {
-    font-size: 10px;
-    color: rgba(255,255,255,0.5);
-  }
-  
-  /* Circular & University Items */
-  .circular-item, .uni-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    transition: background 0.2s;
-  }
-  
-  .circular-item:hover, .uni-item:hover {
-    background: rgba(255,255,255,0.03);
-  }
-  
-  .circular-item:last-child, .uni-item:last-child {
-    border-bottom: none;
-  }
-  
-  .circular-title {
-    font-weight: 600;
-    font-size: 14px;
-  }
-  
-  .circular-deadline {
-    font-size: 11px;
-    color: #fcd34d;
-  }
-  
-  .circular-university {
-    font-size: 10px;
-    color: #60a5fa;
-    margin-top: 2px;
-  }
-  
-  .eligibility-badge {
-    padding: 4px 12px;
-    background: rgba(34,197,94,0.2);
-    border-radius: 20px;
-    font-size: 11px;
-    color: #4ade80;
-  }
+  button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(59,130,246,0.5); }
+  .btn-small { width: auto; padding: 6px 16px; font-size: 11px; background: rgba(59,130,246,0.2); }
   
   .search-input {
     width: 100%;
@@ -350,192 +166,30 @@
     border-radius: 30px;
     color: white;
     margin-bottom: 1rem;
-    font-size: 14px;
   }
   
-  .search-input:focus {
-    outline: none;
-    border-color: rgba(59,130,246,0.5);
-  }
+  .search-input:focus { outline: none; border-color: rgba(59,130,246,0.5); }
   
-  .loading {
-    text-align: center;
-    padding: 2rem;
-    color: rgba(255,255,255,0.5);
-  }
-  
-  .section-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 1rem;
+  .circular-item, .uni-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
   }
   
-  /* Chatbot */
-  .chatbot-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-  }
+  .circular-title { font-weight: 600; font-size: 14px; }
+  .circular-deadline { font-size: 11px; color: #fcd34d; }
+  .eligibility-badge { padding: 4px 12px; background: rgba(34,197,94,0.2); border-radius: 20px; font-size: 11px; color: #4ade80; }
   
-  .chatbot-button {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
-    border-radius: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    transition: all 0.3s;
-  }
-  
-  .chatbot-button:hover {
-    transform: scale(1.05);
-  }
-  
-  .chatbot-window {
-    position: absolute;
-    bottom: 70px;
-    right: 0;
-    width: 380px;
-    height: 500px;
-    background: rgba(10, 10, 26, 0.95);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  }
-  
-  .chatbot-window.open {
-    display: flex;
-  }
-  
-  .chatbot-header {
-    padding: 15px;
-    background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .chatbot-header h3 {
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .chatbot-close {
-    cursor: pointer;
-    font-size: 24px;
-    line-height: 1;
-    opacity: 0.7;
-  }
-  
-  .chatbot-close:hover {
-    opacity: 1;
-  }
-  
-  .chatbot-messages {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 15px;
-  }
-  
-  .message {
-    margin-bottom: 12px;
-    display: flex;
-  }
-  
-  .message.user {
-    justify-content: flex-end;
-  }
-  
-  .message-content {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: 18px;
-    font-size: 13px;
-    line-height: 1.4;
-  }
-  
-  .message.bot .message-content {
-    background: rgba(255,255,255,0.1);
-    border-radius: 18px 18px 18px 5px;
-  }
-  
-  .message.user .message-content {
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
-    border-radius: 18px 18px 5px 18px;
-  }
-  
-  .chatbot-input {
-    padding: 15px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    gap: 10px;
-  }
-  
-  .chatbot-input input {
-    flex-grow: 1;
-    padding: 10px 15px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 25px;
-    color: white;
-    font-size: 13px;
-  }
-  
-  .chatbot-input input:focus {
-    outline: none;
-    border-color: rgba(59,130,246,0.5);
-  }
-  
-  .chatbot-input button {
-    width: auto;
-    padding: 10px 20px;
-    font-size: 12px;
-  }
-  
-  .typing-indicator {
-    display: flex;
-    gap: 4px;
-    padding: 10px 14px;
-  }
-  
-  .typing-indicator span {
-    width: 8px;
-    height: 8px;
-    background: rgba(255,255,255,0.5);
-    border-radius: 50%;
-    animation: typing 1.4s infinite;
-  }
-  
-  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-  
-  @keyframes typing {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-    30% { transform: translateY(-10px); opacity: 1; }
-  }
+  .loading { text-align: center; padding: 2rem; color: rgba(255,255,255,0.5); }
+  .section-title { font-size: 14px; font-weight: 600; margin-bottom: 1rem; display: flex; justify-content: space-between; }
   
   @media (max-width: 900px) {
     .dashboard-grid { grid-template-columns: 1fr; }
     .page-wrap { padding: 1rem; }
-    .navbar { flex-direction: column; border-radius: 24px; }
+    .navbar { flex-direction: column; }
     .nav-links { justify-content: center; }
-    .countdown-numbers { gap: 0.8rem; }
-    .countdown-value { font-size: 24px; }
-    .chatbot-window { width: 320px; right: -20px; }
   }
 </style>
 </head>
@@ -548,20 +202,17 @@
     <div class="nav-links">
       <a href="dashboard.html" class="nav-link">Dashboard</a>
       <a href="eligibility.html" class="nav-link">Eligibility Checker</a>
-      <a href="calendar.html" class="nav-link">Admission Calendar</a>
-      <a href="#" class="nav-link notification-bell" onclick="toggleNotifications(event)">
-        🔔
-        <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
-        <div id="notificationDropdown" class="notification-dropdown">
-          <div class="loading">Loading...</div>
-        </div>
-      </a>
+      <a href="admission-calendar.html" class="nav-link">Admission Calendar</a>
+      <a href="study-tracker.html" class="nav-link">Study Tracker</a>
+      <a href="circular-archive.html" class="nav-link">Circular Archive</a>
+      <a href="question-banks.html" class="nav-link">Question Banks</a>
+      <a href="application-status.html" class="nav-link">Application Status</a>
+      <a href="admin-dashboard.html" class="nav-link" id="adminLink" style="display:none;">Admin Panel</a>
       <a href="#" class="nav-link logout-btn" onclick="logout()">Logout</a>
     </div>
   </nav>
 
   <div class="dashboard-grid">
-    <!-- Left Sidebar -->
     <div class="glass-card">
       <div class="profile-avatar" id="avatarContainer" onclick="document.getElementById('avatarInput').click()">
         <div id="avatarPreview">👤</div>
@@ -571,114 +222,59 @@
       <p class="user-email" id="userEmail">student@path2uni.com</p>
       
       <div class="stat-cards">
-        <div class="stat-item">
-          <div class="stat-number" id="eligibleCount">0</div>
-          <div class="stat-label">Eligible</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number" id="appliedCount">0</div>
-          <div class="stat-label">Applied</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number" id="notifCount">0</div>
-          <div class="stat-label">Notifications</div>
-        </div>
+        <div class="stat-item"><div class="stat-number" id="eligibleCount">0</div><div class="stat-label">Eligible</div></div>
+        <div class="stat-item"><div class="stat-number" id="appliedCount">0</div><div class="stat-label">Applied</div></div>
+        <div class="stat-item"><div class="stat-number" id="taskCount">0</div><div class="stat-label">Tasks Today</div></div>
       </div>
       
-      <button onclick="window.location.href='eligibility.html'" style="margin-top: 1rem;">Update Eligibility</button>
+      <button onclick="window.location.href='eligibility.html'">Update Eligibility</button>
     </div>
 
-    <!-- Right Content -->
     <div>
-      <!-- Search -->
-      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search universities by name (BUET, DU, RUET, Medical...)..." onkeyup="searchUniversities()">
+      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search universities..." onkeyup="searchUniversities()">
 
-      <!-- Countdown -->
-      <div class="glass-card countdown-timer">
+      <div class="glass-card" style="margin-bottom: 1.5rem;">
         <div class="section-title" style="justify-content: center;">📅 Next Exam Countdown</div>
-        <div class="countdown-numbers">
-          <div class="countdown-block"><div class="countdown-value" id="days">0</div><div class="countdown-label">Days</div></div>
-          <div class="countdown-block"><div class="countdown-value" id="hours">0</div><div class="countdown-label">Hours</div></div>
-          <div class="countdown-block"><div class="countdown-value" id="minutes">0</div><div class="countdown-label">Minutes</div></div>
-          <div class="countdown-block"><div class="countdown-value" id="seconds">0</div><div class="countdown-label">Seconds</div></div>
+        <div style="display: flex; justify-content: center; gap: 1.5rem; margin: 1rem 0;">
+          <div><div class="stat-number" id="days">0</div><div class="stat-label">Days</div></div>
+          <div><div class="stat-number" id="hours">0</div><div class="stat-label">Hours</div></div>
+          <div><div class="stat-number" id="minutes">0</div><div class="stat-label">Minutes</div></div>
+          <div><div class="stat-number" id="seconds">0</div><div class="stat-label">Seconds</div></div>
         </div>
-        <div class="circular-deadline" id="nextExamName"></div>
+        <div class="circular-deadline" id="nextExamName" style="text-align: center;"></div>
       </div>
 
-      <!-- Live Circulars -->
       <div class="glass-card">
-        <div class="section-title">
-          <span>📢 Live Circulars</span>
-          <span id="circularCount" class="circular-deadline">0 active</span>
-        </div>
-        <div id="circularsList">
-          <div class="loading">Loading circulars...</div>
-        </div>
+        <div class="section-title"><span>📢 Live Circulars</span><span id="circularCount" class="circular-deadline">0 active</span></div>
+        <div id="circularsList"><div class="loading">Loading circulars...</div></div>
       </div>
 
-      <!-- Eligible Universities -->
       <div class="glass-card" style="margin-top: 1rem;">
-        <div class="section-title">
-          <span>🎓 Eligible Universities</span>
-          <span id="uniCount" class="circular-deadline">0 found</span>
-        </div>
-        <div id="universitiesList">
-          <div class="loading">Loading eligible universities...</div>
-        </div>
+        <div class="section-title"><span>🎓 Eligible Universities</span><span id="uniCount" class="circular-deadline">0 found</span></div>
+        <div id="universitiesList"><div class="loading">Loading eligible universities...</div></div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- UniBuddy AI Chatbot -->
-<div class="chatbot-container">
-  <div class="chatbot-button" onclick="toggleChatbot()">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      <path d="M8 10h.01M12 10h.01M16 10h.01"/>
-    </svg>
-  </div>
-  <div class="chatbot-window" id="chatbotWindow">
-    <div class="chatbot-header">
-      <h3>🤖 UniBuddy</h3>
-      <span class="chatbot-close" onclick="toggleChatbot()">×</span>
-    </div>
-    <div class="chatbot-messages" id="chatMessages">
-      <div class="message bot">
-        <div class="message-content">👋 Hi! I'm UniBuddy, your AI admission assistant. Ask me anything about:<br><br>• University admission requirements<br>• Application deadlines<br>• Exam schedules<br>• Eligibility criteria (BUET, DU, RUET, Medical)<br>• And more!</div>
-      </div>
-    </div>
-    <div class="chatbot-input">
-      <input type="text" id="chatInput" placeholder="Type your question..." onkeypress="if(event.key==='Enter') sendMessage()">
-      <button onclick="sendMessage()">Send</button>
     </div>
   </div>
 </div>
 
 <script>
-const API_URL = 'https://path2uni-236v.onrender.com/api';
+const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://path2uni-236v.onrender.com/api';
 let authToken = localStorage.getItem('path2uni_token');
 let currentUser = null;
 let allUniversities = [];
-let allCirculars = [];
 let countdownInterval;
 
-// ==================== API HELPER ====================
 async function apiCall(endpoint, options = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-  
   const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
   if (response.status === 401) {
     localStorage.removeItem('path2uni_token');
-    localStorage.removeItem('path2uni_user');
     window.location.href = 'index.html';
-    throw new Error('Unauthorized');
   }
   return response;
 }
 
-// ==================== LOAD DASHBOARD ====================
 async function loadDashboard() {
   try {
     const response = await apiCall('/dashboard');
@@ -686,266 +282,90 @@ async function loadDashboard() {
     
     if (response.ok) {
       currentUser = data.user;
-      
-      // Update user info
       document.getElementById('userName').textContent = data.user?.name || 'Student';
       document.getElementById('userEmail').textContent = data.user?.email || '';
       
-      // Load avatar from database
       if (data.user?.avatar) {
-        document.getElementById('avatarPreview').innerHTML = `<img src="${data.user.avatar}" style="width:100%; height:100%; object-fit:cover;">`;
+        document.getElementById('avatarPreview').innerHTML = `<img src="${data.user.avatar}">`;
       } else {
-        const initial = (data.user?.name?.charAt(0) || 'S').toUpperCase();
-        document.getElementById('avatarPreview').innerHTML = initial;
+        document.getElementById('avatarPreview').innerHTML = (data.user?.name?.charAt(0) || 'S').toUpperCase();
       }
       
-      // Update stats
-      const eligibleCount = data.eligibleUniversities?.length || 0;
-      document.getElementById('eligibleCount').textContent = eligibleCount;
-      document.getElementById('uniCount').textContent = `${eligibleCount} found`;
+      document.getElementById('eligibleCount').textContent = data.eligibleUniversities?.length || 0;
+      document.getElementById('uniCount').textContent = `${data.eligibleUniversities?.length || 0} found`;
       document.getElementById('appliedCount').textContent = data.applications?.length || 0;
-      document.getElementById('notifCount').textContent = data.notifications?.length || 0;
+      document.getElementById('taskCount').textContent = data.studyTasks?.length || 0;
       
-      // Update notification badge
-      const notifCount = data.notifications?.length || 0;
-      const badge = document.getElementById('notificationBadge');
-      if (notifCount > 0) {
-        badge.textContent = notifCount;
-        badge.style.display = 'block';
-      } else {
-        badge.style.display = 'none';
-      }
-      
-      // Store data
       allUniversities = data.eligibleUniversities || [];
-      allCirculars = data.circulars || [];
-      
-      // Display
-      displayCirculars(allCirculars);
       displayUniversities(allUniversities);
-      document.getElementById('circularCount').textContent = `${allCirculars.length} active`;
+      displayCirculars(data.circulars || []);
+      document.getElementById('circularCount').textContent = `${data.circulars?.length || 0} active`;
       
-      // Load notifications dropdown
-      loadNotificationsDropdown(data.notifications || []);
+      if (data.nextExam) startCountdown(data.nextExam.exam_date, data.nextExam.university);
       
-      // Start countdown
-      if (data.nextExam) {
-        startCountdown(data.nextExam.exam_date, data.nextExam.university);
+      // Show admin link if user is admin
+      if (data.user?.isAdmin) {
+        document.getElementById('adminLink').style.display = 'inline-block';
       }
     }
-  } catch (error) {
-    console.error('Load error:', error);
-  }
+  } catch(e) { console.error(e); }
 }
 
-// ==================== DISPLAY FUNCTIONS ====================
 function displayCirculars(circulars) {
   const container = document.getElementById('circularsList');
-  if (!circulars.length) {
-    container.innerHTML = '<div class="loading">No active circulars</div>';
-    return;
-  }
-  
+  if (!circulars.length) { container.innerHTML = '<div class="loading">No active circulars</div>'; return; }
   container.innerHTML = circulars.map(c => `
     <div class="circular-item">
-      <div>
-        <div class="circular-title">${c.title}</div>
-        <div class="circular-university">🏛️ ${c.university}</div>
-        <div class="circular-deadline">📅 Deadline: ${c.application_deadline}</div>
-        ${c.description ? `<div class="hint" style="font-size: 10px; margin-top: 4px;">${c.description.substring(0, 80)}...</div>` : ''}
-      </div>
-      <button class="btn-small" onclick="window.open('${c.application_link || '#'}', '_blank')">Apply Now →</button>
+      <div><div class="circular-title">${c.title}</div><div class="circular-deadline">🏛️ ${c.university} • Deadline: ${c.application_deadline}</div></div>
+      <button class="btn-small" onclick="window.open('${c.application_link || '#'}', '_blank')">Apply →</button>
     </div>
   `).join('');
 }
 
-function displayUniversities(universities) {
+function displayUniversities(unis) {
   const container = document.getElementById('universitiesList');
-  if (!universities.length) {
-    container.innerHTML = '<div class="loading">No eligible universities. Update your GPA in Eligibility Checker</div>';
-    return;
-  }
-  
-  container.innerHTML = universities.map(uni => `
-    <div class="uni-item">
-      <div>
-        <strong>${uni.name}</strong>
-        <div class="circular-deadline">📅 Exam: ${uni.exam_date || 'TBA'}</div>
-        <div class="hint" style="font-size: 10px;">Min Required: SSC ${uni.min_ssc_gpa}+, HSC ${uni.min_hsc_gpa}+</div>
-      </div>
-      <span class="eligibility-badge">Eligible ✓</span>
-    </div>
+  if (!unis.length) { container.innerHTML = '<div class="loading">Update your GPA in Eligibility Checker</div>'; return; }
+  container.innerHTML = unis.map(u => `
+    <div class="uni-item"><div><strong>${u.name}</strong><div class="circular-deadline">📅 Exam: ${u.exam_date || 'TBA'}</div></div><span class="eligibility-badge">Eligible</span></div>
   `).join('');
 }
 
 function searchUniversities() {
   const term = document.getElementById('searchInput').value.toLowerCase();
-  const filtered = allUniversities.filter(uni => uni.name.toLowerCase().includes(term));
-  displayUniversities(filtered);
-  document.getElementById('uniCount').textContent = `${filtered.length} found`;
+  displayUniversities(allUniversities.filter(u => u.name.toLowerCase().includes(term)));
 }
 
-// ==================== COUNTDOWN TIMER ====================
-function startCountdown(examDate, examName) {
+function startCountdown(date, name) {
   if (countdownInterval) clearInterval(countdownInterval);
-  
-  document.getElementById('nextExamName').textContent = examName ? `${examName} on ${examDate}` : 'No upcoming exams';
-  
+  document.getElementById('nextExamName').textContent = name ? `${name} on ${date}` : 'No upcoming exams';
   countdownInterval = setInterval(() => {
-    const target = new Date(examDate);
-    const now = new Date();
-    const diff = target - now;
-    
-    if (diff <= 0) {
-      document.getElementById('days').textContent = '0';
-      document.getElementById('hours').textContent = '0';
-      document.getElementById('minutes').textContent = '0';
-      document.getElementById('seconds').textContent = '0';
-      clearInterval(countdownInterval);
-      return;
-    }
-    
-    document.getElementById('days').textContent = Math.floor(diff / (1000 * 60 * 60 * 24));
-    document.getElementById('hours').textContent = Math.floor((diff % (86400000)) / (1000 * 60 * 60));
-    document.getElementById('minutes').textContent = Math.floor((diff % (3600000)) / (1000 * 60));
-    document.getElementById('seconds').textContent = Math.floor((diff % (60000)) / 1000);
+    const diff = new Date(date) - new Date();
+    if (diff <= 0) { clearInterval(countdownInterval); return; }
+    document.getElementById('days').textContent = Math.floor(diff / (1000*60*60*24));
+    document.getElementById('hours').textContent = Math.floor((diff % (86400000)) / (3600000));
+    document.getElementById('minutes').textContent = Math.floor((diff % 3600000) / 60000);
+    document.getElementById('seconds').textContent = Math.floor((diff % 60000) / 1000);
   }, 1000);
 }
 
-// ==================== NOTIFICATIONS ====================
-function loadNotificationsDropdown(notifications) {
-  const dropdown = document.getElementById('notificationDropdown');
-  if (!notifications.length) {
-    dropdown.innerHTML = '<div class="notification-item">No new notifications</div>';
-    return;
-  }
-  
-  dropdown.innerHTML = notifications.map(n => `
-    <div class="notification-item" onclick="markNotificationRead(${n.id})">
-      <div class="notification-title">${n.title}</div>
-      <div class="notification-message">${n.message}</div>
-      <div class="notification-time">${new Date(n.created_at).toLocaleString()}</div>
-    </div>
-  `).join('');
-}
-
-async function markNotificationRead(id) {
-  try {
-    await apiCall(`/notifications/${id}/read`, { method: 'PUT' });
-    loadDashboard();
-  } catch(e) {}
-}
-
-function toggleNotifications(event) {
-  event.stopPropagation();
-  const dropdown = document.getElementById('notificationDropdown');
-  dropdown.classList.toggle('show');
-}
-
-// Close notifications when clicking outside
-document.addEventListener('click', function() {
-  const dropdown = document.getElementById('notificationDropdown');
-  dropdown.classList.remove('show');
-});
-
-// ==================== AVATAR UPLOAD (Persists to Database) ====================
 async function uploadAvatar(input) {
   if (input.files && input.files[0]) {
-    const file = input.files[0];
     const reader = new FileReader();
-    
-    reader.onload = async function(e) {
-      const imageData = e.target.result;
-      
-      // Update UI
-      document.getElementById('avatarPreview').innerHTML = `<img src="${imageData}" style="width:100%; height:100%; object-fit:cover;">`;
-      
-      // Save to backend (persists after refresh)
-      try {
-        await apiCall('/auth/avatar', {
-          method: 'POST',
-          body: JSON.stringify({ avatar: imageData })
-        });
-      } catch(error) {
-        console.error('Avatar save error:', error);
-      }
+    reader.onload = async (e) => {
+      document.getElementById('avatarPreview').innerHTML = `<img src="${e.target.result}">`;
+      await apiCall('/auth/avatar', { method: 'POST', body: JSON.stringify({ avatar: e.target.result }) });
     };
-    
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(input.files[0]);
   }
 }
 
-// ==================== UNIBUDDY AI CHATBOT ====================
-function toggleChatbot() {
-  const window = document.getElementById('chatbotWindow');
-  window.classList.toggle('open');
-}
-
-async function sendMessage() {
-  const input = document.getElementById('chatInput');
-  const message = input.value.trim();
-  if (!message) return;
-  
-  addMessage(message, 'user');
-  input.value = '';
-  
-  // Show typing indicator
-  const typingDiv = addTypingIndicator();
-  
-  try {
-    const response = await apiCall('/chatbot', {
-      method: 'POST',
-      body: JSON.stringify({ message })
-    });
-    
-    const data = await response.json();
-    
-    // Remove typing indicator
-    typingDiv.remove();
-    
-    addMessage(data.reply, 'bot');
-  } catch(error) {
-    typingDiv.remove();
-    addMessage("Sorry, I'm having trouble connecting. Please try again later.", 'bot');
-  }
-}
-
-function addMessage(text, sender) {
-  const messagesDiv = document.getElementById('chatMessages');
-  const messageDiv = document.createElement('div');
-  messageDiv.className = `message ${sender}`;
-  messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
-  messagesDiv.appendChild(messageDiv);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-
-function addTypingIndicator() {
-  const messagesDiv = document.getElementById('chatMessages');
-  const typingDiv = document.createElement('div');
-  typingDiv.className = 'message bot';
-  typingDiv.id = 'typingIndicator';
-  typingDiv.innerHTML = `<div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
-  messagesDiv.appendChild(typingDiv);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  return typingDiv;
-}
-
-// ==================== LOGOUT ====================
 async function logout() {
-  try {
-    await apiCall('/auth/logout', { method: 'POST' });
-  } catch(e) {}
+  await apiCall('/auth/logout', { method: 'POST' });
   localStorage.removeItem('path2uni_token');
-  localStorage.removeItem('path2uni_user');
   window.location.href = 'index.html';
 }
 
-// ==================== INITIALIZE ====================
-if (!authToken) {
-  window.location.href = 'index.html';
-} else {
-  loadDashboard();
-}
+if (!authToken) { window.location.href = 'index.html'; } else { loadDashboard(); }
 </script>
 </body>
 </html>
