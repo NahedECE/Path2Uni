@@ -78,6 +78,15 @@
     background: rgba(255,255,255,0.05);
   }
   
+  .admin-link {
+    background: rgba(168,85,247,0.2);
+    border: 1px solid rgba(168,85,247,0.3);
+  }
+  
+  .admin-link:hover {
+    background: rgba(168,85,247,0.3);
+  }
+  
   .logout-btn:hover { color: #f87171; }
   
   .dashboard-grid {
@@ -168,8 +177,6 @@
     margin-bottom: 1rem;
   }
   
-  .search-input:focus { outline: none; border-color: rgba(59,130,246,0.5); }
-  
   .circular-item, .uni-item {
     display: flex;
     justify-content: space-between;
@@ -185,7 +192,7 @@
   .loading { text-align: center; padding: 2rem; color: rgba(255,255,255,0.5); }
   .section-title { font-size: 14px; font-weight: 600; margin-bottom: 1rem; display: flex; justify-content: space-between; }
   
-  /* Chatbot Styles */
+  /* Chatbot */
   .chatbot-container {
     position: fixed;
     bottom: 20px;
@@ -287,7 +294,6 @@
     font-size: 13px;
   }
   
-  .chatbot-input input:focus { outline: none; border-color: rgba(59,130,246,0.5); }
   .chatbot-input button { width: auto; padding: 10px 20px; font-size: 12px; }
   
   .typing-indicator {
@@ -303,9 +309,6 @@
     border-radius: 50%;
     animation: typing 1.4s infinite;
   }
-  
-  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
   
   @keyframes typing {
     0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
@@ -329,12 +332,13 @@
     <div class="logo">Path2Uni</div>
     <div class="nav-links">
       <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="eligibility.html" class="nav-link">Eligibility Checker</a>
       <a href="admission-calendar.html" class="nav-link">Admission Calendar</a>
       <a href="study-tracker.html" class="nav-link">Study Tracker</a>
       <a href="circular-archive.html" class="nav-link">Circular Archive</a>
       <a href="question-banks.html" class="nav-link">Question Banks</a>
       <a href="application-status.html" class="nav-link">Application Status</a>
+      <a href="eligibility.html" class="nav-link">Eligibility Checker</a>
+      <a href="admin-dashboard.html" class="nav-link admin-link" id="adminLink" style="display:none;">Admin Panel</a>
       <a href="#" class="nav-link logout-btn" onclick="logout()">Logout</a>
     </div>
   </nav>
@@ -399,7 +403,7 @@
     </div>
     <div class="chatbot-messages" id="chatMessages">
       <div class="message bot">
-        <div class="message-content">👋 Hi! I'm UniBuddy, your AI admission assistant powered by Gemini. Ask me anything about:<br><br>• University admission requirements (BUET, DU, RUET, Medical)<br>• Application deadlines and exam schedules<br>• Eligibility criteria based on your GPA<br>• Application process and admit cards<br>• And more!</div>
+        <div class="message-content">👋 Hi! I'm UniBuddy, your AI admission assistant. Ask me anything about:<br><br>• University admission requirements<br>• Application deadlines<br>• Exam schedules<br>• Eligibility criteria<br>• And more!</div>
       </div>
     </div>
     <div class="chatbot-input">
@@ -454,6 +458,11 @@ async function loadDashboard() {
       document.getElementById('circularCount').textContent = `${data.circulars?.length || 0} active`;
       
       if (data.nextExam) startCountdown(data.nextExam.exam_date, data.nextExam.university);
+      
+      // Show admin link if user is admin
+      if (data.user?.isAdmin) {
+        document.getElementById('adminLink').style.display = 'inline-block';
+      }
     }
   } catch(e) { console.error(e); }
 }
@@ -506,7 +515,7 @@ async function uploadAvatar(input) {
   }
 }
 
-// ==================== CHATBOT FUNCTIONS ====================
+// Chatbot Functions
 function toggleChatbot() {
   document.getElementById('chatbotWindow').classList.toggle('open');
 }
@@ -519,7 +528,6 @@ async function sendMessage() {
   addMessage(message, 'user');
   input.value = '';
   
-  // Add typing indicator
   const typingDiv = addTypingIndicator();
   
   try {
