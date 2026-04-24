@@ -13,6 +13,8 @@
 <div class="bg-grid"></div>
 
 <div class="page-wrap">
+
+  <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="logo">Path2Uni</div>
     <div class="nav-links">
@@ -24,27 +26,45 @@
     </div>
   </nav>
 
+  <!-- Hero Section -->
   <div class="hero">
     <div class="hero-eyebrow">Your Gateway to Higher Education</div>
     <h1>Path2Uni<br>Admission Hub</h1>
     <p>Centralized admission tracking, automated eligibility checking, and real-time result alerts for Bangladeshi students.</p>
   </div>
 
+  <!-- Main Content: University Carousel + Login/Register -->
   <div class="main-content">
+    <!-- University Carousel -->
     <div class="carousel-section">
       <div class="carousel-container glass-card">
         <div class="carousel-slide active">
           <div class="uni-image"><img src="https://placehold.co/120x120/1a1a2e/ffffff?text=BUET" alt="BUET" class="uni-img"></div>
           <h3 class="uni-name">BUET</h3>
-          <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution.</p>
+          <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution in Bangladesh, established in 1912.</p>
           <div class="uni-stats"><span>Est. 1912</span><span>Dhaka</span></div>
         </div>
+        <div class="carousel-slide">
+          <div class="uni-image"><img src="https://placehold.co/120x120/1a1a2e/ffffff?text=DU" alt="DU" class="uni-img"></div>
+          <h3 class="uni-name">DU</h3>
+          <p class="uni-desc">University of Dhaka - The oldest university in Bangladesh, founded in 1921.</p>
+          <div class="uni-stats"><span>Est. 1921</span><span>Dhaka</span></div>
+        </div>
+        <div class="carousel-slide">
+          <div class="uni-image"><img src="https://placehold.co/120x120/1a1a2e/ffffff?text=RUET" alt="RUET" class="uni-img"></div>
+          <h3 class="uni-name">RUET</h3>
+          <p class="uni-desc">Rajshahi University of Engineering and Technology - Leading engineering university.</p>
+          <div class="uni-stats"><span>Est. 1964</span><span>Rajshahi</span></div>
+        </div>
         <div class="carousel-dots">
-          <span class="dot active"></span>
+          <span class="dot active" onclick="goToSlide(0)"></span>
+          <span class="dot" onclick="goToSlide(1)"></span>
+          <span class="dot" onclick="goToSlide(2)"></span>
         </div>
       </div>
     </div>
 
+    <!-- Login & Register Section -->
     <div class="auth-section">
       <div class="glass-card auth-card">
         <div class="tab-auth">
@@ -52,6 +72,7 @@
           <div class="auth-tab" onclick="switchAuth('register')">Register</div>
         </div>
 
+        <!-- Login Form -->
         <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
           <div class="field">
             <label>Email Address</label>
@@ -66,26 +87,58 @@
           <p class="hint" style="text-align: center;">Admin: admin@path2uni.com / admin123</p>
         </form>
 
+        <!-- Register Form -->
         <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
           <div class="row2">
-            <div class="field"><label>Full Name</label><input type="text" id="reg-name" required></div>
-            <div class="field"><label>HSC Roll</label><input type="text" id="reg-roll"></div>
+            <div class="field">
+              <label>Full Name</label>
+              <input type="text" id="reg-name" placeholder="Your Name" required>
+            </div>
+            <div class="field">
+              <label>HSC Roll</label>
+              <input type="text" id="reg-roll" placeholder="HSC Roll Number">
+            </div>
           </div>
-          <div class="field"><label>Email</label><input type="email" id="reg-email" required></div>
-          <div class="field"><label>Password</label><input type="password" id="reg-password" required></div>
-          <div class="field"><label>Confirm Password</label><input type="password" id="reg-confirm" required></div>
+          <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="reg-email" placeholder="student@path2uni.com" required>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="reg-password" placeholder="Create a password" required>
+          </div>
+          <div class="field">
+            <label>Confirm Password</label>
+            <input type="password" id="reg-confirm" placeholder="Confirm your password" required>
+          </div>
           <button type="submit" class="calc-btn">Create Account</button>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- Founders Section -->
   <div class="founders-section">
     <div class="sec-title">Meet Our Founders</div>
     <div class="founders-grid">
-      <div class="founder-card glass-card"><div class="founder-avatar">SA</div><h3 class="founder-name">Shakil Ahmed</h3><p class="founder-title">CEO & Co-Founder</p><p class="founder-bio">Former BUET student with a vision to simplify university admissions.</p></div>
-      <div class="founder-card glass-card"><div class="founder-avatar">RH</div><h3 class="founder-name">Rifat Hasan</h3><p class="founder-title">CTO & Co-Founder</p><p class="founder-bio">Full-stack developer passionate about educational technology.</p></div>
-      <div class="founder-card glass-card"><div class="founder-avatar">NI</div><h3 class="founder-name">Nafis Islam</h3><p class="founder-title">COO & Co-Founder</p><p class="founder-bio">Education consultant helping thousands of students achieve their dreams.</p></div>
+      <div class="founder-card glass-card">
+        <div class="founder-avatar">SA</div>
+        <h3 class="founder-name">Shakil Ahmed</h3>
+        <p class="founder-title">CEO & Co-Founder</p>
+        <p class="founder-bio">Former BUET student with a vision to simplify university admissions for all Bangladeshi students.</p>
+      </div>
+      <div class="founder-card glass-card">
+        <div class="founder-avatar">RH</div>
+        <h3 class="founder-name">Rifat Hasan</h3>
+        <p class="founder-title">CTO & Co-Founder</p>
+        <p class="founder-bio">Full-stack developer passionate about educational technology and accessibility.</p>
+      </div>
+      <div class="founder-card glass-card">
+        <div class="founder-avatar">NI</div>
+        <h3 class="founder-name">Nafis Islam</h3>
+        <p class="founder-title">COO & Co-Founder</p>
+        <p class="founder-bio">Education consultant with experience helping thousands of students achieve their dreams.</p>
+      </div>
     </div>
   </div>
 
@@ -94,7 +147,27 @@
 
 <script src="script.js"></script>
 <script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.carousel-slide');
+  const dots = document.querySelectorAll('.dot');
+  let carouselInterval;
+
+  function showSlide(index) {
+    slides.forEach((s, i) => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+    currentSlide = (index + slides.length) % slides.length;
+    if (slides[currentSlide]) slides[currentSlide].classList.add('active');
+    if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+  }
+
+  function nextSlide() { showSlide(currentSlide + 1); }
+  window.goToSlide = function(index) { showSlide(index); resetInterval(); }
+  function resetInterval() { clearInterval(carouselInterval); carouselInterval = setInterval(nextSlide, 5000); }
+
+  carouselInterval = setInterval(nextSlide, 5000);
+
   function showAlert() { alert('Please login or register first.'); }
+  function showContactAlert(e) { e.preventDefault(); alert('Contact Us:\n\nEmail: support@path2uni.com\nPhone: +880 1234 567890'); }
 </script>
 </body>
 </html>
