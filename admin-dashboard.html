@@ -4,190 +4,156 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard | Path2Uni</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #05050f 0%, #0a0a1a 50%, #0d0d22 100%);
+    background: linear-gradient(135deg, #05050f, #0a0a1a, #0d0d22);
     min-height: 100vh;
     color: white;
-    padding: 2rem;
   }
-  .container { max-width: 1200px; margin: 0 auto; }
+  .bg-mesh { position: fixed; inset: 0; background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.08) 0%, transparent 50%); pointer-events: none; }
+  .page-wrap { position: relative; max-width: 1200px; margin: 0 auto; padding: 1.5rem; z-index: 1; }
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 50px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(120deg, #fff, #a0a0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .nav-link {
+    padding: 0.5rem 1rem;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+    border-radius: 30px;
+  }
   .glass-card {
     background: rgba(10,10,26,0.6);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 24px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
   }
-  h1 { font-family: 'Syne', sans-serif; margin-bottom: 1.5rem; }
-  .nav { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-  .nav a {
-    padding: 10px 20px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 30px;
-    text-decoration: none;
-    color: white;
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
-  .nav a:hover { background: rgba(59,130,246,0.3); }
+  .stat-card {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+  }
+  .stat-number { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #fff, #a0a0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
-  input, textarea, select {
-    width: 100%;
-    padding: 10px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    color: white;
-    margin-bottom: 1rem;
-  }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .delete-btn { background: rgba(239,68,68,0.2); border: none; padding: 4px 12px; border-radius: 8px; color: #f87171; cursor: pointer; }
   button {
     background: linear-gradient(135deg, #3b82f6, #7c3aed);
     border: none;
-    padding: 10px 20px;
+    padding: 8px 16px;
     border-radius: 30px;
     color: white;
     cursor: pointer;
   }
-  .delete-btn { background: linear-gradient(135deg, #ef4444, #dc2626); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  @media (max-width: 700px) { .form-row { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="bg-mesh"></div>
+<div class="page-wrap">
+  <nav class="navbar">
+    <div class="logo">Path2Uni Admin</div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">User Dashboard</a>
+      <a href="#" class="nav-link logout-btn" onclick="logout()">Logout</a>
+    </div>
+  </nav>
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-number" id="userCount">0</div><div class="stat-label">Users</div></div>
+    <div class="stat-card"><div class="stat-number" id="appCount">0</div><div class="stat-label">Applications</div></div>
+    <div class="stat-card"><div class="stat-number" id="circCount">0</div><div class="stat-label">Circulars</div></div>
+    <div class="stat-card"><div class="stat-number" id="qbCount">0</div><div class="stat-label">Question Banks</div></div>
+  </div>
+
   <div class="glass-card">
-    <h1>Admin Dashboard</h1>
-    <div class="nav">
-      <a href="#" onclick="showSection('circulars')">Manage Circulars</a>
-      <a href="#" onclick="showSection('users')">Manage Users</a>
-      <a href="#" onclick="logout()">Logout</a>
-    </div>
-    
-    <!-- Circulars Section -->
-    <div id="circularsSection">
-      <h3>Add New Circular</h3>
-      <div class="form-row">
-        <input type="text" id="circTitle" placeholder="Title (e.g., BUET Admission 2026)">
-        <input type="text" id="circUniversity" placeholder="University (e.g., BUET)">
-      </div>
-      <textarea id="circDesc" rows="2" placeholder="Description"></textarea>
-      <div class="form-row">
-        <input type="text" id="circLink" placeholder="Application Link (e.g., https://...)">
-        <input type="date" id="circStart" placeholder="Application Start">
-        <input type="date" id="circDeadline" placeholder="Application Deadline">
-        <input type="date" id="circExamDate" placeholder="Exam Date">
-      </div>
-      <button onclick="addCircular()">Add Circular</button>
-      
-      <h3 style="margin-top: 2rem;">Existing Circulars</h3>
-      <div id="circularsList"></div>
-    </div>
-    
-    <!-- Users Section -->
-    <div id="usersSection" style="display: none;">
-      <h3>Registered Users</h3>
-      <div id="usersList"></div>
-    </div>
+    <h3 style="margin-bottom: 1rem;">👥 Registered Users</h3>
+    <div id="usersList"></div>
   </div>
 </div>
 
 <script>
 const API_URL = 'https://path2uni-236v.onrender.com/api';
-let token = localStorage.getItem('path2uni_token');
+let authToken = localStorage.getItem('path2uni_token');
 
 async function apiCall(endpoint, options = {}) {
-  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+  const headers = { 'Content-Type': 'application/json' };
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
   const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
-  if (response.status === 401) window.location.href = 'index.html';
+  if (response.status === 401) { window.location.href = 'index.html'; }
   return response;
 }
 
-async function loadCirculars() {
-  const response = await fetch(`${API_URL}/circulars`);
+async function loadStats() {
+  const response = await apiCall('/admin/stats');
   const data = await response.json();
-  const container = document.getElementById('circularsList');
-  if (data.circulars?.length) {
-    container.innerHTML = `
-      <table>
-        <thead><tr><th>Title</th><th>University</th><th>Deadline</th><th>Action</th></tr></thead>
-        <tbody>
-          ${data.circulars.map(c => `
-            <tr>
-              <td>${c.title}</td><td>${c.university}</td><td>${c.application_deadline}</td>
-              <td><button class="delete-btn" onclick="deleteCircular(${c.id})">Delete</button></td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-  } else {
-    container.innerHTML = '<p>No circulars yet</p>';
-  }
-}
-
-async function addCircular() {
-  const circular = {
-    title: document.getElementById('circTitle').value,
-    university: document.getElementById('circUniversity').value,
-    description: document.getElementById('circDesc').value,
-    application_link: document.getElementById('circLink').value,
-    application_start: document.getElementById('circStart').value,
-    application_deadline: document.getElementById('circDeadline').value,
-    exam_date: document.getElementById('circExamDate').value
-  };
-  
-  const response = await apiCall('/admin/circulars', { method: 'POST', body: JSON.stringify(circular) });
-  if (response.ok) {
-    alert('Circular added!');
-    loadCirculars();
-    document.querySelectorAll('input, textarea').forEach(i => i.value = '');
-  }
-}
-
-async function deleteCircular(id) {
-  if (confirm('Delete this circular?')) {
-    await apiCall(`/admin/circulars/${id}`, { method: 'DELETE' });
-    loadCirculars();
-  }
+  document.getElementById('userCount').textContent = data.users || 0;
+  document.getElementById('appCount').textContent = data.applications || 0;
+  document.getElementById('circCount').textContent = data.circulars || 0;
+  document.getElementById('qbCount').textContent = data.questionBanks || 0;
 }
 
 async function loadUsers() {
   const response = await apiCall('/admin/users');
   const data = await response.json();
+  const users = data.users || [];
   const container = document.getElementById('usersList');
-  if (data.users?.length) {
-    container.innerHTML = `
-      <table>
-        <thead><tr><th>Name</th><th>Email</th><th>Registered</th><th>Action</th></tr></thead>
-        <tbody>
-          ${data.users.map(u => `
-            <tr>
-              <td>${u.name}</td><td>${u.email}</td><td>${new Date(u.created_at).toLocaleDateString()}</td>
-              <td>${!u.is_admin ? `<button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button>` : '-'}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
-  }
+  
+  if (users.length === 0) { container.innerHTML = '<div class="loading">No users found</div>'; return; }
+  
+  container.innerHTML = `
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th>Action</th></tr></thead>
+      <tbody>
+        ${users.map(u => `
+          <tr>
+            <td>${u.name}</td><td>${u.email}</td>
+            <td>${u.is_admin ? '👑 Admin' : 'User'}</td>
+            <td>${new Date(u.created_at).toLocaleDateString()}</td>
+            <td>${!u.is_admin ? `<button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button>` : '-'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
 }
 
 async function deleteUser(id) {
-  if (confirm('Delete this user?')) {
+  if (confirm('Delete this user permanently?')) {
     await apiCall(`/admin/users/${id}`, { method: 'DELETE' });
     loadUsers();
+    loadStats();
   }
-}
-
-function showSection(section) {
-  document.getElementById('circularsSection').style.display = section === 'circulars' ? 'block' : 'none';
-  document.getElementById('usersSection').style.display = section === 'users' ? 'block' : 'none';
-  if (section === 'circulars') loadCirculars();
-  if (section === 'users') loadUsers();
 }
 
 async function logout() {
@@ -196,7 +162,7 @@ async function logout() {
   window.location.href = 'index.html';
 }
 
-loadCirculars();
+if (!authToken) { window.location.href = 'index.html'; } else { loadStats(); loadUsers(); }
 </script>
 </body>
 </html>
