@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | Path2Uni</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+  .stat-card { text-align: center; }
+  .stat-number { font-family: 'Syne', sans-serif; font-size: 48px; font-weight: 800; background: linear-gradient(135deg, #ffffff, #a0a0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+</style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+
+<div class="page-wrap">
+  <nav class="navbar">
+    <div class="logo">Path2Uni</div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="#" class="nav-link" onclick="showComingSoon()">Circular</a>
+      <a href="#" class="nav-link" onclick="showComingSoon()">Deadlines</a>
+      <a href="#" class="nav-link" onclick="showComingSoon()">Eligibility Checker</a>
+      <a href="#" class="nav-link" onclick="showComingSoon()">Applications</a>
+      <a href="#" class="nav-link" onclick="showComingSoon()">Profile</a>
+      <a href="#" class="nav-link" onclick="showContactAlert(event)">Contact Us</a>
+      <a href="#" class="nav-link logout-btn" onclick="handleLogout(event)">Logout</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow">Welcome to Path2Uni</div>
+    <h1>Your Admission<br>Dashboard</h1>
+    <p>Track your applications, check eligibility, and stay updated with admission circulars all in one place.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="glass-card stat-card"><div class="stat-number">14</div><div class="hint">Eligible Universities</div></div>
+    <div class="glass-card stat-card"><div class="stat-number">08</div><div class="hint">Active Circulars</div></div>
+    <div class="glass-card stat-card"><div class="stat-number">12</div><div class="hint">Days until DU Ka Unit</div></div>
+  </div>
+
+  <div class="glass-card">
+    <div class="sec-title" style="text-align: left; justify-content: flex-start;">Recent Notifications</div>
+    <div class="breakdown-grid" style="margin-bottom: 0;">
+      <div class="breakdown-item full" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div><div class="bi-label">BUET Admission Circular 2026 Published</div><div class="hint">Application starts March 1, 2026</div></div>
+        <button class="save-btn" style="padding: 6px 16px;">View Details</button>
+      </div>
+      <div class="breakdown-item full" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div><div class="bi-label">DU Ka Unit Exam Schedule Released</div><div class="hint">Exam: May 15, 2026</div></div>
+        <button class="save-btn" style="padding: 6px 16px;">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="copyright">© 2026 Path2Uni Team. All rights reserved.</div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  function showComingSoon() {
+    alert('This feature is coming soon!');
+  }
+  
+  if (!localStorage.getItem('path2uni_token')) {
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>
