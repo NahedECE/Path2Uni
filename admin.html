@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login | Path2Uni</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .admin-container { max-width: 450px; margin: 0 auto; margin-top: 80px; }
+  .error-msg { color: #f87171; text-align: center; margin-top: 1rem; display: none; }
+</style>
+</head>
+<body>
+
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+
+<div class="page-wrap">
+  <div class="admin-container">
+    <div class="glass-card">
+      <div class="logo" style="text-align: center; margin-bottom: 1.5rem;">Admin Access</div>
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="admin-email" placeholder="admin@path2uni.com" required>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="admin-password" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="calc-btn">Login to Admin Panel</button>
+        <div class="error-msg" id="errorMsg">Invalid credentials!</div>
+        <p class="hint" style="text-align: center; margin-top: 1rem;">Default: admin@path2uni.com / admin123</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://path2uni-236v.onrender.com/api';
+
+async function handleAdminLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('admin-email').value;
+  const password = document.getElementById('admin-password').value;
+  
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok && data.user.isAdmin) {
+      localStorage.setItem('path2uni_token', data.token);
+      localStorage.setItem('path2uni_user', JSON.stringify(data.user));
+      window.location.href = 'admin-dashboard.html';
+    } else {
+      document.getElementById('errorMsg').style.display = 'block';
+    }
+  } catch (error) {
+    document.getElementById('errorMsg').style.display = 'block';
+    document.getElementById('errorMsg').textContent = 'Connection error. Make sure backend is running.';
+  }
+}
+</script>
+</body>
+</html>
