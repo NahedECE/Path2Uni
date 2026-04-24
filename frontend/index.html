@@ -3,9 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Path2Uni | University Admission Hub</title>
+<title>Admin Login | Path2Uni</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+  .admin-container { max-width: 450px; margin: 0 auto; margin-top: 50px; }
+  .error-msg { color: #f87171; text-align: center; margin-top: 1rem; display: none; }
+</style>
 </head>
 <body>
 
@@ -13,638 +17,54 @@
 <div class="bg-grid"></div>
 
 <div class="page-wrap">
-
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="logo">Path2Uni</div>
-    <div class="nav-links">
-      <a href="#" class="nav-link" data-page="dashboard" onclick="redirectToAuth(event, 'dashboard')">Dashboard</a>
-      <a href="#" class="nav-link" data-page="circular" onclick="redirectToAuth(event, 'circular')">Circular</a>
-      <a href="#" class="nav-link" data-page="deadlines" onclick="redirectToAuth(event, 'deadlines')">Deadlines</a>
-      <a href="#" class="nav-link" data-page="eligibility" onclick="redirectToAuth(event, 'eligibility')">Eligibility Checker</a>
-      <a href="#" class="nav-link" data-page="contact" onclick="showContactAlert(event)">Contact Us</a>
-      <a href="#" class="nav-link logout-btn" id="logoutBtn" onclick="handleLogout(event)" style="display: none;">Logout</a>
-    </div>
-  </nav>
-
-  <!-- Hero Section -->
-  <div class="hero">
-    <div class="hero-eyebrow">Your Gateway to Higher Education</div>
-    <h1>Path2Uni<br>Admission Hub</h1>
-    <p>Centralized admission tracking, automated eligibility checking, and real-time result alerts for Bangladeshi students.</p>
-  </div>
-
-  <!-- Main Content: University Carousel (Left) + Login/Register (Right) -->
-  <div class="main-content">
-    <!-- University Carousel Section - Left Side -->
-    <div class="carousel-section">
-      <div class="carousel-container glass-card">
-        <div class="carousel-slide active" id="slide-0">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=BUET" alt="BUET" class="uni-img">
-          </div>
-          <h3 class="uni-name">BUET</h3>
-          <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution in Bangladesh, established in 1912. Known for excellence in engineering and architecture education.</p>
-          <div class="uni-stats">
-            <span>Est. 1912</span>
-            <span>Dhaka</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-1">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=DU" alt="DU" class="uni-img">
-          </div>
-          <h3 class="uni-name">DU</h3>
-          <p class="uni-desc">University of Dhaka - The oldest university in Bangladesh, founded in 1921. Known as the "Oxford of the East" with rich academic heritage.</p>
-          <div class="uni-stats">
-            <span>Est. 1921</span>
-            <span>Dhaka</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-2">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=RUET" alt="RUET" class="uni-img">
-          </div>
-          <h3 class="uni-name">RUET</h3>
-          <p class="uni-desc">Rajshahi University of Engineering and Technology - Leading engineering university in northern Bangladesh, established in 1964. Known for quality technical education.</p>
-          <div class="uni-stats">
-            <span>Est. 1964</span>
-            <span>Rajshahi</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-3">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=CUET" alt="CUET" class="uni-img">
-          </div>
-          <h3 class="uni-name">CUET</h3>
-          <p class="uni-desc">Chittagong University of Engineering and Technology - Prestigious engineering university in port city Chittagong, established in 1968.</p>
-          <div class="uni-stats">
-            <span>Est. 1968</span>
-            <span>Chittagong</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-4">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=KUET" alt="KUET" class="uni-img">
-          </div>
-          <h3 class="uni-name">KUET</h3>
-          <p class="uni-desc">Khulna University of Engineering and Technology - Top engineering institution in southwestern Bangladesh, established in 1974.</p>
-          <div class="uni-stats">
-            <span>Est. 1974</span>
-            <span>Khulna</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-5">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=DMC" alt="DMC" class="uni-img">
-          </div>
-          <h3 class="uni-name">DMC</h3>
-          <p class="uni-desc">Dhaka Medical College - First and most prestigious medical college in Bangladesh, established in 1946. Leading medical education institution.</p>
-          <div class="uni-stats">
-            <span>Est. 1946</span>
-            <span>Dhaka</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-6">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=MMC" alt="MMC" class="uni-img">
-          </div>
-          <h3 class="uni-name">MMC</h3>
-          <p class="uni-desc">Mymensingh Medical College - One of the oldest medical colleges in Bangladesh, established in 1962. Known for quality healthcare education.</p>
-          <div class="uni-stats">
-            <span>Est. 1962</span>
-            <span>Mymensingh</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-7">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=SHMC" alt="SHMC" class="uni-img">
-          </div>
-          <h3 class="uni-name">SHMC</h3>
-          <p class="uni-desc">Sir Salimullah Medical College - Renowned medical college in Dhaka, established in 1962. Named after Nawab Sir Salimullah.</p>
-          <div class="uni-stats">
-            <span>Est. 1962</span>
-            <span>Dhaka</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-8">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=RU" alt="RU" class="uni-img">
-          </div>
-          <h3 class="uni-name">RU</h3>
-          <p class="uni-desc">University of Rajshahi - Second oldest university in Bangladesh, established in 1953. Famous for beautiful campus and research output.</p>
-          <div class="uni-stats">
-            <span>Est. 1953</span>
-            <span>Rajshahi</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-9">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=CU" alt="CU" class="uni-img">
-          </div>
-          <h3 class="uni-name">CU</h3>
-          <p class="uni-desc">University of Chittagong - Largest university campus in Bangladesh, established in 1966. Known for natural beauty and academic diversity.</p>
-          <div class="uni-stats">
-            <span>Est. 1966</span>
-            <span>Chittagong</span>
-          </div>
-        </div>
-        <div class="carousel-slide" id="slide-10">
-          <div class="uni-image">
-            <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=JU" alt="JU" class="uni-img">
-          </div>
-          <h3 class="uni-name">JU</h3>
-          <p class="uni-desc">Jahangirnagar University - Known for scenic campus and wildlife, established in 1970. Famous for arts, social sciences, and science programs.</p>
-          <div class="uni-stats">
-            <span>Est. 1970</span>
-            <span>Savar, Dhaka</span>
-          </div>
-        </div>
-        <div class="carousel-dots">
-          <span class="dot active" onclick="goToSlide(0)"></span>
-          <span class="dot" onclick="goToSlide(1)"></span>
-          <span class="dot" onclick="goToSlide(2)"></span>
-          <span class="dot" onclick="goToSlide(3)"></span>
-          <span class="dot" onclick="goToSlide(4)"></span>
-          <span class="dot" onclick="goToSlide(5)"></span>
-          <span class="dot" onclick="goToSlide(6)"></span>
-          <span class="dot" onclick="goToSlide(7)"></span>
-          <span class="dot" onclick="goToSlide(8)"></span>
-          <span class="dot" onclick="goToSlide(9)"></span>
-          <span class="dot" onclick="goToSlide(10)"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Login & Register Section - Right Side (Always Visible) -->
-    <div class="auth-section">
-      <div class="glass-card auth-card">
-        <div class="auth-header">
-          <div class="tab-auth">
-            <div class="auth-tab active" onclick="switchAuth('login')">Login</div>
-            <div class="auth-tab" onclick="switchAuth('register')">Register</div>
-          </div>
-          <div id="loggedInUser" class="logged-in-user" style="display: none;">
-            <span id="userEmailDisplay"></span>
-            <span class="user-badge">Logged In</span>
-          </div>
-        </div>
-
-        <!-- Login Form -->
-        <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
-          <div class="field">
-            <label>Email Address</label>
-            <input type="email" id="login-email" placeholder="student@path2uni.com" required>
-          </div>
-          <div class="field">
-            <label>Password</label>
-            <input type="password" id="login-password" placeholder="Enter your password" required>
-          </div>
-          <button type="submit" class="calc-btn">Login to Dashboard</button>
-          <p class="hint" style="text-align: center; margin-top: 1rem;">Demo: any email / any password</p>
-        </form>
-
-        <!-- Register Form -->
-        <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
-          <div class="row2">
-            <div class="field">
-              <label>Full Name</label>
-              <input type="text" id="reg-name" placeholder="Your Name" required>
-            </div>
-            <div class="field">
-              <label>HSC Roll</label>
-              <input type="text" id="reg-roll" placeholder="HSC Roll Number" required>
-            </div>
-          </div>
-          <div class="field">
-            <label>Email Address</label>
-            <input type="email" id="reg-email" placeholder="student@path2uni.com" required>
-          </div>
-          <div class="field">
-            <label>Password</label>
-            <input type="password" id="reg-password" placeholder="Create a password" required>
-          </div>
-          <div class="field">
-            <label>Confirm Password</label>
-            <input type="password" id="reg-confirm" placeholder="Confirm your password" required>
-          </div>
-          <button type="submit" class="calc-btn">Create Account</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Founders Section -->
-  <div class="founders-section">
-    <div class="sec-title">Meet Our Founders</div>
-    <div class="founders-grid">
-      <div class="founder-card glass-card">
-        <div class="founder-avatar">SA</div>
-        <h3 class="founder-name">Shakil Ahmed</h3>
-        <p class="founder-title">CEO & Co-Founder</p>
-        <p class="founder-bio">Former BUET student with a vision to simplify university admissions for all Bangladeshi students.</p>
-      </div>
-      <div class="founder-card glass-card">
-        <div class="founder-avatar">RH</div>
-        <h3 class="founder-name">Rifat Hasan</h3>
-        <p class="founder-title">CTO & Co-Founder</p>
-        <p class="founder-bio">Full-stack developer passionate about educational technology and accessibility.</p>
-      </div>
-      <div class="founder-card glass-card">
-        <div class="founder-avatar">NI</div>
-        <h3 class="founder-name">Nafis Islam</h3>
-        <p class="founder-title">COO & Co-Founder</p>
-        <p class="founder-bio">Education consultant with experience helping thousands of students achieve their dreams.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="copyright">© 2026 Path2Uni Team. All rights reserved.</div>
-</div>
-
-<!-- Login Modal (for nav button redirects) -->
-<div id="loginModal" class="modal">
-  <div class="modal-content glass-card">
-    <span class="modal-close" onclick="closeModal()">&times;</span>
-    <div class="tab-auth modal-tabs">
-      <div class="auth-tab active" onclick="switchModalAuth('login')">Login</div>
-      <div class="auth-tab" onclick="switchModalAuth('register')">Register</div>
-    </div>
-
-    <form id="modalLoginForm" class="modal-auth-form active" onsubmit="handleModalLogin(event)">
-      <div class="field">
-        <label>Email Address</label>
-        <input type="email" id="modal-email" placeholder="student@path2uni.com" required>
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="modal-password" placeholder="Enter your password" required>
-      </div>
-      <button type="submit" class="calc-btn">Login</button>
-    </form>
-
-    <form id="modalRegisterForm" class="modal-auth-form" onsubmit="handleModalRegister(event)">
-      <div class="row2">
+  <div class="admin-container">
+    <div class="glass-card">
+      <div class="logo" style="text-align: center; margin-bottom: 1.5rem;">Admin Access</div>
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
         <div class="field">
-          <label>Full Name</label>
-          <input type="text" id="modal-reg-name" placeholder="Your Name" required>
+          <label>Email Address</label>
+          <input type="email" id="admin-email" placeholder="admin@path2uni.com" required>
         </div>
         <div class="field">
-          <label>HSC Roll</label>
-          <input type="text" id="modal-reg-roll" placeholder="HSC Roll Number" required>
+          <label>Password</label>
+          <input type="password" id="admin-password" placeholder="Enter password" required>
         </div>
-      </div>
-      <div class="field">
-        <label>Email Address</label>
-        <input type="email" id="modal-reg-email" placeholder="student@path2uni.com" required>
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="modal-reg-password" placeholder="Create a password" required>
-      </div>
-      <div class="field">
-        <label>Confirm Password</label>
-        <input type="password" id="modal-reg-confirm" placeholder="Confirm your password" required>
-      </div>
-      <button type="submit" class="calc-btn">Create Account</button>
-    </form>
+        <button type="submit" class="calc-btn">Login to Admin Panel</button>
+        <div class="error-msg" id="errorMsg">Invalid credentials!</div>
+        <p class="hint" style="text-align: center; margin-top: 1rem;">Default: admin@path2uni.com / admin123</p>
+      </form>
+    </div>
   </div>
 </div>
 
 <script>
-// ==================== CAROUSEL (5 SECONDS) ====================
-let currentSlide = 0;
-const slides = document.querySelectorAll('.carousel-slide');
-const dots = document.querySelectorAll('.dot');
-let carouselInterval;
+const API_URL = 'https://YOUR_RENDER_URL_HERE.onrender.com/api';
 
-function showSlide(index) {
-  slides.forEach((slide, i) => {
-    slide.classList.remove('active');
-    if (dots[i]) dots[i].classList.remove('active');
-  });
+async function handleAdminLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('admin-email').value;
+  const password = document.getElementById('admin-password').value;
   
-  currentSlide = (index + slides.length) % slides.length;
-  slides[currentSlide].classList.add('active');
-  if (dots[currentSlide]) dots[currentSlide].classList.add('active');
-}
-
-function nextSlide() {
-  showSlide(currentSlide + 1);
-}
-
-function goToSlide(index) {
-  showSlide(index);
-  resetInterval();
-}
-
-function resetInterval() {
-  clearInterval(carouselInterval);
-  carouselInterval = setInterval(nextSlide, 5000);
-}
-
-carouselInterval = setInterval(nextSlide, 5000);
-
-// ==================== AUTHENTICATION ====================
-let pendingRedirect = null;
-
-// Get current logged in user
-function getCurrentUser() {
-  const user = localStorage.getItem('path2uni_user');
-  return user ? JSON.parse(user) : null;
-}
-
-// Check if user is logged in
-function isLoggedIn() {
-  return getCurrentUser() !== null;
-}
-
-// Update UI based on login status (shows user info, keeps forms visible)
-function updateAuthUI() {
-  const logoutBtn = document.getElementById('logoutBtn');
-  const loggedInUserDiv = document.getElementById('loggedInUser');
-  const userEmailSpan = document.getElementById('userEmailDisplay');
-  const currentUser = getCurrentUser();
-  
-  if (isLoggedIn()) {
-    // Show logout button
-    if (logoutBtn) logoutBtn.style.display = 'block';
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
     
-    // Show logged in user info in auth card
-    if (loggedInUserDiv) {
-      loggedInUserDiv.style.display = 'flex';
-      userEmailSpan.textContent = currentUser.email;
+    const data = await response.json();
+    
+    if (response.ok && data.user.isAdmin) {
+      localStorage.setItem('path2uni_token', data.token);
+      localStorage.setItem('path2uni_admin', JSON.stringify(data.user));
+      window.location.href = 'admin-dashboard.html';
+    } else {
+      document.getElementById('errorMsg').style.display = 'block';
     }
-    
-    // Disable login/register forms and show that user is logged in
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const authTabs = document.querySelectorAll('.auth-section .auth-tab');
-    
-    // Add disabled class to forms
-    if (loginForm) loginForm.classList.add('logged-in');
-    if (registerForm) registerForm.classList.add('logged-in');
-    
-    // Update tab styling to show disabled state
-    authTabs.forEach(tab => {
-      tab.style.opacity = '0.5';
-      tab.style.cursor = 'not-allowed';
-    });
-    
-    // Update nav links to redirect directly without modal
-    document.querySelectorAll('.nav-link:not(.logout-btn)').forEach(link => {
-      const page = link.getAttribute('data-page');
-      if (page && page !== 'contact') {
-        link.onclick = function(e) {
-          e.preventDefault();
-          redirectToPage(page);
-        };
-      }
-    });
-  } else {
-    // Hide logout button
-    if (logoutBtn) logoutBtn.style.display = 'none';
-    
-    // Hide logged in user info
-    if (loggedInUserDiv) loggedInUserDiv.style.display = 'none';
-    
-    // Enable login/register forms
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const authTabs = document.querySelectorAll('.auth-section .auth-tab');
-    
-    if (loginForm) loginForm.classList.remove('logged-in');
-    if (registerForm) registerForm.classList.remove('logged-in');
-    
-    authTabs.forEach(tab => {
-      tab.style.opacity = '1';
-      tab.style.cursor = 'pointer';
-    });
-    
-    // Reset nav links to show modal
-    document.querySelectorAll('.nav-link:not(.logout-btn)').forEach(link => {
-      const page = link.getAttribute('data-page');
-      if (page && page !== 'contact') {
-        link.onclick = function(e) {
-          e.preventDefault();
-          redirectToAuth(e, page);
-        };
-      }
-    });
+  } catch (error) {
+    document.getElementById('errorMsg').style.display = 'block';
   }
 }
-
-// Redirect to intended page
-function redirectToPage(page) {
-  const pageUrls = {
-    'dashboard': 'dashboard.html',
-    'circular': 'circular.html',
-    'deadlines': 'deadlines.html',
-    'eligibility': 'calculator.html'
-  };
-  
-  const url = pageUrls[page];
-  if (url) {
-    window.location.href = url;
-  }
-}
-
-// Navigation with authentication check
-function redirectToAuth(event, page) {
-  event.preventDefault();
-  
-  if (page === 'contact') {
-    showContactAlert(event);
-    return;
-  }
-  
-  if (isLoggedIn()) {
-    redirectToPage(page);
-  } else {
-    pendingRedirect = page;
-    showModal();
-  }
-}
-
-// Handle logout - clears current user
-function handleLogout(event) {
-  event.preventDefault();
-  localStorage.removeItem('path2uni_user');
-  updateAuthUI();
-  alert('You have been logged out successfully!');
-}
-
-// Login function - automatically logs out any previous user
-function loginUser(email, name) {
-  // Clear any existing user first
-  localStorage.removeItem('path2uni_user');
-  // Set new user
-  localStorage.setItem('path2uni_user', JSON.stringify({ email, name, loginTime: new Date().toISOString() }));
-  updateAuthUI();
-  return true;
-}
-
-// Handle regular form login
-function handleLogin(e) {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value;
-  const name = email.split('@')[0];
-  
-  if (email) {
-    loginUser(email, name);
-    window.location.href = 'dashboard.html';
-  }
-}
-
-// Handle regular form register
-function handleRegister(e) {
-  e.preventDefault();
-  const name = document.getElementById('reg-name').value;
-  const email = document.getElementById('reg-email').value;
-  const password = document.getElementById('reg-password').value;
-  const confirm = document.getElementById('reg-confirm').value;
-  
-  if (password !== confirm) {
-    alert('Passwords do not match!');
-    return;
-  }
-  
-  if (name && email) {
-    loginUser(email, name);
-    window.location.href = 'dashboard.html';
-  }
-}
-
-// Modal functions
-const modal = document.getElementById('loginModal');
-
-function showModal() {
-  modal.style.display = 'flex';
-}
-
-function closeModal() {
-  modal.style.display = 'none';
-  pendingRedirect = null;
-}
-
-window.onclick = function(event) {
-  if (event.target === modal) {
-    closeModal();
-  }
-}
-
-function switchModalAuth(type) {
-  const loginForm = document.getElementById('modalLoginForm');
-  const registerForm = document.getElementById('modalRegisterForm');
-  const tabs = document.querySelectorAll('.modal-tabs .auth-tab');
-  
-  tabs.forEach(tab => tab.classList.remove('active'));
-  
-  if (type === 'login') {
-    loginForm.classList.add('active');
-    registerForm.classList.remove('active');
-    tabs[0].classList.add('active');
-  } else {
-    loginForm.classList.remove('active');
-    registerForm.classList.add('active');
-    tabs[1].classList.add('active');
-  }
-}
-
-function handleModalLogin(e) {
-  e.preventDefault();
-  const email = document.getElementById('modal-email').value;
-  const name = email.split('@')[0];
-  
-  if (email) {
-    loginUser(email, name);
-    closeModal();
-    
-    if (pendingRedirect) {
-      redirectToPage(pendingRedirect);
-      pendingRedirect = null;
-    }
-  }
-}
-
-function handleModalRegister(e) {
-  e.preventDefault();
-  const name = document.getElementById('modal-reg-name').value;
-  const email = document.getElementById('modal-reg-email').value;
-  const password = document.getElementById('modal-reg-password').value;
-  const confirm = document.getElementById('modal-reg-confirm').value;
-  
-  if (password !== confirm) {
-    alert('Passwords do not match!');
-    return;
-  }
-  
-  if (name && email) {
-    loginUser(email, name);
-    closeModal();
-    
-    if (pendingRedirect) {
-      redirectToPage(pendingRedirect);
-      pendingRedirect = null;
-    }
-  }
-}
-
-// Regular auth tab switching (for the always-visible auth section)
-function switchAuth(type) {
-  if (isLoggedIn()) {
-    alert('You are already logged in. Please logout first to switch accounts.');
-    return;
-  }
-  
-  const loginForm = document.getElementById('loginForm');
-  const registerForm = document.getElementById('registerForm');
-  const tabs = document.querySelectorAll('.auth-section .auth-tab');
-  
-  tabs.forEach(tab => tab.classList.remove('active'));
-  
-  if (type === 'login') {
-    loginForm.classList.add('active');
-    registerForm.classList.remove('active');
-    tabs[0].classList.add('active');
-  } else {
-    loginForm.classList.remove('active');
-    registerForm.classList.add('active');
-    tabs[1].classList.add('active');
-  }
-}
-
-function showContactAlert(event) {
-  event.preventDefault();
-  alert('Contact Us:\n\nEmail: support@path2uni.com\nPhone: +880 1234 567890\nAddress: Dhaka, Bangladesh');
-}
-
-// Secret admin access - triple click on logo
-let logoClickCount = 0;
-let logoClickTimer = null;
-
-function setupAdminSecret() {
-  const logo = document.querySelector('.logo');
-  if (logo) {
-    logo.style.cursor = 'pointer';
-    logo.addEventListener('click', function(e) {
-      logoClickCount++;
-      clearTimeout(logoClickTimer);
-      logoClickTimer = setTimeout(() => {
-        if (logoClickCount >= 3) {
-          window.location.href = 'admin.html';
-          logoClickCount = 0;
-        } else {
-          logoClickCount = 0;
-        }
-      }, 500);
-    });
-  }
-}
-
-// Initialize
-updateAuthUI();
-setupAdminSecret();
 </script>
 </body>
 </html>
