@@ -4,105 +4,199 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard | Path2Uni</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  .users-table { width: 100%; border-collapse: collapse; }
-  .users-table th, .users-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
-  .delete-btn { background: rgba(239,68,68,0.2); border: none; color: #f87171; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
-  .delete-btn:hover { background: rgba(239,68,68,0.4); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #05050f 0%, #0a0a1a 50%, #0d0d22 100%);
+    min-height: 100vh;
+    color: white;
+    padding: 2rem;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .glass-card {
+    background: rgba(10,10,26,0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  h1 { font-family: 'Syne', sans-serif; margin-bottom: 1.5rem; }
+  .nav { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .nav a {
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 30px;
+    text-decoration: none;
+    color: white;
+  }
+  .nav a:hover { background: rgba(59,130,246,0.3); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: white;
+    margin-bottom: 1rem;
+  }
+  button {
+    background: linear-gradient(135deg, #3b82f6, #7c3aed);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+  }
+  .delete-btn { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .form-row { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-
-<div class="bg-mesh"></div>
-<div class="bg-grid"></div>
-
-<div class="page-wrap">
-  <nav class="navbar">
-    <div class="logo">Path2Uni Admin</div>
-    <div class="nav-links">
-      <a href="#" class="nav-link" onclick="loadUsers()">Users</a>
-      <a href="#" class="nav-link" onclick="logout()">Logout</a>
-    </div>
-  </nav>
-
+<div class="container">
   <div class="glass-card">
-    <div class="sec-title" style="text-align: left;">Registered Users</div>
-    <div id="usersList"></div>
+    <h1>Admin Dashboard</h1>
+    <div class="nav">
+      <a href="#" onclick="showSection('circulars')">Manage Circulars</a>
+      <a href="#" onclick="showSection('users')">Manage Users</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
+    
+    <!-- Circulars Section -->
+    <div id="circularsSection">
+      <h3>Add New Circular</h3>
+      <div class="form-row">
+        <input type="text" id="circTitle" placeholder="Title (e.g., BUET Admission 2026)">
+        <input type="text" id="circUniversity" placeholder="University (e.g., BUET)">
+      </div>
+      <textarea id="circDesc" rows="2" placeholder="Description"></textarea>
+      <div class="form-row">
+        <input type="text" id="circLink" placeholder="Application Link (e.g., https://...)">
+        <input type="date" id="circStart" placeholder="Application Start">
+        <input type="date" id="circDeadline" placeholder="Application Deadline">
+        <input type="date" id="circExamDate" placeholder="Exam Date">
+      </div>
+      <button onclick="addCircular()">Add Circular</button>
+      
+      <h3 style="margin-top: 2rem;">Existing Circulars</h3>
+      <div id="circularsList"></div>
+    </div>
+    
+    <!-- Users Section -->
+    <div id="usersSection" style="display: none;">
+      <h3>Registered Users</h3>
+      <div id="usersList"></div>
+    </div>
   </div>
-
-  <div class="copyright">© 2026 Path2Uni Team. All rights reserved.</div>
 </div>
 
 <script>
 const API_URL = 'https://path2uni-236v.onrender.com/api';
-let authToken = localStorage.getItem('path2uni_token');
+let token = localStorage.getItem('path2uni_token');
 
 async function apiCall(endpoint, options = {}) {
-  const headers = { 'Content-Type': 'application/json' };
-  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
   const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+  if (response.status === 401) window.location.href = 'index.html';
   return response;
 }
 
-async function loadUsers() {
-  const response = await apiCall('/users');
+async function loadCirculars() {
+  const response = await fetch(`${API_URL}/circulars`);
+  const data = await response.json();
+  const container = document.getElementById('circularsList');
+  if (data.circulars?.length) {
+    container.innerHTML = `
+      <table>
+        <thead><tr><th>Title</th><th>University</th><th>Deadline</th><th>Action</th></tr></thead>
+        <tbody>
+          ${data.circulars.map(c => `
+            <tr>
+              <td>${c.title}</td><td>${c.university}</td><td>${c.application_deadline}</td>
+              <td><button class="delete-btn" onclick="deleteCircular(${c.id})">Delete</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } else {
+    container.innerHTML = '<p>No circulars yet</p>';
+  }
+}
+
+async function addCircular() {
+  const circular = {
+    title: document.getElementById('circTitle').value,
+    university: document.getElementById('circUniversity').value,
+    description: document.getElementById('circDesc').value,
+    application_link: document.getElementById('circLink').value,
+    application_start: document.getElementById('circStart').value,
+    application_deadline: document.getElementById('circDeadline').value,
+    exam_date: document.getElementById('circExamDate').value
+  };
+  
+  const response = await apiCall('/admin/circulars', { method: 'POST', body: JSON.stringify(circular) });
   if (response.ok) {
-    const data = await response.json();
-    const usersList = document.getElementById('usersList');
-    
-    if (data.users.length === 0) {
-      usersList.innerHTML = '<p class="hint">No users registered yet.</p>';
-    } else {
-      usersList.innerHTML = `
-        <table class="users-table">
-          <thead>
-            <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th>Action</th></tr>
-          </thead>
-          <tbody>
-            ${data.users.map(user => `
-              <tr>
-                <td>${user.id}</td>
-                <td>${user.name}</td>
-                <td>${user.email}</td>
-                <td>${user.is_admin ? '👑 Admin' : 'User'}</td>
-                <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                <td>${!user.is_admin ? `<button class="delete-btn" onclick="deleteUser(${user.id})">Delete</button>` : '-'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-    }
+    alert('Circular added!');
+    loadCirculars();
+    document.querySelectorAll('input, textarea').forEach(i => i.value = '');
   }
 }
 
-async function deleteUser(userId) {
-  if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-    const response = await apiCall(`/users/${userId}`, { method: 'DELETE' });
-    if (response.ok) {
-      alert('User deleted successfully!');
-      loadUsers();
-    } else {
-      alert('Failed to delete user.');
-    }
+async function deleteCircular(id) {
+  if (confirm('Delete this circular?')) {
+    await apiCall(`/admin/circulars/${id}`, { method: 'DELETE' });
+    loadCirculars();
   }
 }
 
-function logout() {
+async function loadUsers() {
+  const response = await apiCall('/admin/users');
+  const data = await response.json();
+  const container = document.getElementById('usersList');
+  if (data.users?.length) {
+    container.innerHTML = `
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Registered</th><th>Action</th></tr></thead>
+        <tbody>
+          ${data.users.map(u => `
+            <tr>
+              <td>${u.name}</td><td>${u.email}</td><td>${new Date(u.created_at).toLocaleDateString()}</td>
+              <td>${!u.is_admin ? `<button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button>` : '-'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+}
+
+async function deleteUser(id) {
+  if (confirm('Delete this user?')) {
+    await apiCall(`/admin/users/${id}`, { method: 'DELETE' });
+    loadUsers();
+  }
+}
+
+function showSection(section) {
+  document.getElementById('circularsSection').style.display = section === 'circulars' ? 'block' : 'none';
+  document.getElementById('usersSection').style.display = section === 'users' ? 'block' : 'none';
+  if (section === 'circulars') loadCirculars();
+  if (section === 'users') loadUsers();
+}
+
+async function logout() {
+  await apiCall('/auth/logout', { method: 'POST' });
   localStorage.removeItem('path2uni_token');
-  localStorage.removeItem('path2uni_user');
-  window.location.href = 'admin.html';
+  window.location.href = 'index.html';
 }
 
-// Check if admin is logged in
-const user = JSON.parse(localStorage.getItem('path2uni_user') || '{}');
-if (!user.isAdmin) {
-  window.location.href = 'admin.html';
-}
-
-loadUsers();
+loadCirculars();
 </script>
 </body>
 </html>
