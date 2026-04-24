@@ -1,6 +1,6 @@
 // ==================== API CONFIGURATION ====================
 // IMPORTANT: Replace this with your actual Render URL
-const API_URL = 'https://path2uni-236v.onrender.com//api';
+const API_URL = 'https://path2uni-236v.onrender.com/api';
 
 let authToken = localStorage.getItem('path2uni_token');
 
