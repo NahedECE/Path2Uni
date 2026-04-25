@@ -178,7 +178,11 @@ async function handleLogin(e) {
     if (response.ok) {
       localStorage.setItem('path2uni_token', data.token);
       localStorage.setItem('path2uni_user', JSON.stringify(data.user));
-      if (data.user.isAdmin) {
+      
+      // FIXED: Check both possible admin field names
+      const isAdminUser = data.user.isAdmin === true || data.user.is_admin === true || data.user.is_admin === 1;
+      
+      if (isAdminUser) {
         window.location.href = 'admin-dashboard.html';
       } else {
         window.location.href = 'dashboard.html';
@@ -224,7 +228,11 @@ async function handleRegister(e) {
     if (response.ok) {
       localStorage.setItem('path2uni_token', data.token);
       localStorage.setItem('path2uni_user', JSON.stringify(data.user));
-      if (data.user.isAdmin) {
+      
+      // FIXED: Check both possible admin field names
+      const isAdminUser = data.user.isAdmin === true || data.user.is_admin === true || data.user.is_admin === 1;
+      
+      if (isAdminUser) {
         window.location.href = 'admin-dashboard.html';
       } else {
         window.location.href = 'dashboard.html';
