@@ -40,7 +40,6 @@
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 50px;
     margin-bottom: 2rem;
-    flex-wrap: wrap;
   }
   
   .logo {
@@ -55,7 +54,6 @@
   .nav-links {
     display: flex;
     gap: 1rem;
-    flex-wrap: wrap;
   }
   
   .nav-link {
@@ -158,6 +156,7 @@
     font-size: 12px;
     color: rgba(255,255,255,0.6);
     margin-bottom: 6px;
+    font-weight: 500;
   }
   
   .form-group input, .form-group select, .form-group textarea {
@@ -181,12 +180,6 @@
     gap: 1rem;
   }
   
-  .form-row-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-  }
-  
   button {
     background: linear-gradient(135deg, #3b82f6, #7c3aed);
     border: none;
@@ -196,6 +189,7 @@
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s;
+    margin-top: 0.5rem;
   }
   
   button:hover {
@@ -207,14 +201,6 @@
     background: linear-gradient(135deg, #ef4444, #dc2626);
     padding: 5px 12px;
     font-size: 12px;
-  }
-  
-  .view-btn {
-    background: linear-gradient(135deg, #10b981, #059669);
-    padding: 5px 12px;
-    font-size: 12px;
-    text-decoration: none;
-    display: inline-block;
   }
   
   table {
@@ -290,9 +276,14 @@
     display: none;
   }
   
+  hr {
+    margin: 1.5rem 0;
+    border-color: rgba(255,255,255,0.1);
+  }
+  
   @media (max-width: 700px) {
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
     .admin-tabs { justify-content: center; }
     .item-card { flex-direction: column; gap: 10px; text-align: center; }
     .item-actions { justify-content: center; }
@@ -327,90 +318,151 @@
       <div class="admin-tab" onclick="showPanel('question-banks')">📚 Manage Question Banks</div>
     </div>
 
-    <!-- Users Panel -->
+    <!-- ==================== USERS PANEL ==================== -->
     <div id="usersPanel" class="panel active">
       <h3 class="section-title">Registered Users</h3>
       <div id="usersList"></div>
     </div>
 
-    <!-- Circulars Panel -->
+    <!-- ==================== CIRCULARS PANEL ==================== -->
     <div id="circularsPanel" class="panel">
-      <h3 class="section-title">Add New Circular</h3>
+      <h3 class="section-title">➕ Add New Circular</h3>
       <div class="form-row">
-        <div class="form-group"><label>Circular Title *</label><input type="text" id="circTitle" placeholder="e.g., BUET Admission 2026"></div>
-        <div class="form-group"><label>University *</label><input type="text" id="circUniversity" placeholder="e.g., BUET"></div>
-      </div>
-      <div class="form-group"><label>Description</label><textarea id="circDesc" rows="2" placeholder="Brief description of the circular"></textarea></div>
-      <div class="form-row">
-        <div class="form-group"><label>Application Link (URL)</label><input type="url" id="circLink" placeholder="https://..."></div>
-        <div class="form-group"><label>Application Start Date</label><input type="date" id="circStart"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Application Deadline *</label><input type="date" id="circDeadline"></div>
-        <div class="form-group"><label>Exam Date</label><input type="date" id="circExamDate"></div>
+        <div class="form-group">
+          <label>Circular Title *</label>
+          <input type="text" id="circTitle" placeholder="e.g., BUET Admission 2026">
+        </div>
+        <div class="form-group">
+          <label>University *</label>
+          <input type="text" id="circUniversity" placeholder="e.g., BUET">
+        </div>
       </div>
       <div class="form-group">
-        <label>PDF File (Optional - Max 10MB, PDF only)</label>
-        <input type="file" id="circPdf" accept=".pdf" onchange="validateFile(this, 'circular')">
+        <label>Description</label>
+        <textarea id="circDesc" rows="2" placeholder="Brief description of the circular"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Application Link (URL)</label>
+          <input type="url" id="circLink" placeholder="https://ugadmission.buet.ac.bd">
+        </div>
+        <div class="form-group">
+          <label>Application Start Date</label>
+          <input type="date" id="circStart">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Application Deadline *</label>
+          <input type="date" id="circDeadline">
+        </div>
+        <div class="form-group">
+          <label>Exam Date</label>
+          <input type="date" id="circExamDate">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>📄 Upload PDF File (Optional - Max 10MB, PDF only)</label>
+        <input type="file" id="circPdf" accept=".pdf">
         <small style="color: rgba(255,255,255,0.4); font-size: 11px; display: block; margin-top: 4px;">Upload circular PDF for users to download</small>
       </div>
       <button onclick="addCircular()">➕ Add Circular</button>
       <div id="circularsSuccessMsg" class="success-msg"></div>
       <div id="circularsErrorMsg" class="error-msg"></div>
       
-      <h3 class="section-title" style="margin-top: 2rem;">Existing Circulars</h3>
+      <hr>
+      
+      <h3 class="section-title">📋 Existing Circulars</h3>
       <div id="circularsList"></div>
     </div>
 
-    <!-- Exam Dates Panel -->
+    <!-- ==================== EXAM DATES PANEL ==================== -->
     <div id="examDatesPanel" class="panel">
-      <h3 class="section-title">Add Exam Date</h3>
+      <h3 class="section-title">➕ Add New Exam Date</h3>
       <div class="form-row">
-        <div class="form-group"><label>Exam Title *</label><input type="text" id="examTitle" placeholder="e.g., BUET Admission Test"></div>
-        <div class="form-group"><label>University *</label><input type="text" id="examUniversity" placeholder="e.g., BUET"></div>
+        <div class="form-group">
+          <label>Exam Title *</label>
+          <input type="text" id="examTitle" placeholder="e.g., BUET Admission Test">
+        </div>
+        <div class="form-group">
+          <label>University *</label>
+          <input type="text" id="examUniversity" placeholder="e.g., BUET">
+        </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Exam Date *</label><input type="date" id="examDate"></div>
-        <div class="form-group"><label>Exam Time</label><input type="time" id="examTime"></div>
+        <div class="form-group">
+          <label>Exam Date *</label>
+          <input type="date" id="examDate">
+        </div>
+        <div class="form-group">
+          <label>Exam Time</label>
+          <input type="time" id="examTime">
+        </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Venue</label><input type="text" id="examVenue" placeholder="e.g., BUET Campus"></div>
-        <div class="form-group"><label>Description</label><input type="text" id="examDesc" placeholder="Additional info"></div>
+        <div class="form-group">
+          <label>Venue</label>
+          <input type="text" id="examVenue" placeholder="e.g., BUET Campus">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="examDesc" placeholder="Additional info">
+        </div>
       </div>
       <button onclick="addExamDate()">➕ Add Exam Date</button>
       <div id="examDatesSuccessMsg" class="success-msg"></div>
       
-      <h3 class="section-title" style="margin-top: 2rem;">Existing Exam Dates</h3>
+      <hr>
+      
+      <h3 class="section-title">📅 Existing Exam Dates</h3>
       <div id="examDatesList"></div>
     </div>
 
-    <!-- Question Banks Panel -->
+    <!-- ==================== QUESTION BANKS PANEL ==================== -->
     <div id="questionBanksPanel" class="panel">
-      <h3 class="section-title">Upload Question Bank</h3>
+      <h3 class="section-title">📤 Upload Question Bank PDF</h3>
       <div class="form-row">
-        <div class="form-group"><label>Title *</label><input type="text" id="qbTitle" placeholder="e.g., BUET Admission Question 2024"></div>
-        <div class="form-group"><label>University *</label>
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="qbTitle" placeholder="e.g., BUET Admission Question 2024">
+        </div>
+        <div class="form-group">
+          <label>University *</label>
           <select id="qbUniversity">
-            <option value="BUET">BUET</option><option value="DU">DU</option><option value="RUET">RUET</option>
-            <option value="CUET">CUET</option><option value="KUET">KUET</option><option value="Medical">Medical</option>
-            <option value="RU">RU</option><option value="CU">CU</option><option value="JU">JU</option>
+            <option value="BUET">BUET</option>
+            <option value="DU">DU</option>
+            <option value="RUET">RUET</option>
+            <option value="CUET">CUET</option>
+            <option value="KUET">KUET</option>
+            <option value="Medical">Medical (DGHS)</option>
+            <option value="RU">Rajshahi University</option>
+            <option value="CU">Chittagong University</option>
+            <option value="JU">Jahangirnagar University</option>
           </select>
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Subject</label><input type="text" id="qbSubject" placeholder="e.g., Mathematics"></div>
-        <div class="form-group"><label>Year</label><input type="number" id="qbYear" placeholder="e.g., 2024"></div>
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" id="qbSubject" placeholder="e.g., Mathematics, Physics, Combined">
+        </div>
+        <div class="form-group">
+          <label>Year</label>
+          <input type="number" id="qbYear" placeholder="e.g., 2024">
+        </div>
       </div>
       <div class="form-group">
-        <label>PDF File * (Max 10MB, PDF only)</label>
-        <input type="file" id="qbPdf" accept=".pdf" onchange="validateFile(this, 'qb')">
+        <label>📄 Select PDF File * (Max 10MB, PDF only)</label>
+        <input type="file" id="qbPdf" accept=".pdf">
         <small style="color: rgba(255,255,255,0.4); font-size: 11px; display: block; margin-top: 4px;">Upload question bank PDF for students to download</small>
       </div>
       <button onclick="uploadQuestionBank()">📤 Upload Question Bank</button>
       <div id="qbSuccessMsg" class="success-msg"></div>
       <div id="qbErrorMsg" class="error-msg"></div>
       
-      <h3 class="section-title" style="margin-top: 2rem;">Existing Question Banks</h3>
+      <hr>
+      
+      <h3 class="section-title">📚 Existing Question Banks</h3>
       <div id="questionBanksList"></div>
     </div>
   </div>
@@ -419,23 +471,6 @@
 <script>
 const API_URL = 'https://path2uni-236v.onrender.com/api';
 let authToken = localStorage.getItem('path2uni_token');
-
-function validateFile(input, type) {
-  const file = input.files[0];
-  if (file) {
-    if (file.type !== 'application/pdf') {
-      alert('Only PDF files are allowed!');
-      input.value = '';
-      return false;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be less than 10MB!');
-      input.value = '';
-      return false;
-    }
-  }
-  return true;
-}
 
 async function apiCall(endpoint, options = {}) {
   const headers = {};
@@ -487,7 +522,7 @@ async function loadUsers() {
     if (users.length === 0) { container.innerHTML = '<div class="loading">No users found</div>'; return; }
     
     container.innerHTML = `
-      <table>
+      <table class="users-table">
         <thead>
           <tr><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th>Action</th></tr>
         </thead>
@@ -526,7 +561,10 @@ async function loadCirculars() {
     const circulars = data.circulars || [];
     const container = document.getElementById('circularsList');
     
-    if (circulars.length === 0) { container.innerHTML = '<div class="loading">No circulars yet. Add your first circular above.</div>'; return; }
+    if (circulars.length === 0) { 
+      container.innerHTML = '<div class="loading">No circulars yet. Add your first circular above.</div>'; 
+      return; 
+    }
     
     container.innerHTML = circulars.map(c => `
       <div class="item-card">
@@ -572,11 +610,8 @@ async function addCircular() {
       body: formData
     });
     
-    const data = await response.json();
-    
     if (response.ok) {
       showMessage('Circular added successfully!', 'circulars', true);
-      
       document.getElementById('circTitle').value = '';
       document.getElementById('circUniversity').value = '';
       document.getElementById('circDesc').value = '';
@@ -588,7 +623,8 @@ async function addCircular() {
       loadCirculars();
       loadStats();
     } else {
-      showMessage(data.error || 'Failed to add circular', 'circulars', false);
+      const error = await response.json();
+      showMessage(error.error || 'Failed to add circular', 'circulars', false);
     }
   } catch(e) { 
     console.error('Add circular error:', e); 
@@ -615,7 +651,10 @@ async function loadExamDates() {
     const exams = data.examDates || [];
     const container = document.getElementById('examDatesList');
     
-    if (exams.length === 0) { container.innerHTML = '<div class="loading">No exam dates yet. Add your first exam date above.</div>'; return; }
+    if (exams.length === 0) { 
+      container.innerHTML = '<div class="loading">No exam dates yet. Add your first exam date above.</div>'; 
+      return; 
+    }
     
     container.innerHTML = exams.map(e => `
       <div class="item-card">
@@ -690,7 +729,10 @@ async function loadQuestionBanks() {
     const qbs = data.questions || [];
     const container = document.getElementById('questionBanksList');
     
-    if (qbs.length === 0) { container.innerHTML = '<div class="loading">No question banks yet. Upload your first PDF above.</div>'; return; }
+    if (qbs.length === 0) { 
+      container.innerHTML = '<div class="loading">No question banks yet. Upload your first PDF above.</div>'; 
+      return; 
+    }
     
     container.innerHTML = qbs.map(q => `
       <div class="item-card">
@@ -731,8 +773,6 @@ async function uploadQuestionBank() {
       body: formData
     });
     
-    const data = await response.json();
-    
     if (response.ok) {
       showMessage('Question bank uploaded successfully!', 'question-banks', true);
       document.getElementById('qbTitle').value = '';
@@ -742,7 +782,8 @@ async function uploadQuestionBank() {
       loadQuestionBanks();
       loadStats();
     } else {
-      showMessage(data.error || 'Failed to upload question bank', 'question-banks', false);
+      const error = await response.json();
+      showMessage(error.error || 'Failed to upload question bank', 'question-banks', false);
     }
   } catch(e) { 
     console.error('Upload error:', e); 
@@ -762,7 +803,7 @@ async function deleteQuestionBank(id) {
 }
 
 // ============ HELPER FUNCTIONS ============
-function showMessage(message, panel, isSuccess) {
+function showMessage(message, panel, isSuccess = true) {
   let msgElement;
   let errorElement;
   
@@ -776,6 +817,7 @@ function showMessage(message, panel, isSuccess) {
     msgElement = document.getElementById('qbSuccessMsg');
     errorElement = document.getElementById('qbErrorMsg');
   } else {
+    alert(message);
     return;
   }
   
