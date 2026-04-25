@@ -15,8 +15,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'path2uni_super_secret_key_2026';
 
-// DeepSeek API Key
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+// OpenRouter API Key
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 let db;
 
@@ -36,13 +36,13 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-// ============ DEEPSEEK API FUNCTION ============
+// ============ OPENROUTER API FUNCTION (FREE & WORKING) ============
 
-async function callDeepSeek(message, userContext) {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+async function callOpenRouter(message, userContext) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
   
-  if (!apiKey || apiKey === 'your_deepseek_api_key_here') {
-    console.log('DeepSeek API key not configured');
+  if (!apiKey || apiKey === 'your_openrouter_api_key_here') {
+    console.log('OpenRouter API key not configured');
     return null;
   }
 
@@ -60,17 +60,19 @@ You have knowledge about:
 - Exam schedules and admit cards
 - Admission eligibility criteria based on GPA
 
-Provide helpful, accurate, and friendly responses. Keep responses concise but informative.`;
+Provide helpful, accurate, and friendly responses. Keep responses concise but informative (2-4 sentences).`;
 
   try {
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://path2uni.com',
+        'X-Title': 'Path2Uni'
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'deepseek/deepseek-chat', // Free model via OpenRouter
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
@@ -83,7 +85,7 @@ Provide helpful, accurate, and friendly responses. Keep responses concise but in
     const data = await response.json();
     
     if (!response.ok) {
-      console.error('DeepSeek API error:', data.error?.message || 'Unknown error');
+      console.error('OpenRouter API error:', data.error?.message || 'Unknown error');
       return null;
     }
     
@@ -93,7 +95,7 @@ Provide helpful, accurate, and friendly responses. Keep responses concise but in
     
     return null;
   } catch (error) {
-    console.error('DeepSeek call error:', error.message);
+    console.error('OpenRouter call error:', error.message);
     return null;
   }
 }
@@ -593,7 +595,7 @@ app.put('/api/notifications/:id/read', auth, async (req, res) => {
   res.json({ message: 'Marked read' });
 });
 
-// ============ UNIBUDDY CHATBOT WITH DEEPSEEK ============
+// ============ UNIBUDDY CHATBOT WITH OPENROUTER ============
 
 app.post('/api/chatbuddy', auth, async (req, res) => {
   const { message } = req.body;
@@ -605,13 +607,13 @@ app.post('/api/chatbuddy', auth, async (req, res) => {
     let reply = null;
     let aiProvider = 'fallback';
     
-    // Try DeepSeek AI
-    if (DEEPSEEK_API_KEY && DEEPSEEK_API_KEY !== 'your_deepseek_api_key_here') {
-      console.log('Calling DeepSeek API...');
-      reply = await callDeepSeek(message, user);
+    // Try OpenRouter AI
+    if (OPENROUTER_API_KEY && OPENROUTER_API_KEY !== 'your_openrouter_api_key_here') {
+      console.log('Calling OpenRouter API...');
+      reply = await callOpenRouter(message, user);
       if (reply) {
-        aiProvider = 'deepseek';
-        console.log('DeepSeek response received');
+        aiProvider = 'openrouter';
+        console.log('OpenRouter response received');
       }
     }
     
@@ -657,21 +659,21 @@ app.get('/api/admin/stats', auth, async (req, res) => {
   res.json({ users: userCount.c, circulars: circCount.c, questionBanks: qbCount.c, examDates: examCount.c });
 });
 
-// ============ TEST DEEPSEEK ENDPOINT ============
+// ============ TEST OPENROUTER ENDPOINT ============
 
-app.get('/api/test-deepseek', async (req, res) => {
-  const apiKey = DEEPSEEK_API_KEY;
+app.get('/api/test-openrouter', async (req, res) => {
+  const apiKey = OPENROUTER_API_KEY;
   
-  if (!apiKey || apiKey === 'your_deepseek_api_key_here') {
+  if (!apiKey || apiKey === 'your_openrouter_api_key_here') {
     return res.json({ 
       success: false, 
-      error: 'DeepSeek API key not configured',
-      message: 'Add your API key to .env file'
+      error: 'OpenRouter API key not configured',
+      message: 'Get your free API key from https://openrouter.ai/keys'
     });
   }
   
   try {
-    const testReply = await callDeepSeek('What are the requirements for BUET?', { name: 'Test User' });
+    const testReply = await callOpenRouter('What are the requirements for admission to BUET?', { name: 'Test User' });
     res.json({ 
       success: true, 
       reply: testReply,
@@ -698,7 +700,7 @@ initDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`👑 Admin: admin@path2uni.com / admin123`);
-    console.log(`🤖 DeepSeek AI: ${DEEPSEEK_API_KEY && DEEPSEEK_API_KEY !== 'your_deepseek_api_key_here' ? 'Enabled' : 'Disabled (using fallback)'}`);
+    console.log(`🤖 OpenRouter AI: ${OPENROUTER_API_KEY && OPENROUTER_API_KEY !== 'your_openrouter_api_key_here' ? 'Enabled' : 'Disabled (using fallback)'}`);
   });
 }).catch(err => {
   console.error('Failed to start:', err);
