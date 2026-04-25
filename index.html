@@ -156,7 +156,7 @@
   
   .carousel-container {
     text-align: center;
-    min-height: 450px;
+    min-height: 480px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -177,10 +177,10 @@
   }
   
   .uni-img {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     object-fit: cover;
-    border-radius: 60px;
+    border-radius: 50%;
     background: rgba(255,255,255,0.05);
     border: 2px solid rgba(255,255,255,0.1);
     transition: all 0.3s;
@@ -193,7 +193,7 @@
   
   .uni-name {
     font-family: 'Syne', sans-serif;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 800;
     margin: 1rem 0;
     background: linear-gradient(135deg, #ffffff, #e0e0ff);
@@ -202,23 +202,23 @@
   }
   
   .uni-desc {
-    font-size: 14px;
+    font-size: 13px;
     color: rgba(255,255,255,0.6);
-    line-height: 1.6;
-    max-width: 400px;
+    line-height: 1.5;
+    max-width: 380px;
     margin: 0 auto;
   }
   
   .uni-stats {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    margin-top: 1.5rem;
+    gap: 1.5rem;
+    margin-top: 1rem;
   }
   
   .uni-stats span {
-    font-size: 12px;
-    padding: 4px 16px;
+    font-size: 11px;
+    padding: 4px 12px;
     background: rgba(255,255,255,0.05);
     border-radius: 30px;
     color: #fcd34d;
@@ -227,8 +227,9 @@
   .carousel-dots {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-top: 2rem;
+    gap: 8px;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
   }
   
   .dot {
@@ -365,21 +366,41 @@
   
   .founder-card {
     text-align: center;
-    padding: 2rem;
+    padding: 1.5rem;
+    cursor: pointer;
   }
   
   .founder-avatar {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 1rem;
     font-family: 'Syne', sans-serif;
-    font-size: 28px;
+    font-size: 32px;
+    font-weight: 800;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .founder-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .founder-avatar .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
     font-weight: 800;
   }
   
@@ -403,6 +424,12 @@
     line-height: 1.5;
   }
   
+  .upload-hint {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 0.5rem;
+  }
+  
   .copyright {
     text-align: center;
     margin-top: 4rem;
@@ -419,6 +446,9 @@
     .navbar { flex-direction: column; }
     .nav-links { justify-content: center; }
     .row2 { grid-template-columns: 1fr; }
+    .uni-name { font-size: 20px; }
+    .uni-desc { font-size: 11px; }
+    .uni-img { width: 80px; height: 80px; }
   }
 </style>
 </head>
@@ -449,25 +479,81 @@
       <div class="carousel-slide active" id="slide-0">
         <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=BUET" class="uni-img" alt="BUET">
         <h3 class="uni-name">BUET</h3>
-        <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution.</p>
+        <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution in Bangladesh, established in 1912.</p>
         <div class="uni-stats"><span>Est. 1912</span><span>Dhaka</span></div>
       </div>
       <div class="carousel-slide" id="slide-1">
         <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=DU" class="uni-img" alt="DU">
         <h3 class="uni-name">DU</h3>
-        <p class="uni-desc">University of Dhaka - The oldest university in Bangladesh.</p>
+        <p class="uni-desc">University of Dhaka - The oldest university in Bangladesh, founded in 1921. Known as the "Oxford of the East".</p>
         <div class="uni-stats"><span>Est. 1921</span><span>Dhaka</span></div>
       </div>
       <div class="carousel-slide" id="slide-2">
         <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=RUET" class="uni-img" alt="RUET">
         <h3 class="uni-name">RUET</h3>
-        <p class="uni-desc">Rajshahi University of Engineering and Technology.</p>
+        <p class="uni-desc">Rajshahi University of Engineering and Technology - Leading engineering university in northern Bangladesh.</p>
         <div class="uni-stats"><span>Est. 1964</span><span>Rajshahi</span></div>
+      </div>
+      <div class="carousel-slide" id="slide-3">
+        <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=CUET" class="uni-img" alt="CUET">
+        <h3 class="uni-name">CUET</h3>
+        <p class="uni-desc">Chittagong University of Engineering and Technology - Prestigious engineering university in port city Chittagong.</p>
+        <div class="uni-stats"><span>Est. 1968</span><span>Chittagong</span></div>
+      </div>
+      <div class="carousel-slide" id="slide-4">
+        <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=KUET" class="uni-img" alt="KUET">
+        <h3 class="uni-name">KUET</h3>
+        <p class="uni-desc">Khulna University of Engineering and Technology - Top engineering institution in southwestern Bangladesh.</p>
+        <div class="uni-stats"><span>Est. 1974</span><span>Khulna</span></div>
+      </div>
+      <div class="carousel-slide" id="slide-5">
+        <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=RU" class="uni-img" alt="RU">
+        <h3 class="uni-name">RU</h3>
+        <p class="uni-desc">University of Rajshahi - Second oldest university in Bangladesh, established in 1953. Famous for beautiful campus.</p>
+        <div class="uni-stats"><span>Est. 1953</span><span>Rajshahi</span></div>
+      </div>
+      <div class="carousel-slide" id="slide-6">
+        <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=CU" class="uni-img" alt="CU">
+        <h3 class="uni-name">CU</h3>
+        <p class="uni-desc">University of Chittagong - Largest university campus in Bangladesh, established in 1966.</p>
+        <div class="uni-stats"><span>Est. 1966</span><span>Chittagong</span></div>
+      </div>
+      <div class="carousel-slide" id="slide-7">
+        <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=JU" class="uni-img" alt="JU">
+        <h3 class="uni-name">JU</h3>
+        <p class="uni-desc">Jahangirnagar University - Known for scenic campus and wildlife, established in 1970.</p>
+        <div class="uni-stats"><span>Est. 1970</span><span>Savar, Dhaka</span></div>
+      </div>
+      <div class="carousel-slide" id="slide-8">
+        <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=DMC" class="uni-img" alt="DMC">
+        <h3 class="uni-name">DMC</h3>
+        <p class="uni-desc">Dhaka Medical College - First and most prestigious medical college in Bangladesh, established in 1946.</p>
+        <div class="uni-stats"><span>Est. 1946</span><span>Dhaka</span></div>
+      </div>
+      <div class="carousel-slide" id="slide-9">
+        <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=MMC" class="uni-img" alt="MMC">
+        <h3 class="uni-name">MMC</h3>
+        <p class="uni-desc">Mymensingh Medical College - One of the oldest medical colleges in Bangladesh, established in 1962.</p>
+        <div class="uni-stats"><span>Est. 1962</span><span>Mymensingh</span></div>
+      </div>
+      <div class="carousel-slide" id="slide-10">
+        <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=SSMC" class="uni-img" alt="SSMC">
+        <h3 class="uni-name">SSMC</h3>
+        <p class="uni-desc">Sir Salimullah Medical College - Renowned medical college in Dhaka, established in 1962.</p>
+        <div class="uni-stats"><span>Est. 1962</span><span>Dhaka</span></div>
       </div>
       <div class="carousel-dots">
         <span class="dot active" onclick="goToSlide(0)"></span>
         <span class="dot" onclick="goToSlide(1)"></span>
         <span class="dot" onclick="goToSlide(2)"></span>
+        <span class="dot" onclick="goToSlide(3)"></span>
+        <span class="dot" onclick="goToSlide(4)"></span>
+        <span class="dot" onclick="goToSlide(5)"></span>
+        <span class="dot" onclick="goToSlide(6)"></span>
+        <span class="dot" onclick="goToSlide(7)"></span>
+        <span class="dot" onclick="goToSlide(8)"></span>
+        <span class="dot" onclick="goToSlide(9)"></span>
+        <span class="dot" onclick="goToSlide(10)"></span>
       </div>
     </div>
 
@@ -502,9 +588,38 @@
   <div class="founders-section">
     <div class="sec-title">Meet Our Founders</div>
     <div class="founders-grid">
-      <div class="founder-card glass-card"><div class="founder-avatar">SA</div><h3 class="founder-name">Shakil Ahmed</h3><p class="founder-title">CEO & Co-Founder</p><p class="founder-bio">Former BUET student with a vision to simplify university admissions.</p></div>
-      <div class="founder-card glass-card"><div class="founder-avatar">RH</div><h3 class="founder-name">Rifat Hasan</h3><p class="founder-title">CTO & Co-Founder</p><p class="founder-bio">Full-stack developer passionate about educational technology.</p></div>
-      <div class="founder-card glass-card"><div class="founder-avatar">NI</div><h3 class="founder-name">Nafis Islam</h3><p class="founder-title">COO & Co-Founder</p><p class="founder-bio">Education consultant helping thousands of students achieve their dreams.</p></div>
+      <div class="founder-card glass-card">
+        <div class="founder-avatar" id="founder1Avatar" onclick="document.getElementById('founder1Input').click()">
+          <div id="founder1Preview" class="avatar-placeholder">SA</div>
+        </div>
+        <input type="file" id="founder1Input" style="display:none" accept="image/*" onchange="uploadFounderPhoto(1, this)">
+        <h3 class="founder-name">Nahedul Islam Sifat</h3>
+        <p class="founder-title">CEO & Co-Founder</p>
+        <p class="founder-bio"> RUET student with a vision to simplify university admissions for all Bangladeshi students.</p>
+        <div class="upload-hint">Click avatar to upload photo</div>
+      </div>
+      
+      <div class="founder-card glass-card">
+        <div class="founder-avatar" id="founder2Avatar" onclick="document.getElementById('founder2Input').click()">
+          <div id="founder2Preview" class="avatar-placeholder">RB</div>
+        </div>
+        <input type="file" id="founder2Input" style="display:none" accept="image/*" onchange="uploadFounderPhoto(2, this)">
+        <h3 class="founder-name">Ridah Binte Zaman</h3>
+        <p class="founder-title">CTO & Co-Founder</p>
+        <p class="founder-bio">Full-stack developer passionate about educational technology and accessibility.</p>
+        <div class="upload-hint">Click avatar to upload photo</div>
+      </div>
+      
+      <div class="founder-card glass-card">
+        <div class="founder-avatar" id="founder3Avatar" onclick="document.getElementById('founder3Input').click()">
+          <div id="founder3Preview" class="avatar-placeholder">FC</div>
+        </div>
+        <input type="file" id="founder3Input" style="display:none" accept="image/*" onchange="uploadFounderPhoto(3, this)">
+        <h3 class="founder-name">Fahima Chowdhury</h3>
+        <p class="founder-title">COO & Co-Founder</p>
+        <p class="founder-bio">Education consultant with experience helping thousands of students achieve their dreams.</p>
+        <div class="upload-hint">Click avatar to upload photo</div>
+      </div>
     </div>
   </div>
 
@@ -568,7 +683,6 @@ async function handleLogin(e) {
       localStorage.setItem('path2uni_token', data.token);
       localStorage.setItem('path2uni_user', JSON.stringify(data.user));
       
-      // Check if user is admin (supports both formats)
       const isAdmin = data.user.isAdmin === true || data.user.is_admin === true || data.user.is_admin === 1;
       
       if (isAdmin) {
@@ -634,6 +748,34 @@ async function handleRegister(e) {
     errorDiv.style.display = 'block';
   }
 }
+
+// Founder Photo Upload Functions
+function uploadFounderPhoto(founderId, input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const previewDiv = document.getElementById(`founder${founderId}Preview`);
+      previewDiv.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+      // Save to localStorage
+      localStorage.setItem(`founder${founderId}_photo`, e.target.result);
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Load saved founder photos
+function loadFounderPhotos() {
+  for (let i = 1; i <= 3; i++) {
+    const savedPhoto = localStorage.getItem(`founder${i}_photo`);
+    if (savedPhoto) {
+      const previewDiv = document.getElementById(`founder${i}Preview`);
+      previewDiv.innerHTML = `<img src="${savedPhoto}" style="width:100%;height:100%;object-fit:cover;">`;
+    }
+  }
+}
+
+// Call on page load
+loadFounderPhotos();
 
 function showAlert() { alert('Please login or register first.'); }
 function showContactAlert() { alert('Contact Us:\n\nEmail: support@path2uni.com\nPhone: +880 1234 567890\nAddress: Dhaka, Bangladesh'); }
