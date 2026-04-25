@@ -238,9 +238,9 @@ function renderTasks() {
         <input type="checkbox" class="task-checkbox" ${task.is_completed ? 'checked' : ''} onchange="toggleTask(${task.id}, this.checked)">
         <div class="task-content">
           <div class="task-title ${task.is_completed ? 'completed' : ''}">${escapeHtml(task.task_title)}</div>
-          ${task.task_time ? `<div class="task-time">⏰ ${task.task_time}</div>` : ''}
+          ${task.task_time ? `<div class="task-time"> Time ${task.task_time}</div>` : ''}
         </div>
-        <button class="delete-task" onclick="deleteTask(${task.id})">🗑️</button>
+        <button class="delete-task" onclick="deleteTask(${task.id})">Delete</button>
       </div>
     `).join('');
   }
