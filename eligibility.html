@@ -163,12 +163,12 @@ async function checkEligibility() {
     
     if (data.eligibleUniversities && data.eligibleUniversities.length > 0) {
       resultDiv.innerHTML = `
-        <strong>✅ You are eligible for ${data.eligibleUniversities.length} universities!</strong><br><br>
+        <strong>You are eligible for ${data.eligibleUniversities.length} universities!</strong><br><br>
         ${data.eligibleUniversities.map(u => `<div class="uni-result"><span>${u.name}</span><span class="eligibility-badge">Eligible</span></div>`).join('')}
       `;
       resultDiv.style.background = 'rgba(34,197,94,0.1)';
     } else {
-      resultDiv.innerHTML = '❌ No universities found with your current GPA. Try improving your grades.';
+      resultDiv.innerHTML = 'No universities found with your current GPA. Try improving your grades.';
       resultDiv.style.background = 'rgba(239,68,68,0.1)';
     }
   } catch(e) {
