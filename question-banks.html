@@ -124,6 +124,7 @@
 
 <script>
 const API_URL = 'https://path2uni-236v.onrender.com/api';
+const BASE_URL = 'https://path2uni-236v.onrender.com';
 let authToken = localStorage.getItem('path2uni_token');
 let allQuestions = [];
 
@@ -153,6 +154,7 @@ async function loadQuestionBanks() {
   }
 }
 
+// FIXED: PDF links use BASE_URL not API_URL
 function displayQuestionBanks(questions) {
   const container = document.getElementById('qbList');
   if (!questions.length) {
@@ -160,15 +162,18 @@ function displayQuestionBanks(questions) {
     return;
   }
   
-  container.innerHTML = questions.map(q => `
-    <div class="qb-card">
-      <h3>${escapeHtml(q.title || q.university + ' ' + (q.subject || 'Question'))}</h3>
-      <div class="qb-meta">🏛️ ${escapeHtml(q.university)}</div>
-      <div class="qb-meta">📚 Subject: ${q.subject || 'General'}</div>
-      <div class="qb-meta">📅 Year: ${q.year || 'N/A'}</div>
-      <a href="${API_URL}${q.pdf_path}" target="_blank" class="pdf-link">📄 Download PDF</a>
-    </div>
-  `).join('');
+  container.innerHTML = questions.map(q => {
+    const pdfUrl = q.pdf_path.startsWith('http') ? q.pdf_path : `${BASE_URL}${q.pdf_path}`;
+    return `
+      <div class="qb-card">
+        <h3>${escapeHtml(q.title || q.university + ' ' + (q.subject || 'Question'))}</h3>
+        <div class="qb-meta">🏛️ ${escapeHtml(q.university)}</div>
+        <div class="qb-meta">📚 Subject: ${q.subject || 'General'}</div>
+        <div class="qb-meta">📅 Year: ${q.year || 'N/A'}</div>
+        <a href="${pdfUrl}" target="_blank" class="pdf-link">📄 Download PDF</a>
+      </div>
+    `;
+  }).join('');
 }
 
 function filterQuestionBanks() {
