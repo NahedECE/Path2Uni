@@ -17,15 +17,17 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'path2uni_super_secret_key_2026';
 
-// In your Gemini initialization (near top of server.js)
-if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'AIzaSyDlw_VHtB2kFmkCJyoM-oAAOBT1mILIvAs') {
-  // Try with different model configuration
-  geminiAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  console.log('✅ Gemini AI initialized');
-  
-  // Test if model works
-  const testModel = geminiAI.getGenerativeModel({ model: 'gemini-1.0-pro' });
-  console.log('Using gemini-1.0-pro model');
+// Initialize Gemini AI
+let geminiAI = null;
+if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here') {
+  try {
+    geminiAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    console.log('✅ Gemini AI initialized');
+  } catch(e) {
+    console.log('⚠️ Failed to initialize Gemini:', e.message);
+  }
+} else {
+  console.log('⚠️ GEMINI_API_KEY not set');
 }
 
 // Email transporter
@@ -211,7 +213,7 @@ async function initDB() {
     )
   `);
 
-  // Insert default data
+  // Insert default universities
   const uniCount = await db.get('SELECT COUNT(*) as c FROM universities');
   if (uniCount.c === 0) {
     await db.run(`INSERT INTO universities (name, short_name, category, min_ssc_gpa, min_hsc_gpa, min_combined_gpa, min_biology_gpa, exam_date, website) VALUES 
@@ -224,6 +226,7 @@ async function initDB() {
     `);
   }
 
+  // Insert sample exam dates
   const examCount = await db.get('SELECT COUNT(*) as c FROM exam_dates');
   if (examCount.c === 0) {
     await db.run(`INSERT INTO exam_dates (title, university, exam_date, exam_time, venue) VALUES 
@@ -233,6 +236,7 @@ async function initDB() {
     `);
   }
 
+  // Insert sample circulars
   const circCount = await db.get('SELECT COUNT(*) as c FROM circulars');
   if (circCount.c === 0) {
     await db.run(`INSERT INTO circulars (title, university, description, application_link, application_start, application_deadline, exam_date) VALUES 
@@ -241,6 +245,7 @@ async function initDB() {
     `);
   }
 
+  // Create default admin user
   const adminExists = await db.get('SELECT * FROM users WHERE email = ?', ['admin@path2uni.com']);
   if (!adminExists) {
     const hashedPassword = await bcrypt.hash('admin123', 10);
@@ -481,151 +486,65 @@ app.put('/api/notifications/:id/read', auth, async (req, res) => {
   res.json({ message: 'Marked read' });
 });
 
-// ============ UNIBUDDY CHATBOT (GEMINI AI) - FIXED MODEL ============
+// ============ FALLBACK RESPONSE FUNCTION ============
+
+function getFallbackResponse(message, user) {
+  const lowerMsg = message.toLowerCase();
+  
+  if (lowerMsg.includes('kuet')) {
+    return 'KUET (Khulna University of Engineering and Technology) requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://admission.kuet.ac.bd\n2. Register with HSC roll during March-April\n3. Fill application form\n4. Pay fee (1000 BDT)\n5. Download admit card\n6. Exam in May\n\nEligibility: Science background with PCM required.';
+  }
+  else if (lowerMsg.includes('buet')) {
+    return 'BUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://ugadmission.buet.ac.bd\n2. Register during March\n3. Submit online application\n4. Pay fee\n5. Exam in May';
+  }
+  else if (lowerMsg.includes('du') || lowerMsg.includes('dhaka university')) {
+    return 'DU (Ka Unit) requires combined GPA ≥ 7.5.\n\nApply at: https://admission.eis.du.ac.bd\nApplication: March-April\nExam: May';
+  }
+  else if (lowerMsg.includes('ruet')) {
+    return 'RUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://admission.ruet.ac.bd';
+  }
+  else if (lowerMsg.includes('cuet')) {
+    return 'CUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://cuet.ac.bd/admission';
+  }
+  else if (lowerMsg.includes('medical') || lowerMsg.includes('dmc')) {
+    return 'Medical admission requires SSC ≥ 3.50, HSC ≥ 3.50, Biology ≥ 3.50.\n\nApply at: http://dgsh.teletalk.com.bd\nExam: February';
+  }
+  else if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
+    return `Hello ${user?.name || 'there'}! 👋 I'm UniBuddy. Ask me about KUET, BUET, DU, RUET, eligibility, deadlines, or how to apply!`;
+  }
+  else if (lowerMsg.includes('eligibility')) {
+    return 'To check your eligibility, go to the Eligibility Checker page and enter your SSC and HSC GPA. The system will show all universities you qualify for.';
+  }
+  else if (lowerMsg.includes('deadline')) {
+    return 'Current deadlines:\n• BUET: March 1-30\n• DU: March 10 - April 5\n• RUET: March 5 - April 5\nCheck dashboard for updates!';
+  }
+  
+  return 'I can help with university admissions! Ask me about KUET, BUET, DU, RUET, medical colleges, eligibility requirements, deadlines, or application process.';
+}
+
+// ============ UNIBUDDY CHATBOT ============
 
 app.post('/api/chatbuddy', auth, async (req, res) => {
   const { message } = req.body;
-  console.log('Chatbot request received:', message);
+  console.log('Chatbot request:', message);
   
   try {
     const user = await db.get('SELECT name, ssc_gpa, hsc_gpa FROM users WHERE id = ?', [req.userId]);
     
-    if (!geminiAI) {
-      console.log('Gemini not initialized, using fallback');
-      const fallbackReply = getFallbackResponse(message, user);
-      await db.run('INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)', 
-        [req.userId, message, fallbackReply, 'fallback']);
-      return res.json({ reply: fallbackReply });
-    }
-    
-    // The correct model name - try different options
-    let modelName = 'gemini-1.5-flash';
-    
-    // Try with the model
-    console.log('Using model:', modelName);
-    const model = geminiAI.getGenerativeModel({ model: modelName });
-    
-    const prompt = `You are UniBuddy, a helpful AI assistant for Bangladeshi students seeking university admissions.
-    
-User: ${user?.name || 'Student'} with SSC: ${user?.ssc_gpa || 'N/A'}, HSC: ${user?.hsc_gpa || 'N/A'}
-
-Answer this question briefly and helpfully: ${message}`;
-
-    const result = await model.generateContent(prompt);
-    const reply = result.response.text();
-    
-    console.log('Gemini response received');
-    
-    await db.run('INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)', 
-      [req.userId, message, reply, 'gemini']);
-    
-    res.json({ reply });
-    
-  } catch (error) {
-    console.error('Chatbot error:', error.message);
-    const fallbackReply = getFallbackResponse(message, null);
-    res.json({ reply: fallbackReply });
-  }
-});
-    // Create the prompt for Gemini
-    const prompt = `You are UniBuddy, a helpful AI assistant for Bangladeshi students seeking university admissions.
-    
-User Information:
-- Name: ${user?.name || 'Student'}
-- SSC GPA: ${user?.ssc_gpa || 'Not set'}
-- HSC GPA: ${user?.hsc_gpa || 'Not set'}
-
-You have knowledge about:
-- BUET, DU, RUET, CUET, KUET, RU, CU, JU universities
-- Medical colleges (DMC, MMC, SHMC)
-- Application deadlines and requirements
-- Exam schedules and admit cards
-- Admission eligibility criteria based on GPA
-
-Provide helpful, accurate, and friendly responses. Be specific with GPA requirements. Keep responses concise.
-
-User Question: ${message}
-
-Answer:`;
-
-    console.log('Calling Gemini API...');
-    
-    // Use the correct Gemini model
-    const model = geminiAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 500,
-      }
-    });
-    
-    const reply = result.response.text();
-    console.log('Gemini response received:', reply.substring(0, 100) + '...');
+    // Use fallback response (works without API)
+    const reply = getFallbackResponse(message, user);
     
     // Save conversation
     await db.run('INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)', 
-      [req.userId, message, reply, 'gemini']);
+      [req.userId, message, reply, 'fallback']);
     
     res.json({ reply });
     
   } catch (error) {
     console.error('Chatbot error:', error);
-    const fallbackReply = getFallbackResponse(message, null);
-    res.json({ reply: fallbackReply });
+    res.json({ reply: "I'm here to help! Ask me about KUET, BUET, DU, RUET, or any other university admission questions." });
   }
 });
-
-// Fallback response function (works without API)
-function getFallbackResponse(message, user) {
-  const lowerMsg = message.toLowerCase();
-  
-  if (lowerMsg.includes('kuet')) {
-    return 'KUET (Khulna University of Engineering and Technology) requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00. Application starts in March, exam in May.\n\nHow to apply:\n1. Visit https://admission.kuet.ac.bd\n2. Register with your HSC roll\n3. Fill the application form\n4. Pay fee (1000 BDT)\n5. Download admit card\n\nEligibility: Science background with Physics, Chemistry, Math required.';
-  }
-  else if (lowerMsg.includes('buet')) {
-    return 'BUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://ugadmission.buet.ac.bd\n2. Register during March\n3. Submit application online\n4. Pay application fee\n5. Appear for admission test in May\n\nEligibility: Science background with PCM required.';
-  }
-  else if (lowerMsg.includes('du') || lowerMsg.includes('dhaka university')) {
-    return 'Dhaka University (Ka Unit - Science) requires combined GPA ≥ 7.5.\n\nHow to apply:\n1. Visit https://admission.eis.du.ac.bd\n2. Application period: March-April\n3. Fill online form\n4. Exam in May\n\nEligibility: SSC and HSC GPA ≥ 3.50 each.';
-  }
-  else if (lowerMsg.includes('ruet')) {
-    return 'RUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://admission.ruet.ac.bd\nApplication: March-April\nExam: May\n\nEligibility: Science background with PCM.';
-  }
-  else if (lowerMsg.includes('cuet')) {
-    return 'CUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://cuet.ac.bd/admission\nApplication: March-April\nExam: May';
-  }
-  else if (lowerMsg.includes('medical') || lowerMsg.includes('dmc') || lowerMsg.includes('mbbs')) {
-    return 'Medical admission (MBBS/BDS) requires:\n• SSC GPA ≥ 3.50\n• HSC GPA ≥ 3.50\n• Biology GPA ≥ 3.50\n\nExam通常在 February\nApply at: http://dgsh.teletalk.com.bd\n\nTop medical colleges: DMC, MMC, SHMC, SSMC, Rangpur Medical.';
-  }
-  else if (lowerMsg.includes('eligibility') || lowerMsg.includes('qualify')) {
-    const gpaInfo = user && user.ssc_gpa && user.hsc_gpa 
-      ? `Based on your GPA (SSC: ${user.ssc_gpa}, HSC: ${user.hsc_gpa}), go to the Eligibility Checker page to see which universities you qualify for.`
-      : 'Go to the Eligibility Checker page and enter your SSC and HSC GPA to see which universities you qualify for.';
-    return gpaInfo;
-  }
-  else if (lowerMsg.includes('deadline') || lowerMsg.includes('application date')) {
-    return 'Current application deadlines:\n• BUET: March 1-30, 2026\n• DU: March 10 - April 5, 2026\n• RUET: March 5 - April 5, 2026\n• Medical: December 1-31, 2025\n\nCheck Live Circulars on dashboard for updates!';
-  }
-  else if (lowerMsg.includes('apply') || lowerMsg.includes('application process')) {
-    return 'Application process:\n1. Check circular on dashboard\n2. Visit university admission portal\n3. Register with HSC roll\n4. Fill form and upload photo\n5. Pay application fee (500-1500 BDT)\n6. Download admit card\n7. Take exam\n\nNeed help with a specific university?';
-  }
-  else if (lowerMsg.includes('admit') || lowerMsg.includes('admit card')) {
-    return 'Admit cards are usually available 1-2 weeks before the exam. Download from the university admission portal using your HSC roll and application ID.';
-  }
-  else if (lowerMsg.includes('result')) {
-    return 'Results are typically published 2-3 months after exams. Check the respective university website for updates.';
-  }
-  else if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
-    return `Hello ${user?.name || 'there'}! 👋 I'm UniBuddy. I can help you with:\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria and GPA requirements\n• Application deadlines and exam schedules\n• How to apply for specific universities\n\nWhat would you like to know?`;
-  }
-  else if (lowerMsg.includes('help') || lowerMsg.includes('what can you do')) {
-    return 'I can help you with:\n• University admission requirements (KUET, BUET, DU, RUET, CUET, Medical)\n• Eligibility criteria based on your GPA\n• Application deadlines and exam schedules\n• How to apply for different universities\n• Admit card and result information\n\nJust ask me anything about university admissions in Bangladesh!';
-  }
-  
-  return `I can help you with university admissions in Bangladesh! Ask me about:\n\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria and GPA requirements\n• Application deadlines and how to apply\n• Medical college admissions\n\nFor example: "How to apply for KUET?" or "What are the eligibility requirements for BUET?"`;
-}
 
 // ============ ADMIN ROUTES ============
 
@@ -656,44 +575,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Start server
+// ============ START SERVER ============
+
 initDB().then(() => {
-// Test Gemini endpoint
-app.get('/api/test-gemini', async (req, res) => {
-  if (!geminiAI) {
-    return res.json({ error: 'Gemini not configured', geminiEnabled: false });
-  }
-  
-  try {
-    // Try multiple model names
-    const modelsToTry = ['gemini-1.5-flash', 'gemini-pro', 'gemini-1.0-pro'];
-    let lastError = null;
-    
-    for (const modelName of modelsToTry) {
-      try {
-        console.log('Trying model:', modelName);
-        const model = geminiAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent('Say "Hello from Path2Uni!"');
-        return res.json({ 
-          success: true, 
-          reply: result.response.text(), 
-          modelUsed: modelName,
-          geminiEnabled: true 
-        });
-      } catch (e) {
-        lastError = e.message;
-        console.log(`Model ${modelName} failed:`, e.message);
-      }
-    }
-    
-    res.json({ error: lastError, geminiEnabled: true });
-  } catch (error) {
-    res.json({ error: error.message, geminiEnabled: true });
-  }
-});
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`👑 Admin: admin@path2uni.com / admin123`);
-    console.log(`🤖 Gemini AI: ${geminiAI ? 'Enabled' : 'Disabled - Add API key'}`);
+    console.log(`🤖 Chatbot: Fallback mode (Gemini disabled for now)`);
   });
+}).catch(err => {
+  console.error('Failed to start:', err);
 });
