@@ -180,13 +180,13 @@ function renderCirculars(circulars) {
     <div class="circular-card">
       <div class="circular-info">
         <h4>${c.title}</h4>
-        <div>🏛️ ${c.university}</div>
-        <div class="circular-meta">📅 Deadline: ${c.application_deadline}</div>
-        ${c.description ? `<div class="circular-meta">📝 ${c.description.substring(0, 100)}...</div>` : ''}
+        <div> ${c.university}</div>
+        <div class="circular-meta"> Deadline: ${c.application_deadline}</div>
+        ${c.description ? `<div class="circular-meta"> ${c.description.substring(0, 100)}...</div>` : ''}
       </div>
       <div>
         ${c.application_link ? `<button class="btn-small" style="margin-right: 8px;" onclick="window.open('${c.application_link}', '_blank')">Apply →</button>` : ''}
-        ${c.pdf_path ? `<span class="pdf-badge">📄 PDF Available</span>` : ''}
+        ${c.pdf_path ? `<span class="pdf-badge"> PDF Available</span>` : ''}
       </div>
     </div>
   `).join('');
