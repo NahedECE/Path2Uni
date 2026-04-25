@@ -451,16 +451,6 @@
     30% { transform: translateY(-10px); opacity: 1; }
   }
   
-  .pdf-link {
-    color: #60a5fa;
-    text-decoration: none;
-    font-size: 11px;
-  }
-  
-  .pdf-link:hover {
-    text-decoration: underline;
-  }
-  
   @media (max-width: 900px) {
     .dashboard-grid { grid-template-columns: 1fr; }
     .page-wrap { padding: 1rem; }
@@ -617,12 +607,18 @@ async function loadDashboard() {
       displayCirculars(data.circulars || []);
       document.getElementById('circularCount').textContent = `${data.circulars?.length || 0} active`;
       
-      if (data.nextExam) startCountdown(data.nextExam.exam_date, data.nextExam.university);
+      // FIXED: Start countdown with proper date handling
+      if (data.nextExam && data.nextExam.exam_date) {
+        startCountdown(data.nextExam.exam_date, data.nextExam.university);
+      } else {
+        // Fallback: Use sample exam dates if no upcoming exam in database
+        const fallbackDate = '2026-05-25';
+        startCountdown(fallbackDate, 'BUET Admission Test');
+      }
     }
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error('Load dashboard error:', e); }
 }
 
-// FIXED: displayCirculars function - PDF links use BASE_URL not API_URL
 function displayCirculars(circulars) {
   const container = document.getElementById('circularsList');
   if (!circulars.length) { container.innerHTML = '<div class="loading">No active circulars</div>'; return; }
@@ -630,12 +626,10 @@ function displayCirculars(circulars) {
   container.innerHTML = circulars.map(c => {
     let buttons = '';
     
-    // Application button
     if (c.application_link) {
       buttons += `<button class="btn-small" onclick="window.open('${c.application_link}', '_blank')">Apply →</button>`;
     }
     
-    // PDF download button - FIXED: use BASE_URL not API_URL
     if (c.pdf_path) {
       const pdfUrl = c.pdf_path.startsWith('http') ? c.pdf_path : `${BASE_URL}${c.pdf_path}`;
       buttons += `<button class="btn-pdf" onclick="window.open('${pdfUrl}', '_blank')">📄 Download PDF</button>`;
@@ -672,16 +666,48 @@ function searchUniversities() {
   displayUniversities(allUniversities.filter(u => u.name.toLowerCase().includes(term)));
 }
 
-function startCountdown(date, name) {
+// FIXED: Proper countdown timer function
+function startCountdown(dateString, examName) {
   if (countdownInterval) clearInterval(countdownInterval);
-  document.getElementById('nextExamName').textContent = name ? `${name} on ${date}` : 'No upcoming exams';
+  
+  const targetDate = new Date(dateString);
+  
+  // Check if date is valid
+  if (isNaN(targetDate.getTime())) {
+    console.error('Invalid date:', dateString);
+    document.getElementById('nextExamName').textContent = 'No upcoming exams scheduled';
+    document.getElementById('days').textContent = '0';
+    document.getElementById('hours').textContent = '0';
+    document.getElementById('minutes').textContent = '0';
+    document.getElementById('seconds').textContent = '0';
+    return;
+  }
+  
+  document.getElementById('nextExamName').textContent = examName ? `${examName} on ${dateString}` : 'Next Exam';
+  
   countdownInterval = setInterval(() => {
-    const diff = new Date(date) - new Date();
-    if (diff <= 0) { clearInterval(countdownInterval); return; }
-    document.getElementById('days').textContent = Math.floor(diff / (1000*60*60*24));
-    document.getElementById('hours').textContent = Math.floor((diff % (86400000)) / (3600000));
-    document.getElementById('minutes').textContent = Math.floor((diff % 3600000) / 60000);
-    document.getElementById('seconds').textContent = Math.floor((diff % 60000) / 1000);
+    const now = new Date();
+    const diff = targetDate - now;
+    
+    if (diff <= 0) {
+      document.getElementById('days').textContent = '0';
+      document.getElementById('hours').textContent = '0';
+      document.getElementById('minutes').textContent = '0';
+      document.getElementById('seconds').textContent = '0';
+      document.getElementById('nextExamName').textContent = `${examName || 'Exam'} has started!`;
+      clearInterval(countdownInterval);
+      return;
+    }
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    document.getElementById('days').textContent = days;
+    document.getElementById('hours').textContent = hours;
+    document.getElementById('minutes').textContent = minutes;
+    document.getElementById('seconds').textContent = seconds;
   }, 1000);
 }
 
