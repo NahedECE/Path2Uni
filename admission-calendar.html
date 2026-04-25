@@ -254,8 +254,8 @@ function renderUpcomingEvents() {
   if (upcoming.length === 0) { container.innerHTML = '<div class="loading">No upcoming exams</div>'; return; }
   container.innerHTML = upcoming.map(e => `
     <div class="event-item">
-      <div><div class="event-title">${e.title}</div><div class="event-time">🏛️ ${e.university}</div></div>
-      <div><div class="event-time">${e.exam_date}</div>${e.exam_time ? `<div class="event-time">⏰ ${e.exam_time}</div>` : ''}</div>
+      <div><div class="event-title">${e.title}</div><div class="event-time"> ${e.university}</div></div>
+      <div><div class="event-time">${e.exam_date}</div>${e.exam_time ? `<div class="event-time"> ${e.exam_time}</div>` : ''}</div>
     </div>
   `).join('');
 }
