@@ -83,10 +83,6 @@
     border: 1px solid rgba(168,85,247,0.3);
   }
   
-  .admin-link:hover {
-    background: rgba(168,85,247,0.3);
-  }
-  
   .logout-btn:hover { color: #f87171; }
   
   .dashboard-grid {
@@ -192,7 +188,7 @@
   .loading { text-align: center; padding: 2rem; color: rgba(255,255,255,0.5); }
   .section-title { font-size: 14px; font-weight: 600; margin-bottom: 1rem; display: flex; justify-content: space-between; }
   
-  /* Chatbot */
+  /* Chatbot Styles */
   .chatbot-container {
     position: fixed;
     bottom: 20px;
@@ -403,17 +399,18 @@
     </div>
     <div class="chatbot-messages" id="chatMessages">
       <div class="message bot">
-        <div class="message-content">👋 Hi! I'm UniBuddy, your AI admission assistant. Ask me anything about:<br><br>• University admission requirements<br>• Application deadlines<br>• Exam schedules<br>• Eligibility criteria<br>• And more!</div>
+        <div class="message-content">👋 Hi! I'm UniBuddy, your AI admission assistant powered by Google Gemini. Ask me about:<br><br>• KUET, BUET, DU, RUET admission requirements<br>• Eligibility criteria and GPA requirements<br>• Application deadlines and exam schedules<br>• Medical college admissions<br>• And more!</div>
       </div>
     </div>
     <div class="chatbot-input">
-      <input type="text" id="chatInput" placeholder="Type your question..." onkeypress="if(event.key==='Enter') sendMessage()">
+      <input type="text" id="chatInput" placeholder="Ask me about KUET, BUET, deadlines..." onkeypress="if(event.key==='Enter') sendMessage()">
       <button onclick="sendMessage()">Send</button>
     </div>
   </div>
 </div>
 
 <script>
+// IMPORTANT: Update this with your actual Render URL
 const API_URL = 'https://path2uni-236v.onrender.com/api';
 let authToken = localStorage.getItem('path2uni_token');
 let currentUser = null;
@@ -459,7 +456,6 @@ async function loadDashboard() {
       
       if (data.nextExam) startCountdown(data.nextExam.exam_date, data.nextExam.university);
       
-      // Show admin link if user is admin
       if (data.user?.isAdmin) {
         document.getElementById('adminLink').style.display = 'inline-block';
       }
@@ -515,9 +511,10 @@ async function uploadAvatar(input) {
   }
 }
 
-// Chatbot Functions
+// ==================== CHATBOT FUNCTIONS ====================
 function toggleChatbot() {
-  document.getElementById('chatbotWindow').classList.toggle('open');
+  const window = document.getElementById('chatbotWindow');
+  window.classList.toggle('open');
 }
 
 async function sendMessage() {
@@ -525,23 +522,39 @@ async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
   
+  // Add user message
   addMessage(message, 'user');
   input.value = '';
   
-  const typingDiv = addTypingIndicator();
+  // Add typing indicator
+  const typingId = addTypingIndicator();
   
   try {
+    console.log('Sending to:', `${API_URL}/chatbuddy`);
     const response = await fetch(`${API_URL}/chatbuddy`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
       body: JSON.stringify({ message })
     });
+    
     const data = await response.json();
-    typingDiv.remove();
-    addMessage(data.reply, 'bot');
+    console.log('Response:', data);
+    
+    // Remove typing indicator
+    removeTypingIndicator(typingId);
+    
+    if (data.reply) {
+      addMessage(data.reply, 'bot');
+    } else {
+      addMessage("I received your message but couldn't process it. Please try again.", 'bot');
+    }
   } catch (error) {
-    typingDiv.remove();
-    addMessage("Sorry, I'm having trouble connecting. Please try again.", 'bot');
+    console.error('Chat error:', error);
+    removeTypingIndicator(typingId);
+    addMessage("I'm having trouble connecting to the server. Please check your internet connection and try again.", 'bot');
   }
 }
 
@@ -556,13 +569,19 @@ function addMessage(text, sender) {
 
 function addTypingIndicator() {
   const messagesDiv = document.getElementById('chatMessages');
+  const id = 'typing-' + Date.now();
   const typingDiv = document.createElement('div');
   typingDiv.className = 'message bot';
-  typingDiv.id = 'typingIndicator';
+  typingDiv.id = id;
   typingDiv.innerHTML = `<div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
   messagesDiv.appendChild(typingDiv);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  return typingDiv;
+  return id;
+}
+
+function removeTypingIndicator(id) {
+  const element = document.getElementById(id);
+  if (element) element.remove();
 }
 
 async function logout() {
@@ -571,7 +590,23 @@ async function logout() {
   window.location.href = 'index.html';
 }
 
-if (!authToken) { window.location.href = 'index.html'; } else { loadDashboard(); }
+// Test connection on load
+async function testConnection() {
+  try {
+    const response = await fetch(`${API_URL}/health`);
+    const data = await response.json();
+    console.log('Backend connection:', data);
+  } catch(e) {
+    console.error('Backend connection failed:', e);
+  }
+}
+
+if (!authToken) { 
+  window.location.href = 'index.html'; 
+} else { 
+  loadDashboard();
+  testConnection();
+}
 </script>
 </body>
 </html>
