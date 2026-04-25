@@ -102,7 +102,6 @@
     </div>
   </div>
 
-  <!-- Founders -->
   <div class="founders-section">
     <div class="sec-title">Meet Our Founders</div>
     <div class="founders-grid">
@@ -172,7 +171,6 @@ async function handleLogin(e) {
       localStorage.setItem('path2uni_token', data.token);
       localStorage.setItem('path2uni_user', JSON.stringify(data.user));
       
-      // Redirect based on user role
       if (data.user.isAdmin) {
         window.location.href = 'admin-dashboard.html';
       } else {
