@@ -8,8 +8,6 @@ const sqlite = require('sqlite');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const nodemailer = require('nodemailer');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 dotenv.config();
 
@@ -17,28 +15,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'path2uni_super_secret_key_2026';
 
-// Initialize Gemini AI
-let geminiAI = null;
-if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here') {
-  try {
-    geminiAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    console.log('✅ Gemini AI initialized');
-  } catch(e) {
-    console.log('⚠️ Failed to initialize Gemini:', e.message);
-  }
-} else {
-  console.log('⚠️ GEMINI_API_KEY not set');
-}
+// Initialize DeepSeek
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
-// Email transporter
-let transporter = null;
-if (process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.EMAIL_USER !== 'your-email@gmail.com') {
-  transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-  });
-  console.log('✅ Email notifications enabled');
-}
+let db;
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -56,7 +36,119 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-let db;
+// DeepSeek API call function
+async function callDeepSeek(message, userContext) {
+  const systemPrompt = `You are UniBuddy, a helpful AI assistant for Bangladeshi students seeking university admissions.
+
+User Information:
+- Name: ${userContext?.name || 'Student'}
+- SSC GPA: ${userContext?.ssc_gpa || 'Not set'}
+- HSC GPA: ${userContext?.hsc_gpa || 'Not set'}
+
+You have knowledge about:
+- BUET, DU, RUET, CUET, KUET, RU, CU, JU universities
+- Medical colleges (DMC, MMC, SHMC, SSMC, Rangpur Medical)
+- GST Cluster universities
+- Application deadlines and requirements
+- Exam schedules and admit cards
+- Admission eligibility criteria based on GPA
+
+Provide helpful, accurate, and friendly responses. Be specific with GPA requirements. If user's GPA is available, give personalized advice. Keep responses concise but informative (2-4 sentences).`;
+
+  try {
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      })
+    });
+
+    const data = await response.json();
+    
+    if (data.error) {
+      console.error('DeepSeek API error:', data.error);
+      return null;
+    }
+    
+    return data.choices[0].message.content;
+  } catch (error) {
+    console.error('DeepSeek call error:', error);
+    return null;
+  }
+}
+
+// Fallback response function (if API fails)
+function getFallbackResponse(message, user) {
+  const lowerMsg = message.toLowerCase();
+  
+  if (lowerMsg.includes('kuet')) {
+    return 'KUET (Khulna University of Engineering and Technology) requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://admission.kuet.ac.bd\n2. Register with HSC roll during March-April\n3. Fill application form\n4. Pay fee (1000 BDT)\n5. Download admit card\n6. Exam in May\n\nEligibility: Science background with PCM required.';
+  }
+  else if (lowerMsg.includes('buet')) {
+    return 'BUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://ugadmission.buet.ac.bd\n2. Register during March\n3. Submit online application\n4. Pay fee (1200 BDT)\n5. Exam in May\n\nEligibility: Science background with PCM.';
+  }
+  else if (lowerMsg.includes('du') || lowerMsg.includes('dhaka university')) {
+    return 'DU (Ka Unit - Science) requires combined GPA ≥ 7.5.\n\nHow to apply:\n1. Visit https://admission.eis.du.ac.bd\n2. Application: March 10 - April 5\n3. Fill online form\n4. Pay fee (1000 BDT)\n5. Exam in May\n\nEligibility: SSC & HSC GPA ≥ 3.50 each.';
+  }
+  else if (lowerMsg.includes('ruet')) {
+    return 'RUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://admission.ruet.ac.bd\nApplication: March 5 - April 5\nExam: May\nEligibility: Science background with PCM.';
+  }
+  else if (lowerMsg.includes('cuet')) {
+    return 'CUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://cuet.ac.bd/admission\nApplication: March 15 - April 15\nExam: May';
+  }
+  else if (lowerMsg.includes('medical') || lowerMsg.includes('dmc') || lowerMsg.includes('mbbs')) {
+    return 'Medical admission (MBBS/BDS) requires:\n• SSC GPA ≥ 3.50\n• HSC GPA ≥ 3.50\n• Biology GPA ≥ 3.50\n\nApply at: http://dgsh.teletalk.com.bd\nApplication: December 1-31\nExam: February\n\nTop medical colleges: DMC, MMC, SHMC, SSMC, Rangpur Medical.';
+  }
+  else if (lowerMsg.includes('eligibility') || lowerMsg.includes('qualify')) {
+    if (user && user.ssc_gpa && user.hsc_gpa) {
+      const combined = user.ssc_gpa + user.hsc_gpa;
+      if (combined >= 8.0) {
+        return `Based on your GPA (SSC: ${user.ssc_gpa}, HSC: ${user.hsc_gpa}, Combined: ${combined}), you are eligible for top universities like BUET, DU, RUET, CUET, KUET! Go to the Eligibility Checker page to see full list.`;
+      } else if (combined >= 7.0) {
+        return `Based on your GPA (Combined: ${combined}), you are eligible for many good universities like DU, RU, CU, JU. Check the Eligibility Checker page for complete list.`;
+      } else {
+        return `Based on your GPA (Combined: ${combined}), you may be eligible for general universities. Consider improving your grades for competitive programs. Check the Eligibility Checker page.`;
+      }
+    }
+    return 'Go to the Eligibility Checker page and enter your SSC and HSC GPA to see which universities you qualify for.';
+  }
+  else if (lowerMsg.includes('deadline') || lowerMsg.includes('application date')) {
+    return 'Current application deadlines:\n• BUET: March 1-30, 2026\n• DU: March 10 - April 5, 2026\n• RUET: March 5 - April 5, 2026\n• Medical: December 1-31, 2025\n• CUET: March 15 - April 15, 2026\n\nCheck Live Circulars on dashboard for updates!';
+  }
+  else if (lowerMsg.includes('apply') || lowerMsg.includes('application process')) {
+    return 'Application process:\n1. Check circular on dashboard\n2. Visit university admission portal\n3. Register with HSC roll\n4. Fill form and upload photo\n5. Pay application fee (500-1500 BDT)\n6. Download admit card\n7. Take exam\n\nNeed help with a specific university? Just ask!';
+  }
+  else if (lowerMsg.includes('admit') || lowerMsg.includes('admit card')) {
+    return 'Admit cards are usually available 1-2 weeks before the exam. Download from the university admission portal using your HSC roll and application ID. Keep a printed copy for the exam day.';
+  }
+  else if (lowerMsg.includes('result')) {
+    return 'Results are typically published 2-3 months after exams. Check the respective university website for updates. You can also enable notifications on your dashboard to get alerts.';
+  }
+  else if (lowerMsg.includes('gpa')) {
+    return 'Combined GPA = SSC GPA + HSC GPA. Most top universities require combined ≥ 8.0. Good universities require ≥ 7.0. General universities require ≥ 6.0. Medical requires Biology ≥ 3.50.';
+  }
+  else if (lowerMsg.includes('fee') || lowerMsg.includes('cost')) {
+    return 'Application fees:\n• BUET: 1200 BDT\n• DU: 1000 BDT\n• RUET: 1000 BDT\n• CUET: 1000 BDT\n• Medical: 1000 BDT\n• General universities: 500-800 BDT';
+  }
+  else if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
+    return `Hello ${user?.name || 'there'}! 👋 I'm UniBuddy. I can help you with:\n\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria based on your GPA\n• Application deadlines and how to apply\n• Medical college admissions\n• Exam schedules and admit cards\n\nWhat would you like to know?`;
+  }
+  else if (lowerMsg.includes('help') || lowerMsg.includes('what can you do')) {
+    return 'I can help you with:\n• University admission requirements (KUET, BUET, DU, RUET, CUET, Medical)\n• Eligibility criteria based on your GPA\n• Application deadlines and exam schedules\n• How to apply for different universities\n• Admit card and result information\n• Application fees\n\nJust ask me anything about university admissions in Bangladesh!';
+  }
+  
+  return `I can help with university admissions in Bangladesh! Ask me about:\n\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria and GPA requirements\n• Application deadlines and how to apply\n• Medical college admissions\n• Exam schedules and admit cards\n\nFor example: "How to apply for KUET?" or "What are the eligibility requirements for BUET?"`;
+}
 
 async function initDB() {
   db = await sqlite.open({
@@ -217,12 +309,12 @@ async function initDB() {
   const uniCount = await db.get('SELECT COUNT(*) as c FROM universities');
   if (uniCount.c === 0) {
     await db.run(`INSERT INTO universities (name, short_name, category, min_ssc_gpa, min_hsc_gpa, min_combined_gpa, min_biology_gpa, exam_date, website) VALUES 
-      ('BUET', 'BUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://ugadmission.buet.ac.bd'),
-      ('DU', 'DU', 'general', 3.5, 3.5, 7.5, NULL, '2026-05-15', 'https://admission.eis.du.ac.bd'),
-      ('RUET', 'RUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://admission.ruet.ac.bd'),
-      ('CUET', 'CUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://cuet.ac.bd/admission'),
-      ('KUET', 'KUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://admission.kuet.ac.bd'),
-      ('DMC', 'DMC', 'medical', 3.5, 3.5, 7.0, 3.5, '2026-02-10', 'http://dgsh.teletalk.com.bd')
+      ('Bangladesh University of Engineering and Technology', 'BUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://ugadmission.buet.ac.bd'),
+      ('University of Dhaka', 'DU', 'general', 3.5, 3.5, 7.5, NULL, '2026-05-15', 'https://admission.eis.du.ac.bd'),
+      ('Rajshahi University of Engineering and Technology', 'RUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://admission.ruet.ac.bd'),
+      ('Chittagong University of Engineering and Technology', 'CUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://cuet.ac.bd/admission'),
+      ('Khulna University of Engineering and Technology', 'KUET', 'engineering', 3.5, 3.5, 8.0, NULL, '2026-05-25', 'https://admission.kuet.ac.bd'),
+      ('Dhaka Medical College', 'DMC', 'medical', 3.5, 3.5, 7.0, 3.5, '2026-02-10', 'http://dgsh.teletalk.com.bd')
     `);
   }
 
@@ -486,43 +578,7 @@ app.put('/api/notifications/:id/read', auth, async (req, res) => {
   res.json({ message: 'Marked read' });
 });
 
-// ============ FALLBACK RESPONSE FUNCTION ============
-
-function getFallbackResponse(message, user) {
-  const lowerMsg = message.toLowerCase();
-  
-  if (lowerMsg.includes('kuet')) {
-    return 'KUET (Khulna University of Engineering and Technology) requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://admission.kuet.ac.bd\n2. Register with HSC roll during March-April\n3. Fill application form\n4. Pay fee (1000 BDT)\n5. Download admit card\n6. Exam in May\n\nEligibility: Science background with PCM required.';
-  }
-  else if (lowerMsg.includes('buet')) {
-    return 'BUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://ugadmission.buet.ac.bd\n2. Register during March\n3. Submit online application\n4. Pay fee\n5. Exam in May';
-  }
-  else if (lowerMsg.includes('du') || lowerMsg.includes('dhaka university')) {
-    return 'DU (Ka Unit) requires combined GPA ≥ 7.5.\n\nApply at: https://admission.eis.du.ac.bd\nApplication: March-April\nExam: May';
-  }
-  else if (lowerMsg.includes('ruet')) {
-    return 'RUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://admission.ruet.ac.bd';
-  }
-  else if (lowerMsg.includes('cuet')) {
-    return 'CUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://cuet.ac.bd/admission';
-  }
-  else if (lowerMsg.includes('medical') || lowerMsg.includes('dmc')) {
-    return 'Medical admission requires SSC ≥ 3.50, HSC ≥ 3.50, Biology ≥ 3.50.\n\nApply at: http://dgsh.teletalk.com.bd\nExam: February';
-  }
-  else if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
-    return `Hello ${user?.name || 'there'}! 👋 I'm UniBuddy. Ask me about KUET, BUET, DU, RUET, eligibility, deadlines, or how to apply!`;
-  }
-  else if (lowerMsg.includes('eligibility')) {
-    return 'To check your eligibility, go to the Eligibility Checker page and enter your SSC and HSC GPA. The system will show all universities you qualify for.';
-  }
-  else if (lowerMsg.includes('deadline')) {
-    return 'Current deadlines:\n• BUET: March 1-30\n• DU: March 10 - April 5\n• RUET: March 5 - April 5\nCheck dashboard for updates!';
-  }
-  
-  return 'I can help with university admissions! Ask me about KUET, BUET, DU, RUET, medical colleges, eligibility requirements, deadlines, or application process.';
-}
-
-// ============ UNIBUDDY CHATBOT ============
+// ============ UNIBUDDY CHATBOT WITH DEEPSEEK ============
 
 app.post('/api/chatbuddy', auth, async (req, res) => {
   const { message } = req.body;
@@ -531,18 +587,35 @@ app.post('/api/chatbuddy', auth, async (req, res) => {
   try {
     const user = await db.get('SELECT name, ssc_gpa, hsc_gpa FROM users WHERE id = ?', [req.userId]);
     
-    // Use fallback response (works without API)
-    const reply = getFallbackResponse(message, user);
+    let reply = null;
+    let aiProvider = 'fallback';
+    
+    // Try DeepSeek AI first
+    if (DEEPSEEK_API_KEY && DEEPSEEK_API_KEY !== 'your_deepseek_api_key_here') {
+      console.log('Calling DeepSeek API...');
+      reply = await callDeepSeek(message, user);
+      if (reply) {
+        aiProvider = 'deepseek';
+        console.log('DeepSeek response received');
+      }
+    }
+    
+    // Fallback to local responses if AI fails
+    if (!reply) {
+      console.log('Using fallback response');
+      reply = getFallbackResponse(message, user);
+    }
     
     // Save conversation
     await db.run('INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)', 
-      [req.userId, message, reply, 'fallback']);
+      [req.userId, message, reply, aiProvider]);
     
     res.json({ reply });
     
   } catch (error) {
     console.error('Chatbot error:', error);
-    res.json({ reply: "I'm here to help! Ask me about KUET, BUET, DU, RUET, or any other university admission questions." });
+    const fallbackReply = getFallbackResponse(message, null);
+    res.json({ reply: fallbackReply });
   }
 });
 
@@ -575,13 +648,28 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ============ TEST DEEPSEEK ENDPOINT ============
+
+app.get('/api/test-deepseek', async (req, res) => {
+  if (!DEEPSEEK_API_KEY || DEEPSEEK_API_KEY === 'your_deepseek_api_key_here') {
+    return res.json({ error: 'DeepSeek API key not configured', success: false });
+  }
+  
+  try {
+    const testReply = await callDeepSeek('Say hello from UniBuddy', { name: 'Test User' });
+    res.json({ success: true, reply: testReply });
+  } catch (error) {
+    res.json({ error: error.message, success: false });
+  }
+});
+
 // ============ START SERVER ============
 
 initDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`👑 Admin: admin@path2uni.com / admin123`);
-    console.log(`🤖 Chatbot: Fallback mode (Gemini disabled for now)`);
+    console.log(`🤖 DeepSeek AI: ${DEEPSEEK_API_KEY && DEEPSEEK_API_KEY !== 'your_deepseek_api_key_here' ? 'Enabled' : 'Disabled (using fallback)'}`);
   });
 }).catch(err => {
   console.error('Failed to start:', err);
