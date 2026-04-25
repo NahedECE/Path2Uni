@@ -92,7 +92,7 @@
   </nav>
 
   <div class="glass-card">
-    <h2 style="margin-bottom: 1rem;">📋 My Applications</h2>
+    <h2 style="margin-bottom: 1rem;">My Applications</h2>
     <div id="applicationsList"><div class="loading">Loading applications...</div></div>
   </div>
 </div>
@@ -122,7 +122,7 @@ async function loadApplications() {
   
   container.innerHTML = apps.map(app => `
     <div class="status-item">
-      <div><strong>${app.university_name}</strong><div class="circular-deadline">📅 Applied: ${app.application_date}</div></div>
+      <div><strong>${app.university_name}</strong><div class="circular-deadline"> Applied: ${app.application_date}</div></div>
       <span class="status-badge badge-${app.status === 'pending' ? 'pending' : 'submitted'}">${app.status.toUpperCase()}</span>
     </div>
   `).join('');
