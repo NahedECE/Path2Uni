@@ -538,6 +538,12 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 initDB().then(() => {
+  // Test chatbot endpoint (for debugging)
+app.post('/api/chatbuddy-test', auth, async (req, res) => {
+  const { message } = req.body;
+  console.log('Test endpoint received:', message);
+  res.json({ reply: `Test reply: You said "${message}". Gemini is ${geminiAI ? 'enabled' : 'disabled'}.` });
+});
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`👑 Admin: admin@path2uni.com / admin123`);
