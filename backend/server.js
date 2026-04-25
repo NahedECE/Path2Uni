@@ -17,11 +17,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'path2uni_super_secret_key_2026';
 
-// Initialize Gemini AI
-let geminiAI = null;
-if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here') {
+// In your Gemini initialization (near top of server.js)
+if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'AIzaSyDlw_VHtB2kFmkCJyoM-oAAOBT1mILIvAs') {
+  // Try with different model configuration
   geminiAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   console.log('✅ Gemini AI initialized');
+  
+  // Test if model works
+  const testModel = geminiAI.getGenerativeModel({ model: 'gemini-1.0-pro' });
+  console.log('Using gemini-1.0-pro model');
 }
 
 // Email transporter
@@ -477,9 +481,7 @@ app.put('/api/notifications/:id/read', auth, async (req, res) => {
   res.json({ message: 'Marked read' });
 });
 
-// ============ UNIBUDDY CHATBOT (GEMINI AI) ============
-
-// ============ UNIBUDDY CHATBOT (GEMINI AI) - FIXED VERSION ============
+// ============ UNIBUDDY CHATBOT (GEMINI AI) - FIXED MODEL ============
 
 app.post('/api/chatbuddy', auth, async (req, res) => {
   const { message } = req.body;
@@ -488,7 +490,6 @@ app.post('/api/chatbuddy', auth, async (req, res) => {
   try {
     const user = await db.get('SELECT name, ssc_gpa, hsc_gpa FROM users WHERE id = ?', [req.userId]);
     
-    // Check if Gemini is initialized
     if (!geminiAI) {
       console.log('Gemini not initialized, using fallback');
       const fallbackReply = getFallbackResponse(message, user);
@@ -497,6 +498,35 @@ app.post('/api/chatbuddy', auth, async (req, res) => {
       return res.json({ reply: fallbackReply });
     }
     
+    // The correct model name - try different options
+    let modelName = 'gemini-1.5-flash';
+    
+    // Try with the model
+    console.log('Using model:', modelName);
+    const model = geminiAI.getGenerativeModel({ model: modelName });
+    
+    const prompt = `You are UniBuddy, a helpful AI assistant for Bangladeshi students seeking university admissions.
+    
+User: ${user?.name || 'Student'} with SSC: ${user?.ssc_gpa || 'N/A'}, HSC: ${user?.hsc_gpa || 'N/A'}
+
+Answer this question briefly and helpfully: ${message}`;
+
+    const result = await model.generateContent(prompt);
+    const reply = result.response.text();
+    
+    console.log('Gemini response received');
+    
+    await db.run('INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)', 
+      [req.userId, message, reply, 'gemini']);
+    
+    res.json({ reply });
+    
+  } catch (error) {
+    console.error('Chatbot error:', error.message);
+    const fallbackReply = getFallbackResponse(message, null);
+    res.json({ reply: fallbackReply });
+  }
+});
     // Create the prompt for Gemini
     const prompt = `You are UniBuddy, a helpful AI assistant for Bangladeshi students seeking university admissions.
     
@@ -628,18 +658,35 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 initDB().then(() => {
-// Test Gemini endpoint (remove in production)
+// Test Gemini endpoint
 app.get('/api/test-gemini', async (req, res) => {
   if (!geminiAI) {
     return res.json({ error: 'Gemini not configured', geminiEnabled: false });
   }
   
   try {
-    const model = geminiAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: 'Say "Hello from Path2Uni!"' }] }]
-    });
-    res.json({ success: true, reply: result.response.text(), geminiEnabled: true });
+    // Try multiple model names
+    const modelsToTry = ['gemini-1.5-flash', 'gemini-pro', 'gemini-1.0-pro'];
+    let lastError = null;
+    
+    for (const modelName of modelsToTry) {
+      try {
+        console.log('Trying model:', modelName);
+        const model = geminiAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent('Say "Hello from Path2Uni!"');
+        return res.json({ 
+          success: true, 
+          reply: result.response.text(), 
+          modelUsed: modelName,
+          geminiEnabled: true 
+        });
+      } catch (e) {
+        lastError = e.message;
+        console.log(`Model ${modelName} failed:`, e.message);
+      }
+    }
+    
+    res.json({ error: lastError, geminiEnabled: true });
   } catch (error) {
     res.json({ error: error.message, geminiEnabled: true });
   }
