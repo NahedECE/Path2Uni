@@ -180,6 +180,12 @@
     gap: 1rem;
   }
   
+  .form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+  }
+  
   button {
     background: linear-gradient(135deg, #3b82f6, #7c3aed);
     border: none;
@@ -283,7 +289,7 @@
   
   @media (max-width: 700px) {
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .form-row { grid-template-columns: 1fr; }
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
     .admin-tabs { justify-content: center; }
     .item-card { flex-direction: column; gap: 10px; text-align: center; }
     .item-actions { justify-content: center; }
@@ -326,7 +332,7 @@
 
     <!-- ==================== CIRCULARS PANEL ==================== -->
     <div id="circularsPanel" class="panel">
-      <h3 class="section-title">➕ Add New Circular</h3>
+      <h3 class="section-title">📢 Add New Circular</h3>
       <div class="form-row">
         <div class="form-group">
           <label>Circular Title *</label>
@@ -378,7 +384,7 @@
 
     <!-- ==================== EXAM DATES PANEL ==================== -->
     <div id="examDatesPanel" class="panel">
-      <h3 class="section-title">➕ Add New Exam Date</h3>
+      <h3 class="section-title">📅 Add New Exam Date</h3>
       <div class="form-row">
         <div class="form-group">
           <label>Exam Title *</label>
@@ -406,11 +412,12 @@
         </div>
         <div class="form-group">
           <label>Description</label>
-          <input type="text" id="examDesc" placeholder="Additional info">
+          <input type="text" id="examDesc" placeholder="Additional info (optional)">
         </div>
       </div>
       <button onclick="addExamDate()">➕ Add Exam Date</button>
       <div id="examDatesSuccessMsg" class="success-msg"></div>
+      <div id="examDatesErrorMsg" class="error-msg"></div>
       
       <hr>
       
@@ -548,7 +555,7 @@ async function deleteUser(id) {
     if (response.ok) {
       loadUsers();
       loadStats();
-      showMessage('User deleted successfully!', 'users');
+      alert('User deleted successfully!');
     }
   }
 }
@@ -611,7 +618,11 @@ async function addCircular() {
     });
     
     if (response.ok) {
-      showMessage('Circular added successfully!', 'circulars', true);
+      const msgDiv = document.getElementById('circularsSuccessMsg');
+      msgDiv.textContent = 'Circular added successfully!';
+      msgDiv.style.display = 'block';
+      setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
+      
       document.getElementById('circTitle').value = '';
       document.getElementById('circUniversity').value = '';
       document.getElementById('circDesc').value = '';
@@ -624,11 +635,17 @@ async function addCircular() {
       loadStats();
     } else {
       const error = await response.json();
-      showMessage(error.error || 'Failed to add circular', 'circulars', false);
+      const errorDiv = document.getElementById('circularsErrorMsg');
+      errorDiv.textContent = error.error || 'Failed to add circular';
+      errorDiv.style.display = 'block';
+      setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
     }
   } catch(e) { 
     console.error('Add circular error:', e); 
-    showMessage('Network error. Please try again.', 'circulars', false);
+    const errorDiv = document.getElementById('circularsErrorMsg');
+    errorDiv.textContent = 'Network error. Please try again.';
+    errorDiv.style.display = 'block';
+    setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
   }
 }
 
@@ -638,7 +655,7 @@ async function deleteCircular(id) {
     if (response.ok) {
       loadCirculars();
       loadStats();
-      showMessage('Circular deleted successfully!', 'circulars', true);
+      alert('Circular deleted successfully!');
     }
   }
 }
@@ -661,6 +678,7 @@ async function loadExamDates() {
         <div class="item-info">
           <div class="item-title">${escapeHtml(e.title)}</div>
           <div class="item-meta">🏛️ ${escapeHtml(e.university)} | 📅 ${e.exam_date} ${e.exam_time ? 'at ' + e.exam_time : ''}</div>
+          ${e.venue ? `<div class="item-meta">📍 Venue: ${e.venue}</div>` : ''}
         </div>
         <div class="item-actions">
           <button class="delete-btn" onclick="deleteExamDate(${e.id})">Delete</button>
@@ -676,12 +694,13 @@ async function addExamDate() {
   const examDate = document.getElementById('examDate').value;
   
   if (!title || !university || !examDate) {
-    alert('Please fill Title, University, and Exam Date');
+    alert('Please fill Exam Title, University, and Exam Date');
     return;
   }
   
   const examData = {
-    title, university,
+    title: title,
+    university: university,
     exam_date: examDate,
     exam_time: document.getElementById('examTime').value,
     venue: document.getElementById('examVenue').value,
@@ -695,7 +714,11 @@ async function addExamDate() {
     });
     
     if (response.ok) {
-      showMessage('Exam date added successfully!', 'exam-dates', true);
+      const msgDiv = document.getElementById('examDatesSuccessMsg');
+      msgDiv.textContent = 'Exam date added successfully!';
+      msgDiv.style.display = 'block';
+      setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
+      
       document.getElementById('examTitle').value = '';
       document.getElementById('examUniversity').value = '';
       document.getElementById('examDate').value = '';
@@ -705,9 +728,18 @@ async function addExamDate() {
       loadExamDates();
       loadStats();
     } else {
-      showMessage('Failed to add exam date', 'exam-dates', false);
+      const errorDiv = document.getElementById('examDatesErrorMsg');
+      errorDiv.textContent = 'Failed to add exam date';
+      errorDiv.style.display = 'block';
+      setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
     }
-  } catch(e) { console.error('Add exam date error:', e); showMessage('Network error', 'exam-dates', false); }
+  } catch(e) { 
+    console.error('Add exam date error:', e); 
+    const errorDiv = document.getElementById('examDatesErrorMsg');
+    errorDiv.textContent = 'Network error. Please try again.';
+    errorDiv.style.display = 'block';
+    setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
+  }
 }
 
 async function deleteExamDate(id) {
@@ -716,7 +748,7 @@ async function deleteExamDate(id) {
     if (response.ok) {
       loadExamDates();
       loadStats();
-      showMessage('Exam date deleted successfully!', 'exam-dates', true);
+      alert('Exam date deleted successfully!');
     }
   }
 }
@@ -774,7 +806,11 @@ async function uploadQuestionBank() {
     });
     
     if (response.ok) {
-      showMessage('Question bank uploaded successfully!', 'question-banks', true);
+      const msgDiv = document.getElementById('qbSuccessMsg');
+      msgDiv.textContent = 'Question bank uploaded successfully!';
+      msgDiv.style.display = 'block';
+      setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
+      
       document.getElementById('qbTitle').value = '';
       document.getElementById('qbSubject').value = '';
       document.getElementById('qbYear').value = '';
@@ -783,11 +819,17 @@ async function uploadQuestionBank() {
       loadStats();
     } else {
       const error = await response.json();
-      showMessage(error.error || 'Failed to upload question bank', 'question-banks', false);
+      const errorDiv = document.getElementById('qbErrorMsg');
+      errorDiv.textContent = error.error || 'Failed to upload question bank';
+      errorDiv.style.display = 'block';
+      setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
     }
   } catch(e) { 
     console.error('Upload error:', e); 
-    showMessage('Network error. Please try again.', 'question-banks', false);
+    const errorDiv = document.getElementById('qbErrorMsg');
+    errorDiv.textContent = 'Network error. Please try again.';
+    errorDiv.style.display = 'block';
+    setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
   }
 }
 
@@ -797,47 +839,12 @@ async function deleteQuestionBank(id) {
     if (response.ok) {
       loadQuestionBanks();
       loadStats();
-      showMessage('Question bank deleted successfully!', 'question-banks', true);
+      alert('Question bank deleted successfully!');
     }
   }
 }
 
 // ============ HELPER FUNCTIONS ============
-function showMessage(message, panel, isSuccess = true) {
-  let msgElement;
-  let errorElement;
-  
-  if (panel === 'circulars') {
-    msgElement = document.getElementById('circularsSuccessMsg');
-    errorElement = document.getElementById('circularsErrorMsg');
-  } else if (panel === 'exam-dates') {
-    msgElement = document.getElementById('examDatesSuccessMsg');
-    errorElement = null;
-  } else if (panel === 'question-banks') {
-    msgElement = document.getElementById('qbSuccessMsg');
-    errorElement = document.getElementById('qbErrorMsg');
-  } else {
-    alert(message);
-    return;
-  }
-  
-  if (isSuccess) {
-    if (errorElement) errorElement.style.display = 'none';
-    msgElement.textContent = message;
-    msgElement.style.display = 'block';
-    setTimeout(() => { msgElement.style.display = 'none'; }, 3000);
-  } else {
-    if (msgElement) msgElement.style.display = 'none';
-    if (errorElement) {
-      errorElement.textContent = message;
-      errorElement.style.display = 'block';
-      setTimeout(() => { errorElement.style.display = 'none'; }, 3000);
-    } else {
-      alert(message);
-    }
-  }
-}
-
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>]/g, function(m) {
