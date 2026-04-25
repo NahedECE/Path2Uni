@@ -21,7 +21,7 @@ let db;
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log('📁 Uploads directory created');
+  console.log('📁 Uploads directory created at:', uploadsDir);
 }
 
 // Configure multer for file uploads
@@ -30,9 +30,12 @@ const storage = multer.diskStorage({
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
+    // Create unique filename with timestamp
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    const filename = file.fieldname + '-' + uniqueSuffix + ext;
+    console.log('📄 Saving file:', filename);
+    cb(null, filename);
   }
 });
 
@@ -40,6 +43,7 @@ const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'application/pdf') {
     cb(null, true);
   } else {
+    console.log('❌ Rejected file type:', file.mimetype);
     cb(new Error('Only PDF files are allowed'), false);
   }
 };
@@ -50,12 +54,10 @@ const upload = multer({
   fileFilter: fileFilter
 });
 
-// Helper function to get base URL
-function getBaseUrl(req) {
-  return `${req.protocol}://${req.get('host')}`;
-}
+// Serve uploaded files statically
+app.use('/uploads', express.static(uploadsDir));
 
-// ============ FALLBACK RESPONSE FUNCTION ============
+// ============ FALLBACK RESPONSE FUNCTION FOR CHATBOT ============
 
 function getResponse(message, user) {
   const lowerMsg = message.toLowerCase();
@@ -325,7 +327,6 @@ async function initDB() {
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
-app.use('/uploads', express.static(uploadsDir));
 
 // Auth middleware
 async function auth(req, res, next) {
@@ -338,7 +339,10 @@ async function auth(req, res, next) {
     req.userId = decoded.userId;
     req.isAdmin = decoded.isAdmin;
     next();
-  } catch(e) { res.status(401).json({ error: 'Invalid token' }); }
+  } catch(e) { 
+    console.error('Auth error:', e);
+    res.status(401).json({ error: 'Invalid token' }); 
+  }
 }
 
 // ============ AUTH ROUTES ============
@@ -495,7 +499,7 @@ app.post('/api/admin/circulars', auth, upload.single('pdf'), async (req, res) =>
     let pdfPath = null;
     if (req.file) {
       pdfPath = `/uploads/${req.file.filename}`;
-      console.log(`📄 PDF uploaded: ${pdfPath}`);
+      console.log(`📄 PDF uploaded for circular: ${pdfPath}`);
     }
     
     const result = await db.run(
@@ -505,7 +509,7 @@ app.post('/api/admin/circulars', auth, upload.single('pdf'), async (req, res) =>
     );
     
     // Notify all users about new circular
-    const users = await db.all('SELECT id, name, email FROM users');
+    const users = await db.all('SELECT id FROM users');
     for (const user of users) {
       await db.run(
         `INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)`,
@@ -532,7 +536,7 @@ app.delete('/api/admin/circulars/:id', auth, async (req, res) => {
     const filePath = path.join(__dirname, circ.pdf_path);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
-      console.log(`📄 PDF deleted: ${circ.pdf_path}`);
+      console.log(`🗑️ PDF deleted: ${circ.pdf_path}`);
     }
   }
   
@@ -595,7 +599,7 @@ app.delete('/api/admin/question-banks/:id', auth, async (req, res) => {
     const filePath = path.join(__dirname, qb.pdf_path);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
-      console.log(`📄 PDF deleted: ${qb.pdf_path}`);
+      console.log(`🗑️ PDF deleted: ${qb.pdf_path}`);
     }
   }
   
@@ -702,8 +706,8 @@ initDB().then(() => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`👑 Admin: admin@path2uni.com / admin123`);
     console.log(`📁 Uploads directory: ${uploadsDir}`);
-    console.log(`📄 PDF upload endpoint: /api/admin/circulars`);
-    console.log(`📚 Question bank endpoint: /api/admin/question-banks`);
+    console.log(`📄 PDF upload endpoint: POST /api/admin/circulars`);
+    console.log(`📚 Question bank endpoint: POST /api/admin/question-banks`);
   });
 }).catch(err => {
   console.error('Failed to start server:', err);
