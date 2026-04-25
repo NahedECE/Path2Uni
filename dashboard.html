@@ -3,24 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard | Path2Uni</title>
+<title>Admin Dashboard | Path2Uni</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   
   body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #05050f 0%, #0a0a1a 50%, #0d0d22 100%);
+    background: linear-gradient(135deg, #05050f, #0a0a1a, #0d0d22);
     min-height: 100vh;
     color: white;
-    overflow-x: hidden;
   }
   
   .bg-mesh {
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(124,58,237,0.08) 0%, transparent 50%);
+    background: radial-gradient(circle at 20% 30%, rgba(168,85,247,0.1) 0%, transparent 50%);
     pointer-events: none;
   }
   
@@ -28,7 +26,7 @@
     position: relative;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 1.5rem 2rem 4rem;
+    padding: 1.5rem;
     z-index: 1;
   }
   
@@ -37,13 +35,11 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.8rem 1.5rem;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 50px;
     margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
   }
   
   .logo {
@@ -57,9 +53,7 @@
   
   .nav-links {
     display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    align-items: center;
+    gap: 1rem;
   }
   
   .nav-link {
@@ -67,7 +61,6 @@
     color: rgba(255,255,255,0.7);
     text-decoration: none;
     font-size: 13px;
-    font-weight: 500;
     transition: all 0.2s;
     border-radius: 30px;
     cursor: pointer;
@@ -75,78 +68,123 @@
   
   .nav-link:hover {
     color: white;
-    background: rgba(255,255,255,0.05);
-  }
-  
-  .admin-link {
-    background: rgba(168,85,247,0.2);
-    border: 1px solid rgba(168,85,247,0.3);
-  }
-  
-  .logout-btn:hover { color: #f87171; }
-  
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 1.5rem;
+    background: rgba(255,255,255,0.1);
   }
   
   .glass-card {
-    background: rgba(10, 10, 26, 0.6);
+    background: rgba(10,10,26,0.6);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 24px;
     padding: 1.5rem;
-    transition: all 0.3s;
+    margin-bottom: 1.5rem;
   }
   
-  .glass-card:hover { border-color: rgba(255,255,255,0.15); }
-  
-  .profile-avatar {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    font-size: 40px;
-    font-weight: 800;
-    cursor: pointer;
-    border: 2px solid rgba(255,255,255,0.2);
-    overflow: hidden;
-  }
-  
-  .profile-avatar:hover { border-color: #3b82f6; }
-  .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  
-  .user-name { text-align: center; font-size: 20px; font-weight: 700; margin-bottom: 0.25rem; }
-  .user-email { text-align: center; font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 1.5rem; }
-  
-  .stat-cards {
+  .stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    margin-top: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
   
-  .stat-item {
+  .stat-card {
     text-align: center;
-    padding: 0.75rem;
+    padding: 1rem;
     background: rgba(255,255,255,0.03);
     border-radius: 16px;
   }
   
   .stat-number {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 800;
     background: linear-gradient(135deg, #fff, #a0a0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   
-  .stat-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+  .stat-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+  }
+  
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .admin-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .admin-tab {
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .admin-tab.active {
+    background: linear-gradient(135deg, #3b82f6, #7c3aed);
+  }
+  
+  .admin-tab:hover {
+    background: rgba(255,255,255,0.15);
+  }
+  
+  .panel {
+    display: none;
+  }
+  
+  .panel.active {
+    display: block;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+  }
+  
+  .form-group input[type="file"] {
+    padding: 8px;
+    background: rgba(255,255,255,0.03);
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+  }
   
   button {
     background: linear-gradient(135deg, #3b82f6, #7c3aed);
@@ -156,167 +194,105 @@
     color: white;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s;
-    width: 100%;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
   }
   
-  button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px rgba(59,130,246,0.5); }
-  .btn-small { width: auto; padding: 6px 16px; font-size: 11px; background: rgba(59,130,246,0.2); }
-  
-  .search-input {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 30px;
-    color: white;
-    margin-bottom: 1rem;
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px -5px rgba(59,130,246,0.4);
   }
   
-  .circular-item, .uni-item {
+  .delete-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  th {
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  
+  .item-card {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    margin-bottom: 8px;
   }
   
-  .circular-title { font-weight: 600; font-size: 14px; }
-  .circular-deadline { font-size: 11px; color: #fcd34d; }
-  .eligibility-badge { padding: 4px 12px; background: rgba(34,197,94,0.2); border-radius: 20px; font-size: 11px; color: #4ade80; }
-  
-  .loading { text-align: center; padding: 2rem; color: rgba(255,255,255,0.5); }
-  .section-title { font-size: 14px; font-weight: 600; margin-bottom: 1rem; display: flex; justify-content: space-between; }
-  
-  /* Chatbot Styles */
-  .chatbot-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
+  .item-info {
+    flex: 1;
   }
   
-  .chatbot-button {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
-    border-radius: 30px;
+  .item-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .item-meta {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+  }
+  
+  .item-actions {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-    transition: all 0.3s;
+    gap: 8px;
   }
   
-  .chatbot-button:hover { transform: scale(1.05); }
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: rgba(255,255,255,0.5);
+  }
   
-  .chatbot-window {
-    position: absolute;
-    bottom: 70px;
-    right: 0;
-    width: 380px;
-    height: 500px;
-    background: rgba(10, 10, 26, 0.95);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
+  .success-msg {
+    background: rgba(34,197,94,0.2);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: #4ade80;
+    padding: 10px;
+    border-radius: 12px;
+    margin-top: 1rem;
     display: none;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
   
-  .chatbot-window.open { display: flex; }
-  
-  .chatbot-header {
-    padding: 15px;
-    background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .error-msg {
+    background: rgba(239,68,68,0.2);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #f87171;
+    padding: 10px;
+    border-radius: 12px;
+    margin-top: 1rem;
+    display: none;
   }
   
-  .chatbot-header h3 { font-size: 16px; display: flex; align-items: center; gap: 8px; }
-  .chatbot-close { cursor: pointer; font-size: 24px; line-height: 1; opacity: 0.7; }
-  .chatbot-close:hover { opacity: 1; }
-  
-  .chatbot-messages {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 15px;
+  hr {
+    margin: 1.5rem 0;
+    border-color: rgba(255,255,255,0.1);
   }
   
-  .message {
-    margin-bottom: 12px;
-    display: flex;
-  }
-  
-  .message.user { justify-content: flex-end; }
-  
-  .message-content {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: 18px;
-    font-size: 13px;
-    line-height: 1.4;
-  }
-  
-  .message.bot .message-content {
-    background: rgba(255,255,255,0.1);
-    border-radius: 18px 18px 18px 5px;
-  }
-  
-  .message.user .message-content {
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
-    border-radius: 18px 18px 5px 18px;
-  }
-  
-  .chatbot-input {
-    padding: 15px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    gap: 10px;
-  }
-  
-  .chatbot-input input {
-    flex-grow: 1;
-    padding: 10px 15px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 25px;
-    color: white;
-    font-size: 13px;
-  }
-  
-  .chatbot-input button { width: auto; padding: 10px 20px; font-size: 12px; }
-  
-  .typing-indicator {
-    display: flex;
-    gap: 4px;
-    padding: 10px 14px;
-  }
-  
-  .typing-indicator span {
-    width: 8px;
-    height: 8px;
-    background: rgba(255,255,255,0.5);
-    border-radius: 50%;
-    animation: typing 1.4s infinite;
-  }
-  
-  @keyframes typing {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-    30% { transform: translateY(-10px); opacity: 1; }
-  }
-  
-  @media (max-width: 900px) {
-    .dashboard-grid { grid-template-columns: 1fr; }
-    .page-wrap { padding: 1rem; }
-    .navbar { flex-direction: column; }
-    .nav-links { justify-content: center; }
-    .chatbot-window { width: 320px; right: -20px; }
+  @media (max-width: 700px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    .admin-tabs { justify-content: center; }
+    .item-card { flex-direction: column; gap: 10px; text-align: center; }
+    .item-actions { justify-content: center; }
   }
 </style>
 </head>
@@ -325,263 +301,558 @@
 <div class="page-wrap">
 
   <nav class="navbar">
-    <div class="logo">Path2Uni</div>
+    <div class="logo">Path2Uni Admin Panel</div>
     <div class="nav-links">
-      <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="admission-calendar.html" class="nav-link">Admission Calendar</a>
-      <a href="study-tracker.html" class="nav-link">Study Tracker</a>
-      <a href="circular-archive.html" class="nav-link">Circular Archive</a>
-      <a href="question-banks.html" class="nav-link">Question Banks</a>
-      <a href="application-status.html" class="nav-link">Application Status</a>
-      <a href="eligibility.html" class="nav-link">Eligibility Checker</a>
-      <a href="admin-dashboard.html" class="nav-link admin-link" id="adminLink" style="display:none;">Admin Panel</a>
-      <a href="#" class="nav-link logout-btn" onclick="logout()">Logout</a>
+      <a href="#" class="nav-link" onclick="logout()">Logout</a>
     </div>
   </nav>
 
-  <div class="dashboard-grid">
-    <div class="glass-card">
-      <div class="profile-avatar" id="avatarContainer" onclick="document.getElementById('avatarInput').click()">
-        <div id="avatarPreview">👤</div>
-      </div>
-      <input type="file" id="avatarInput" style="display:none" accept="image/*" onchange="uploadAvatar(this)">
-      <h3 class="user-name" id="userName">Student</h3>
-      <p class="user-email" id="userEmail">student@path2uni.com</p>
-      
-      <div class="stat-cards">
-        <div class="stat-item"><div class="stat-number" id="eligibleCount">0</div><div class="stat-label">Eligible</div></div>
-        <div class="stat-item"><div class="stat-number" id="appliedCount">0</div><div class="stat-label">Applied</div></div>
-        <div class="stat-item"><div class="stat-number" id="taskCount">0</div><div class="stat-label">Tasks Today</div></div>
-      </div>
-      
-      <button onclick="window.location.href='eligibility.html'">Update Eligibility</button>
+  <!-- Stats Overview -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-number" id="userCount">0</div><div class="stat-label">Total Users</div></div>
+    <div class="stat-card"><div class="stat-number" id="circCount">0</div><div class="stat-label">Circulars</div></div>
+    <div class="stat-card"><div class="stat-number" id="qbCount">0</div><div class="stat-label">Question Banks</div></div>
+    <div class="stat-card"><div class="stat-number" id="examCount">0</div><div class="stat-label">Exam Dates</div></div>
+  </div>
+
+  <!-- Admin Tabs -->
+  <div class="glass-card">
+    <div class="admin-tabs">
+      <div class="admin-tab active" onclick="showPanel('users')"> Manage Users</div>
+      <div class="admin-tab" onclick="showPanel('circulars')"> Manage Circulars</div>
+      <div class="admin-tab" onclick="showPanel('exam-dates')">Manage Exam Dates</div>
+      <div class="admin-tab" onclick="showPanel('question-banks')">Manage Question Banks</div>
     </div>
 
-    <div>
-      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search universities..." onkeyup="searchUniversities()">
+    <!-- ==================== USERS PANEL ==================== -->
+    <div id="usersPanel" class="panel active">
+      <h3 class="section-title">Registered Users</h3>
+      <div id="usersList"></div>
+    </div>
 
-      <div class="glass-card" style="margin-bottom: 1.5rem;">
-        <div class="section-title" style="justify-content: center;">📅 Next Exam Countdown</div>
-        <div style="display: flex; justify-content: center; gap: 1.5rem; margin: 1rem 0;">
-          <div><div class="stat-number" id="days">0</div><div class="stat-label">Days</div></div>
-          <div><div class="stat-number" id="hours">0</div><div class="stat-label">Hours</div></div>
-          <div><div class="stat-number" id="minutes">0</div><div class="stat-label">Minutes</div></div>
-          <div><div class="stat-number" id="seconds">0</div><div class="stat-label">Seconds</div></div>
+    <!-- ==================== CIRCULARS PANEL ==================== -->
+    <div id="circularsPanel" class="panel">
+      <h3 class="section-title"> Add New Circular</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Circular Title *</label>
+          <input type="text" id="circTitle" placeholder="e.g., BUET Admission 2026">
         </div>
-        <div class="circular-deadline" id="nextExamName" style="text-align: center;"></div>
+        <div class="form-group">
+          <label>University *</label>
+          <input type="text" id="circUniversity" placeholder="e.g., BUET">
+        </div>
       </div>
-
-      <div class="glass-card">
-        <div class="section-title"><span>📢 Live Circulars</span><span id="circularCount" class="circular-deadline">0 active</span></div>
-        <div id="circularsList"><div class="loading">Loading circulars...</div></div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="circDesc" rows="2" placeholder="Brief description of the circular"></textarea>
       </div>
-
-      <div class="glass-card" style="margin-top: 1rem;">
-        <div class="section-title"><span>🎓 Eligible Universities</span><span id="uniCount" class="circular-deadline">0 found</span></div>
-        <div id="universitiesList"><div class="loading">Loading eligible universities...</div></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Application Link (URL)</label>
+          <input type="url" id="circLink" placeholder="https://ugadmission.buet.ac.bd">
+        </div>
+        <div class="form-group">
+          <label>Application Start Date</label>
+          <input type="date" id="circStart">
+        </div>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Application Deadline *</label>
+          <input type="date" id="circDeadline">
+        </div>
+        <div class="form-group">
+          <label>Exam Date</label>
+          <input type="date" id="circExamDate">
+        </div>
+      </div>
+      <div class="form-group">
+        <label> Upload PDF File (Optional - Max 10MB, PDF only)</label>
+        <input type="file" id="circPdf" accept=".pdf">
+        <small style="color: rgba(255,255,255,0.4); font-size: 11px; display: block; margin-top: 4px;">Upload circular PDF for users to download</small>
+      </div>
+      <button onclick="addCircular()">➕ Add Circular</button>
+      <div id="circularsSuccessMsg" class="success-msg"></div>
+      <div id="circularsErrorMsg" class="error-msg"></div>
+      
+      <hr>
+      
+      <h3 class="section-title"> Existing Circulars</h3>
+      <div id="circularsList"></div>
     </div>
-  </div>
-</div>
 
-<!-- UniBuddy AI Chatbot -->
-<div class="chatbot-container">
-  <div class="chatbot-button" onclick="toggleChatbot()">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      <path d="M8 10h.01M12 10h.01M16 10h.01"/>
-    </svg>
-  </div>
-  <div class="chatbot-window" id="chatbotWindow">
-    <div class="chatbot-header">
-      <h3>🤖 UniBuddy AI</h3>
-      <span class="chatbot-close" onclick="toggleChatbot()">×</span>
-    </div>
-    <div class="chatbot-messages" id="chatMessages">
-      <div class="message bot">
-        <div class="message-content">👋 Hi! I'm UniBuddy, your AI admission assistant powered by Google Gemini. Ask me about:<br><br>• KUET, BUET, DU, RUET admission requirements<br>• Eligibility criteria and GPA requirements<br>• Application deadlines and exam schedules<br>• Medical college admissions<br>• And more!</div>
+    <!-- ==================== EXAM DATES PANEL ==================== -->
+    <div id="examDatesPanel" class="panel">
+      <h3 class="section-title"> Add New Exam Date</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Exam Title *</label>
+          <input type="text" id="examTitle" placeholder="e.g., BUET Admission Test">
+        </div>
+        <div class="form-group">
+          <label>University *</label>
+          <input type="text" id="examUniversity" placeholder="e.g., BUET">
+        </div>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Exam Date *</label>
+          <input type="date" id="examDate">
+        </div>
+        <div class="form-group">
+          <label>Exam Time</label>
+          <input type="time" id="examTime">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Venue</label>
+          <input type="text" id="examVenue" placeholder="e.g., BUET Campus">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="examDesc" placeholder="Additional info (optional)">
+        </div>
+      </div>
+      <button onclick="addExamDate()"> Add Exam Date</button>
+      <div id="examDatesSuccessMsg" class="success-msg"></div>
+      <div id="examDatesErrorMsg" class="error-msg"></div>
+      
+      <hr>
+      
+      <h3 class="section-title"> Existing Exam Dates</h3>
+      <div id="examDatesList"></div>
     </div>
-    <div class="chatbot-input">
-      <input type="text" id="chatInput" placeholder="Ask me about KUET, BUET, deadlines..." onkeypress="if(event.key==='Enter') sendMessage()">
-      <button onclick="sendMessage()">Send</button>
+
+    <!-- ==================== QUESTION BANKS PANEL ==================== -->
+    <div id="questionBanksPanel" class="panel">
+      <h3 class="section-title"> Upload Question Bank PDF</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" id="qbTitle" placeholder="e.g., BUET Admission Question 2024">
+        </div>
+        <div class="form-group">
+          <label>University *</label>
+          <select id="qbUniversity">
+            <option value="BUET">BUET</option>
+            <option value="DU">DU</option>
+            <option value="RUET">RUET</option>
+            <option value="CUET">CUET</option>
+            <option value="KUET">KUET</option>
+            <option value="Medical">Medical (DGHS)</option>
+            <option value="RU">Rajshahi University</option>
+            <option value="CU">Chittagong University</option>
+            <option value="JU">Jahangirnagar University</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" id="qbSubject" placeholder="e.g., Mathematics, Physics, Combined">
+        </div>
+        <div class="form-group">
+          <label>Year</label>
+          <input type="number" id="qbYear" placeholder="e.g., 2024">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>📄 Select PDF File * (Max 10MB, PDF only)</label>
+        <input type="file" id="qbPdf" accept=".pdf">
+        <small style="color: rgba(255,255,255,0.4); font-size: 11px; display: block; margin-top: 4px;">Upload question bank PDF for students to download</small>
+      </div>
+      <button onclick="uploadQuestionBank()">📤 Upload Question Bank</button>
+      <div id="qbSuccessMsg" class="success-msg"></div>
+      <div id="qbErrorMsg" class="error-msg"></div>
+      
+      <hr>
+      
+      <h3 class="section-title">📚 Existing Question Banks</h3>
+      <div id="questionBanksList"></div>
     </div>
   </div>
 </div>
 
 <script>
-// IMPORTANT: Update this with your actual Render URL
 const API_URL = 'https://path2uni-236v.onrender.com/api';
 let authToken = localStorage.getItem('path2uni_token');
-let currentUser = null;
-let allUniversities = [];
-let countdownInterval;
 
 async function apiCall(endpoint, options = {}) {
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = {};
   if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+  
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+  
   const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
-  if (response.status === 401) {
-    localStorage.removeItem('path2uni_token');
-    window.location.href = 'index.html';
+  if (response.status === 401) { 
+    window.location.href = 'index.html'; 
   }
   return response;
 }
 
-async function loadDashboard() {
+function showPanel(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  
+  document.getElementById(`${panel}Panel`).classList.add('active');
+  event.target.classList.add('active');
+  
+  if (panel === 'users') loadUsers();
+  if (panel === 'circulars') loadCirculars();
+  if (panel === 'exam-dates') loadExamDates();
+  if (panel === 'question-banks') loadQuestionBanks();
+}
+
+async function loadStats() {
   try {
-    const response = await apiCall('/dashboard');
+    const response = await apiCall('/admin/stats');
     const data = await response.json();
+    document.getElementById('userCount').textContent = data.users || 0;
+    document.getElementById('circCount').textContent = data.circulars || 0;
+    document.getElementById('qbCount').textContent = data.questionBanks || 0;
+    document.getElementById('examCount').textContent = data.examDates || 0;
+  } catch(e) { console.error('Stats error:', e); }
+}
+
+// ============ USERS MANAGEMENT ============
+async function loadUsers() {
+  try {
+    const response = await apiCall('/admin/users');
+    const data = await response.json();
+    const users = data.users || [];
+    const container = document.getElementById('usersList');
     
+    if (users.length === 0) { container.innerHTML = '<div class="loading">No users found</div>'; return; }
+    
+    container.innerHTML = `
+      <table class="users-table">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          ${users.map(u => `
+            <tr>
+              <td>${escapeHtml(u.name)}</td>
+              <td>${escapeHtml(u.email)}</td>
+              <td>${u.is_admin ? ' Admin' : 'User'}</td>
+              <td>${new Date(u.created_at).toLocaleDateString()}</td>
+              <td>${!u.is_admin ? `<button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button>` : '-'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch(e) { console.error('Load users error:', e); }
+}
+
+async function deleteUser(id) {
+  if (confirm('Delete this user permanently? This action cannot be undone.')) {
+    const response = await apiCall(`/admin/users/${id}`, { method: 'DELETE' });
     if (response.ok) {
-      currentUser = data.user;
-      document.getElementById('userName').textContent = data.user?.name || 'Student';
-      document.getElementById('userEmail').textContent = data.user?.email || '';
-      
-      if (data.user?.avatar) {
-        document.getElementById('avatarPreview').innerHTML = `<img src="${data.user.avatar}">`;
-      } else {
-        document.getElementById('avatarPreview').innerHTML = (data.user?.name?.charAt(0) || 'S').toUpperCase();
-      }
-      
-      document.getElementById('eligibleCount').textContent = data.eligibleUniversities?.length || 0;
-      document.getElementById('uniCount').textContent = `${data.eligibleUniversities?.length || 0} found`;
-      document.getElementById('appliedCount').textContent = data.applications?.length || 0;
-      document.getElementById('taskCount').textContent = data.studyTasks?.length || 0;
-      
-      allUniversities = data.eligibleUniversities || [];
-      displayUniversities(allUniversities);
-      displayCirculars(data.circulars || []);
-      document.getElementById('circularCount').textContent = `${data.circulars?.length || 0} active`;
-      
-      if (data.nextExam) startCountdown(data.nextExam.exam_date, data.nextExam.university);
-      
-      if (data.user?.isAdmin) {
-        document.getElementById('adminLink').style.display = 'inline-block';
-      }
+      loadUsers();
+      loadStats();
+      alert('User deleted successfully!');
     }
-  } catch(e) { console.error(e); }
-}
-
-function displayCirculars(circulars) {
-  const container = document.getElementById('circularsList');
-  if (!circulars.length) { container.innerHTML = '<div class="loading">No active circulars</div>'; return; }
-  container.innerHTML = circulars.map(c => `
-    <div class="circular-item">
-      <div><div class="circular-title">${c.title}</div><div class="circular-deadline">🏛️ ${c.university} • Deadline: ${c.application_deadline}</div></div>
-      <button class="btn-small" onclick="window.open('${c.application_link || '#'}', '_blank')">Apply →</button>
-    </div>
-  `).join('');
-}
-
-function displayUniversities(unis) {
-  const container = document.getElementById('universitiesList');
-  if (!unis.length) { container.innerHTML = '<div class="loading">Update your GPA in Eligibility Checker</div>'; return; }
-  container.innerHTML = unis.map(u => `
-    <div class="uni-item"><div><strong>${u.name}</strong><div class="circular-deadline">📅 Exam: ${u.exam_date || 'TBA'}</div></div><span class="eligibility-badge">Eligible</span></div>
-  `).join('');
-}
-
-function searchUniversities() {
-  const term = document.getElementById('searchInput').value.toLowerCase();
-  displayUniversities(allUniversities.filter(u => u.name.toLowerCase().includes(term)));
-}
-
-function startCountdown(date, name) {
-  if (countdownInterval) clearInterval(countdownInterval);
-  document.getElementById('nextExamName').textContent = name ? `${name} on ${date}` : 'No upcoming exams';
-  countdownInterval = setInterval(() => {
-    const diff = new Date(date) - new Date();
-    if (diff <= 0) { clearInterval(countdownInterval); return; }
-    document.getElementById('days').textContent = Math.floor(diff / (1000*60*60*24));
-    document.getElementById('hours').textContent = Math.floor((diff % (86400000)) / (3600000));
-    document.getElementById('minutes').textContent = Math.floor((diff % 3600000) / 60000);
-    document.getElementById('seconds').textContent = Math.floor((diff % 60000) / 1000);
-  }, 1000);
-}
-
-async function uploadAvatar(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      document.getElementById('avatarPreview').innerHTML = `<img src="${e.target.result}">`;
-      await apiCall('/auth/avatar', { method: 'POST', body: JSON.stringify({ avatar: e.target.result }) });
-    };
-    reader.readAsDataURL(input.files[0]);
   }
 }
 
-// ==================== CHATBOT FUNCTIONS ====================
-function toggleChatbot() {
-  const window = document.getElementById('chatbotWindow');
-  window.classList.toggle('open');
+// ============ CIRCULARS MANAGEMENT ============
+async function loadCirculars() {
+  try {
+    const response = await fetch(`${API_URL}/circulars`);
+    const data = await response.json();
+    const circulars = data.circulars || [];
+    const container = document.getElementById('circularsList');
+    
+    if (circulars.length === 0) { 
+      container.innerHTML = '<div class="loading">No circulars yet. Add your first circular above.</div>'; 
+      return; 
+    }
+    
+    container.innerHTML = circulars.map(c => `
+      <div class="item-card">
+        <div class="item-info">
+          <div class="item-title">${escapeHtml(c.title)}</div>
+          <div class="item-meta"> ${escapeHtml(c.university)} | Deadline: ${c.application_deadline || 'N/A'}</div>
+          ${c.pdf_path ? `<div class="item-meta"> <a href="${API_URL}${c.pdf_path}" target="_blank" style="color: #60a5fa;">Download PDF</a></div>` : ''}
+        </div>
+        <div class="item-actions">
+          <button class="delete-btn" onclick="deleteCircular(${c.id})">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { console.error('Load circulars error:', e); }
 }
 
-async function sendMessage() {
-  const input = document.getElementById('chatInput');
-  const message = input.value.trim();
-  if (!message) return;
+async function addCircular() {
+  const title = document.getElementById('circTitle').value;
+  const university = document.getElementById('circUniversity').value;
+  const deadline = document.getElementById('circDeadline').value;
   
-  // Add user message
-  addMessage(message, 'user');
-  input.value = '';
+  if (!title || !university || !deadline) {
+    alert('Please fill Title, University, and Deadline');
+    return;
+  }
   
-  // Add typing indicator
-  const typingId = addTypingIndicator();
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('university', university);
+  formData.append('description', document.getElementById('circDesc').value);
+  formData.append('application_link', document.getElementById('circLink').value);
+  formData.append('application_start', document.getElementById('circStart').value);
+  formData.append('application_deadline', deadline);
+  formData.append('exam_date', document.getElementById('circExamDate').value);
+  
+  const pdfFile = document.getElementById('circPdf').files[0];
+  if (pdfFile) formData.append('pdf', pdfFile);
   
   try {
-    console.log('Sending to:', `${API_URL}/chatbuddy`);
-    const response = await fetch(`${API_URL}/chatbuddy`, {
+    const response = await fetch(`${API_URL}/admin/circulars`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`
-      },
-      body: JSON.stringify({ message })
+      headers: { 'Authorization': `Bearer ${authToken}` },
+      body: formData
     });
     
-    const data = await response.json();
-    console.log('Response:', data);
-    
-    // Remove typing indicator
-    removeTypingIndicator(typingId);
-    
-    if (data.reply) {
-      addMessage(data.reply, 'bot');
+    if (response.ok) {
+      const msgDiv = document.getElementById('circularsSuccessMsg');
+      msgDiv.textContent = 'Circular added successfully!';
+      msgDiv.style.display = 'block';
+      setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
+      
+      document.getElementById('circTitle').value = '';
+      document.getElementById('circUniversity').value = '';
+      document.getElementById('circDesc').value = '';
+      document.getElementById('circLink').value = '';
+      document.getElementById('circStart').value = '';
+      document.getElementById('circDeadline').value = '';
+      document.getElementById('circExamDate').value = '';
+      document.getElementById('circPdf').value = '';
+      loadCirculars();
+      loadStats();
     } else {
-      addMessage("I received your message but couldn't process it. Please try again.", 'bot');
+      const error = await response.json();
+      const errorDiv = document.getElementById('circularsErrorMsg');
+      errorDiv.textContent = error.error || 'Failed to add circular';
+      errorDiv.style.display = 'block';
+      setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
     }
-  } catch (error) {
-    console.error('Chat error:', error);
-    removeTypingIndicator(typingId);
-    addMessage("I'm having trouble connecting to the server. Please check your internet connection and try again.", 'bot');
+  } catch(e) { 
+    console.error('Add circular error:', e); 
+    const errorDiv = document.getElementById('circularsErrorMsg');
+    errorDiv.textContent = 'Network error. Please try again.';
+    errorDiv.style.display = 'block';
+    setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
   }
 }
 
-function addMessage(text, sender) {
-  const messagesDiv = document.getElementById('chatMessages');
-  const messageDiv = document.createElement('div');
-  messageDiv.className = `message ${sender}`;
-  messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
-  messagesDiv.appendChild(messageDiv);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+async function deleteCircular(id) {
+  if (confirm('Delete this circular?')) {
+    const response = await apiCall(`/admin/circulars/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      loadCirculars();
+      loadStats();
+      alert('Circular deleted successfully!');
+    }
+  }
 }
 
-function addTypingIndicator() {
-  const messagesDiv = document.getElementById('chatMessages');
-  const id = 'typing-' + Date.now();
-  const typingDiv = document.createElement('div');
-  typingDiv.className = 'message bot';
-  typingDiv.id = id;
-  typingDiv.innerHTML = `<div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
-  messagesDiv.appendChild(typingDiv);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-  return id;
+// ============ EXAM DATES MANAGEMENT ============
+async function loadExamDates() {
+  try {
+    const response = await fetch(`${API_URL}/exam-dates`);
+    const data = await response.json();
+    const exams = data.examDates || [];
+    const container = document.getElementById('examDatesList');
+    
+    if (exams.length === 0) { 
+      container.innerHTML = '<div class="loading">No exam dates yet. Add your first exam date above.</div>'; 
+      return; 
+    }
+    
+    container.innerHTML = exams.map(e => `
+      <div class="item-card">
+        <div class="item-info">
+          <div class="item-title">${escapeHtml(e.title)}</div>
+          <div class="item-meta"> ${escapeHtml(e.university)} |  ${e.exam_date} ${e.exam_time ? 'at ' + e.exam_time : ''}</div>
+          ${e.venue ? `<div class="item-meta"> Venue: ${e.venue}</div>` : ''}
+        </div>
+        <div class="item-actions">
+          <button class="delete-btn" onclick="deleteExamDate(${e.id})">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { console.error('Load exam dates error:', e); }
 }
 
-function removeTypingIndicator(id) {
-  const element = document.getElementById(id);
-  if (element) element.remove();
+async function addExamDate() {
+  const title = document.getElementById('examTitle').value;
+  const university = document.getElementById('examUniversity').value;
+  const examDate = document.getElementById('examDate').value;
+  
+  if (!title || !university || !examDate) {
+    alert('Please fill Exam Title, University, and Exam Date');
+    return;
+  }
+  
+  const examData = {
+    title: title,
+    university: university,
+    exam_date: examDate,
+    exam_time: document.getElementById('examTime').value,
+    venue: document.getElementById('examVenue').value,
+    description: document.getElementById('examDesc').value
+  };
+  
+  try {
+    const response = await apiCall('/admin/exam-date', {
+      method: 'POST',
+      body: JSON.stringify(examData)
+    });
+    
+    if (response.ok) {
+      const msgDiv = document.getElementById('examDatesSuccessMsg');
+      msgDiv.textContent = 'Exam date added successfully!';
+      msgDiv.style.display = 'block';
+      setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
+      
+      document.getElementById('examTitle').value = '';
+      document.getElementById('examUniversity').value = '';
+      document.getElementById('examDate').value = '';
+      document.getElementById('examTime').value = '';
+      document.getElementById('examVenue').value = '';
+      document.getElementById('examDesc').value = '';
+      loadExamDates();
+      loadStats();
+    } else {
+      const errorDiv = document.getElementById('examDatesErrorMsg');
+      errorDiv.textContent = 'Failed to add exam date';
+      errorDiv.style.display = 'block';
+      setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
+    }
+  } catch(e) { 
+    console.error('Add exam date error:', e); 
+    const errorDiv = document.getElementById('examDatesErrorMsg');
+    errorDiv.textContent = 'Network error. Please try again.';
+    errorDiv.style.display = 'block';
+    setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
+  }
+}
+
+async function deleteExamDate(id) {
+  if (confirm('Delete this exam date?')) {
+    const response = await apiCall(`/admin/exam-date/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      loadExamDates();
+      loadStats();
+      alert('Exam date deleted successfully!');
+    }
+  }
+}
+
+// ============ QUESTION BANKS MANAGEMENT ============
+async function loadQuestionBanks() {
+  try {
+    const response = await fetch(`${API_URL}/question-banks`);
+    const data = await response.json();
+    const qbs = data.questions || [];
+    const container = document.getElementById('questionBanksList');
+    
+    if (qbs.length === 0) { 
+      container.innerHTML = '<div class="loading">No question banks yet. Upload your first PDF above.</div>'; 
+      return; 
+    }
+    
+    container.innerHTML = qbs.map(q => `
+      <div class="item-card">
+        <div class="item-info">
+          <div class="item-title">${escapeHtml(q.title || q.university + ' ' + q.subject)}</div>
+          <div class="item-meta"> ${escapeHtml(q.university)} | ${q.subject || 'General'} | Year: ${q.year || 'N/A'}</div>
+          <div class="item-meta"> <a href="${API_URL}${q.pdf_path}" target="_blank" style="color: #60a5fa;">Download PDF</a></div>
+        </div>
+        <div class="item-actions">
+          <button class="delete-btn" onclick="deleteQuestionBank(${q.id})">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { console.error('Load question banks error:', e); }
+}
+
+async function uploadQuestionBank() {
+  const title = document.getElementById('qbTitle').value;
+  const university = document.getElementById('qbUniversity').value;
+  const pdfFile = document.getElementById('qbPdf').files[0];
+  
+  if (!title || !pdfFile) {
+    alert('Please fill Title and select a PDF file');
+    return;
+  }
+  
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('university', university);
+  formData.append('subject', document.getElementById('qbSubject').value);
+  formData.append('year', document.getElementById('qbYear').value);
+  formData.append('pdf', pdfFile);
+  
+  try {
+    const response = await fetch(`${API_URL}/admin/question-banks`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${authToken}` },
+      body: formData
+    });
+    
+    if (response.ok) {
+      const msgDiv = document.getElementById('qbSuccessMsg');
+      msgDiv.textContent = 'Question bank uploaded successfully!';
+      msgDiv.style.display = 'block';
+      setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
+      
+      document.getElementById('qbTitle').value = '';
+      document.getElementById('qbSubject').value = '';
+      document.getElementById('qbYear').value = '';
+      document.getElementById('qbPdf').value = '';
+      loadQuestionBanks();
+      loadStats();
+    } else {
+      const error = await response.json();
+      const errorDiv = document.getElementById('qbErrorMsg');
+      errorDiv.textContent = error.error || 'Failed to upload question bank';
+      errorDiv.style.display = 'block';
+      setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
+    }
+  } catch(e) { 
+    console.error('Upload error:', e); 
+    const errorDiv = document.getElementById('qbErrorMsg');
+    errorDiv.textContent = 'Network error. Please try again.';
+    errorDiv.style.display = 'block';
+    setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
+  }
+}
+
+async function deleteQuestionBank(id) {
+  if (confirm('Delete this question bank?')) {
+    const response = await apiCall(`/admin/question-banks/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      loadQuestionBanks();
+      loadStats();
+      alert('Question bank deleted successfully!');
+    }
+  }
+}
+
+// ============ HELPER FUNCTIONS ============
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
 }
 
 async function logout() {
@@ -590,23 +861,23 @@ async function logout() {
   window.location.href = 'index.html';
 }
 
-// Test connection on load
-async function testConnection() {
+// ============ CHECK ADMIN ACCESS ============
+async function checkAdmin() {
   try {
-    const response = await fetch(`${API_URL}/health`);
+    const response = await apiCall('/auth/me');
     const data = await response.json();
-    console.log('Backend connection:', data);
+    if (!data.user?.is_admin) {
+      window.location.href = 'index.html';
+    }
   } catch(e) {
-    console.error('Backend connection failed:', e);
+    window.location.href = 'index.html';
   }
 }
 
-if (!authToken) { 
-  window.location.href = 'index.html'; 
-} else { 
-  loadDashboard();
-  testConnection();
-}
+// Initialize
+checkAdmin();
+loadStats();
+loadUsers();
 </script>
 </body>
 </html>
