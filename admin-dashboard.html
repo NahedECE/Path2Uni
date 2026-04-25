@@ -312,10 +312,10 @@
 
   <div class="glass-card">
     <div class="admin-tabs">
-      <div class="admin-tab active" onclick="showPanel('users')">👥 Manage Users</div>
-      <div class="admin-tab" onclick="showPanel('circulars')">📢 Manage Circulars</div>
-      <div class="admin-tab" onclick="showPanel('examdates')">📅 Manage Exam Dates</div>
-      <div class="admin-tab" onclick="showPanel('questionbanks')">📚 Manage Question Banks</div>
+      <div class="admin-tab active" onclick="showPanel('users')"> Manage Users</div>
+      <div class="admin-tab" onclick="showPanel('circulars')"> Manage Circulars</div>
+      <div class="admin-tab" onclick="showPanel('examdates')"> Manage Exam Dates</div>
+      <div class="admin-tab" onclick="showPanel('questionbanks')"> Manage Question Banks</div>
     </div>
 
     <!-- Users Panel -->
@@ -607,8 +607,8 @@ async function loadQuestionBanks() {
       <div class="item-card">
         <div class="item-info">
           <div class="item-title">${escapeHtml(q.title)}</div>
-          <div class="item-meta">🏛️ ${escapeHtml(q.university)} | ${q.subject || 'General'} | Year: ${q.year || 'N/A'}</div>
-          <div class="item-meta">📄 <a href="${API_URL}${q.pdf_path}" target="_blank" style="color:#60a5fa;">Download PDF</a></div>
+          <div class="item-meta"> ${escapeHtml(q.university)} | ${q.subject || 'General'} | Year: ${q.year || 'N/A'}</div>
+          <div class="item-meta"> <a href="${API_URL}${q.pdf_path}" target="_blank" style="color:#60a5fa;">Download PDF</a></div>
         </div>
         <div class="item-actions"><button class="delete-btn" onclick="deleteQuestionBank(${q.id})">Delete</button></div>
       </div>
