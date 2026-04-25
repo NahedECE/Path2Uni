@@ -7,19 +7,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  .auth-card { max-width: 450px; margin: 0 auto; }
   .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
-  .carousel-container { min-height: 400px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .auth-card { max-width: 450px; width: 100%; margin: 0 auto; }
+  .carousel-container { text-align: center; min-height: 450px; display: flex; flex-direction: column; justify-content: center; }
   .carousel-slide { display: none; animation: fadeIn 0.8s ease; }
   .carousel-slide.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .uni-img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 1rem; }
-  .uni-name { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin: 1rem 0; }
-  .uni-stats span { padding: 4px 16px; background: rgba(255,255,255,0.05); border-radius: 20px; font-size: 12px; margin: 0 5px; }
+  .uni-img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 1rem; border: 2px solid rgba(255,255,255,0.1); }
+  .uni-name { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin: 1rem 0; background: linear-gradient(135deg, #ffffff, #e0e0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .uni-stats { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
+  .uni-stats span { font-size: 12px; padding: 4px 16px; background: rgba(255,255,255,0.05); border-radius: 20px; }
   .carousel-dots { display: flex; justify-content: center; gap: 10px; margin-top: 1.5rem; }
-  .dot { width: 8px; height: 8px; background: rgba(255,255,255,0.3); border-radius: 50%; cursor: pointer; }
+  .dot { width: 8px; height: 8px; background: rgba(255,255,255,0.3); border-radius: 50%; cursor: pointer; transition: all 0.3s; }
   .dot.active { width: 24px; border-radius: 10px; background: linear-gradient(90deg, #3b82f6, #7c3aed); }
-  .founders-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin: 2rem 0; }
+  .founders-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem; }
+  .founder-card { text-align: center; padding: 2rem; }
+  .founder-avatar { width: 80px; height: 80px; background: linear-gradient(135deg, #1a1a3a, #0f0f2a); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
+  .tab-auth { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .auth-tab { padding: 0.75rem 1.5rem; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.5); transition: all 0.2s; }
+  .auth-tab.active { color: white; border-bottom: 2px solid #3b82f6; }
+  .auth-form { display: none; }
+  .auth-form.active { display: block; }
+  .error-msg { color: #f87171; text-align: center; margin-top: 0.5rem; display: none; font-size: 12px; }
   @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } .founders-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -40,30 +49,29 @@
   </nav>
 
   <div class="hero">
-    <div class="hero-eyebrow">Official Eligibility Criteria — 2025–26 Cycle</div>
+    <div class="hero-eyebrow">Your Gateway to Higher Education</div>
     <h1>Path2Uni<br>Admission Hub</h1>
     <p>Centralized admission tracking, automated eligibility checking, and real-time result alerts for Bangladeshi students.</p>
   </div>
 
   <div class="main-content">
-    <!-- Carousel -->
     <div class="glass-card carousel-container">
-      <div class="carousel-slide active">
+      <div class="carousel-slide active" id="slide-0">
         <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=BUET" class="uni-img" alt="BUET">
         <h3 class="uni-name">BUET</h3>
-        <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution.</p>
+        <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution in Bangladesh, established in 1912.</p>
         <div class="uni-stats"><span>Est. 1912</span><span>Dhaka</span></div>
       </div>
-      <div class="carousel-slide">
+      <div class="carousel-slide" id="slide-1">
         <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=DU" class="uni-img" alt="DU">
         <h3 class="uni-name">DU</h3>
-        <p class="uni-desc">University of Dhaka - The oldest university in Bangladesh.</p>
+        <p class="uni-desc">University of Dhaka - The oldest university in Bangladesh, founded in 1921. Known as the "Oxford of the East".</p>
         <div class="uni-stats"><span>Est. 1921</span><span>Dhaka</span></div>
       </div>
-      <div class="carousel-slide">
+      <div class="carousel-slide" id="slide-2">
         <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=RUET" class="uni-img" alt="RUET">
         <h3 class="uni-name">RUET</h3>
-        <p class="uni-desc">Rajshahi University of Engineering and Technology.</p>
+        <p class="uni-desc">Rajshahi University of Engineering and Technology - Leading engineering university in northern Bangladesh.</p>
         <div class="uni-stats"><span>Est. 1964</span><span>Rajshahi</span></div>
       </div>
       <div class="carousel-dots">
@@ -73,7 +81,6 @@
       </div>
     </div>
 
-    <!-- Login/Register -->
     <div class="glass-card auth-card">
       <div class="tab-auth">
         <div class="auth-tab active" onclick="switchAuth('login')">Login</div>
@@ -81,22 +88,22 @@
       </div>
 
       <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
-        <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="student@path2uni.com" required></div>
-        <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter password" required></div>
-        <button type="submit">Login</button>
+        <div class="field"><label>Email Address</label><input type="email" id="loginEmail" placeholder="student@path2uni.com" required></div>
+        <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required></div>
+        <button type="submit" class="calc-btn">Login to Dashboard</button>
         <div class="error-msg" id="loginError"></div>
-        <p class="hint">Admin: admin@path2uni.com / admin123</p>
+        <p class="hint" style="text-align: center; margin-top: 1rem;">Demo: any email / any password<br>Admin: admin@path2uni.com / admin123</p>
       </form>
 
       <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
         <div class="row2">
-          <div class="field"><label>Full Name</label><input type="text" id="regName" required></div>
-          <div class="field"><label>HSC Roll</label><input type="text" id="regRoll"></div>
+          <div class="field"><label>Full Name</label><input type="text" id="regName" placeholder="Your Name" required></div>
+          <div class="field"><label>HSC Roll</label><input type="text" id="regRoll" placeholder="HSC Roll Number"></div>
         </div>
-        <div class="field"><label>Email</label><input type="email" id="regEmail" required></div>
-        <div class="field"><label>Password</label><input type="password" id="regPassword" required></div>
-        <div class="field"><label>Confirm Password</label><input type="password" id="regConfirm" required></div>
-        <button type="submit">Create Account</button>
+        <div class="field"><label>Email Address</label><input type="email" id="regEmail" placeholder="student@path2uni.com" required></div>
+        <div class="field"><label>Password</label><input type="password" id="regPassword" placeholder="Create a password" required></div>
+        <div class="field"><label>Confirm Password</label><input type="password" id="regConfirm" placeholder="Confirm your password" required></div>
+        <button type="submit" class="calc-btn">Create Account</button>
         <div class="error-msg" id="regError"></div>
       </form>
     </div>
@@ -105,9 +112,9 @@
   <div class="founders-section">
     <div class="sec-title">Meet Our Founders</div>
     <div class="founders-grid">
-      <div class="founder-card glass-card"><div class="founder-avatar">SA</div><h3 class="founder-name">Shakil Ahmed</h3><p class="founder-title">CEO & Co-Founder</p><p class="founder-bio">Former BUET student with a vision to simplify university admissions.</p></div>
-      <div class="founder-card glass-card"><div class="founder-avatar">RH</div><h3 class="founder-name">Rifat Hasan</h3><p class="founder-title">CTO & Co-Founder</p><p class="founder-bio">Full-stack developer passionate about educational technology.</p></div>
-      <div class="founder-card glass-card"><div class="founder-avatar">NI</div><h3 class="founder-name">Nafis Islam</h3><p class="founder-title">COO & Co-Founder</p><p class="founder-bio">Education consultant helping thousands of students achieve their dreams.</p></div>
+      <div class="founder-card glass-card"><div class="founder-avatar">SA</div><h3 class="founder-name">Shakil Ahmed</h3><p class="founder-title">CEO & Co-Founder</p><p class="founder-bio">Former BUET student with a vision to simplify university admissions for all Bangladeshi students.</p></div>
+      <div class="founder-card glass-card"><div class="founder-avatar">RH</div><h3 class="founder-name">Rifat Hasan</h3><p class="founder-title">CTO & Co-Founder</p><p class="founder-bio">Full-stack developer passionate about educational technology and accessibility.</p></div>
+      <div class="founder-card glass-card"><div class="founder-avatar">NI</div><h3 class="founder-name">Nafis Islam</h3><p class="founder-title">COO & Co-Founder</p><p class="founder-bio">Education consultant with experience helping thousands of students achieve their dreams.</p></div>
     </div>
   </div>
 
@@ -127,7 +134,7 @@ function showSlide(index) {
   slides.forEach((s, i) => s.classList.remove('active'));
   dots.forEach(d => d.classList.remove('active'));
   currentSlide = (index + slides.length) % slides.length;
-  slides[currentSlide].classList.add('active');
+  if (slides[currentSlide]) slides[currentSlide].classList.add('active');
   if (dots[currentSlide]) dots[currentSlide].classList.add('active');
 }
 
@@ -136,6 +143,7 @@ window.goToSlide = function(index) { showSlide(index); resetInterval(); }
 function resetInterval() { clearInterval(carouselInterval); carouselInterval = setInterval(nextSlide, 5000); }
 carouselInterval = setInterval(nextSlide, 5000);
 
+// Auth Functions
 function switchAuth(type) {
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
@@ -170,7 +178,6 @@ async function handleLogin(e) {
     if (response.ok) {
       localStorage.setItem('path2uni_token', data.token);
       localStorage.setItem('path2uni_user', JSON.stringify(data.user));
-      
       if (data.user.isAdmin) {
         window.location.href = 'admin-dashboard.html';
       } else {
@@ -217,7 +224,6 @@ async function handleRegister(e) {
     if (response.ok) {
       localStorage.setItem('path2uni_token', data.token);
       localStorage.setItem('path2uni_user', JSON.stringify(data.user));
-      
       if (data.user.isAdmin) {
         window.location.href = 'admin-dashboard.html';
       } else {
@@ -234,7 +240,7 @@ async function handleRegister(e) {
 }
 
 function showAlert() { alert('Please login or register first.'); }
-function showContactAlert() { alert('Contact Us:\n\nEmail: support@path2uni.com\nPhone: +880 1234 567890'); }
+function showContactAlert() { alert('Contact Us:\n\nEmail: support@path2uni.com\nPhone: +880 1234 567890\nAddress: Dhaka, Bangladesh'); }
 </script>
 </body>
 </html>
