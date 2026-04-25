@@ -15,7 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'path2uni_super_secret_key_2026';
 
-// Initialize DeepSeek
+// DeepSeek API Key
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
 let db;
@@ -36,8 +36,16 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-// DeepSeek API call function
+// ============ DEEPSEEK API FUNCTION ============
+
 async function callDeepSeek(message, userContext) {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  
+  if (!apiKey || apiKey === 'your_deepseek_api_key_here') {
+    console.log('DeepSeek API key not configured');
+    return null;
+  }
+
   const systemPrompt = `You are UniBuddy, a helpful AI assistant for Bangladeshi students seeking university admissions.
 
 User Information:
@@ -47,20 +55,19 @@ User Information:
 
 You have knowledge about:
 - BUET, DU, RUET, CUET, KUET, RU, CU, JU universities
-- Medical colleges (DMC, MMC, SHMC, SSMC, Rangpur Medical)
-- GST Cluster universities
+- Medical colleges (DMC, MMC, SHMC)
 - Application deadlines and requirements
 - Exam schedules and admit cards
 - Admission eligibility criteria based on GPA
 
-Provide helpful, accurate, and friendly responses. Be specific with GPA requirements. If user's GPA is available, give personalized advice. Keep responses concise but informative (2-4 sentences).`;
+Provide helpful, accurate, and friendly responses. Keep responses concise but informative.`;
 
   try {
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: 'deepseek-chat',
@@ -75,19 +82,24 @@ Provide helpful, accurate, and friendly responses. Be specific with GPA requirem
 
     const data = await response.json();
     
-    if (data.error) {
-      console.error('DeepSeek API error:', data.error);
+    if (!response.ok) {
+      console.error('DeepSeek API error:', data.error?.message || 'Unknown error');
       return null;
     }
     
-    return data.choices[0].message.content;
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      return data.choices[0].message.content;
+    }
+    
+    return null;
   } catch (error) {
-    console.error('DeepSeek call error:', error);
+    console.error('DeepSeek call error:', error.message);
     return null;
   }
 }
 
-// Fallback response function (if API fails)
+// ============ FALLBACK RESPONSE FUNCTION ============
+
 function getFallbackResponse(message, user) {
   const lowerMsg = message.toLowerCase();
   
@@ -149,6 +161,8 @@ function getFallbackResponse(message, user) {
   
   return `I can help with university admissions in Bangladesh! Ask me about:\n\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria and GPA requirements\n• Application deadlines and how to apply\n• Medical college admissions\n• Exam schedules and admit cards\n\nFor example: "How to apply for KUET?" or "What are the eligibility requirements for BUET?"`;
 }
+
+// ============ DATABASE INITIALIZATION ============
 
 async function initDB() {
   db = await sqlite.open({
@@ -350,7 +364,8 @@ async function initDB() {
   return db;
 }
 
-// Middleware
+// ============ MIDDLEWARE ============
+
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
@@ -590,7 +605,7 @@ app.post('/api/chatbuddy', auth, async (req, res) => {
     let reply = null;
     let aiProvider = 'fallback';
     
-    // Try DeepSeek AI first
+    // Try DeepSeek AI
     if (DEEPSEEK_API_KEY && DEEPSEEK_API_KEY !== 'your_deepseek_api_key_here') {
       console.log('Calling DeepSeek API...');
       reply = await callDeepSeek(message, user);
@@ -600,7 +615,7 @@ app.post('/api/chatbuddy', auth, async (req, res) => {
       }
     }
     
-    // Fallback to local responses if AI fails
+    // Fallback to local responses
     if (!reply) {
       console.log('Using fallback response');
       reply = getFallbackResponse(message, user);
@@ -642,25 +657,39 @@ app.get('/api/admin/stats', auth, async (req, res) => {
   res.json({ users: userCount.c, circulars: circCount.c, questionBanks: qbCount.c, examDates: examCount.c });
 });
 
+// ============ TEST DEEPSEEK ENDPOINT ============
+
+app.get('/api/test-deepseek', async (req, res) => {
+  const apiKey = DEEPSEEK_API_KEY;
+  
+  if (!apiKey || apiKey === 'your_deepseek_api_key_here') {
+    return res.json({ 
+      success: false, 
+      error: 'DeepSeek API key not configured',
+      message: 'Add your API key to .env file'
+    });
+  }
+  
+  try {
+    const testReply = await callDeepSeek('What are the requirements for BUET?', { name: 'Test User' });
+    res.json({ 
+      success: true, 
+      reply: testReply,
+      apiKeyConfigured: true
+    });
+  } catch (error) {
+    res.json({ 
+      success: false, 
+      error: error.message,
+      apiKeyConfigured: true
+    });
+  }
+});
+
 // ============ HEALTH CHECK ============
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// ============ TEST DEEPSEEK ENDPOINT ============
-
-app.get('/api/test-deepseek', async (req, res) => {
-  if (!DEEPSEEK_API_KEY || DEEPSEEK_API_KEY === 'your_deepseek_api_key_here') {
-    return res.json({ error: 'DeepSeek API key not configured', success: false });
-  }
-  
-  try {
-    const testReply = await callDeepSeek('Say hello from UniBuddy', { name: 'Test User' });
-    res.json({ success: true, reply: testReply });
-  } catch (error) {
-    res.json({ error: error.message, success: false });
-  }
 });
 
 // ============ START SERVER ============
@@ -673,4 +702,5 @@ initDB().then(() => {
   });
 }).catch(err => {
   console.error('Failed to start:', err);
+  process.exit(1);
 });
