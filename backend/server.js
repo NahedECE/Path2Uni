@@ -479,33 +479,123 @@ app.put('/api/notifications/:id/read', auth, async (req, res) => {
 
 // ============ UNIBUDDY CHATBOT (GEMINI AI) ============
 
+// ============ UNIBUDDY CHATBOT (GEMINI AI) - FIXED VERSION ============
+
 app.post('/api/chatbuddy', auth, async (req, res) => {
   const { message } = req.body;
+  console.log('Chatbot request received:', message);
   
   try {
     const user = await db.get('SELECT name, ssc_gpa, hsc_gpa FROM users WHERE id = ?', [req.userId]);
     
-    const systemPrompt = `You are UniBuddy, an AI assistant for Bangladeshi students. 
-User: ${user?.name || 'Student'} with SSC: ${user?.ssc_gpa || 'N/A'}, HSC: ${user?.hsc_gpa || 'N/A'}.
-Provide helpful info about BUET, DU, RUET, CUET, KUET, medical colleges, deadlines, eligibility, applications.`;
-
-    let reply = "I'm UniBuddy. Please add your GEMINI_API_KEY to enable AI responses.";
-
-    if (geminiAI) {
-      const model = geminiAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const result = await model.generateContent({
-        contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\nUser question: ' + message }] }]
-      });
-      reply = result.response.text();
+    // Check if Gemini is initialized
+    if (!geminiAI) {
+      console.log('Gemini not initialized, using fallback');
+      const fallbackReply = getFallbackResponse(message, user);
+      await db.run('INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)', 
+        [req.userId, message, fallbackReply, 'fallback']);
+      return res.json({ reply: fallbackReply });
     }
     
-    await db.run('INSERT INTO chatbot_conversations (user_id, question, answer) VALUES (?, ?, ?)', [req.userId, message, reply]);
+    // Create the prompt for Gemini
+    const prompt = `You are UniBuddy, a helpful AI assistant for Bangladeshi students seeking university admissions.
+    
+User Information:
+- Name: ${user?.name || 'Student'}
+- SSC GPA: ${user?.ssc_gpa || 'Not set'}
+- HSC GPA: ${user?.hsc_gpa || 'Not set'}
+
+You have knowledge about:
+- BUET, DU, RUET, CUET, KUET, RU, CU, JU universities
+- Medical colleges (DMC, MMC, SHMC)
+- Application deadlines and requirements
+- Exam schedules and admit cards
+- Admission eligibility criteria based on GPA
+
+Provide helpful, accurate, and friendly responses. Be specific with GPA requirements. Keep responses concise.
+
+User Question: ${message}
+
+Answer:`;
+
+    console.log('Calling Gemini API...');
+    
+    // Use the correct Gemini model
+    const model = geminiAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 500,
+      }
+    });
+    
+    const reply = result.response.text();
+    console.log('Gemini response received:', reply.substring(0, 100) + '...');
+    
+    // Save conversation
+    await db.run('INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)', 
+      [req.userId, message, reply, 'gemini']);
+    
     res.json({ reply });
+    
   } catch (error) {
-    console.error('Chat error:', error);
-    res.json({ reply: "I'm having trouble connecting. Please try again." });
+    console.error('Chatbot error:', error);
+    const fallbackReply = getFallbackResponse(message, null);
+    res.json({ reply: fallbackReply });
   }
 });
+
+// Fallback response function (works without API)
+function getFallbackResponse(message, user) {
+  const lowerMsg = message.toLowerCase();
+  
+  if (lowerMsg.includes('kuet')) {
+    return 'KUET (Khulna University of Engineering and Technology) requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00. Application starts in March, exam in May.\n\nHow to apply:\n1. Visit https://admission.kuet.ac.bd\n2. Register with your HSC roll\n3. Fill the application form\n4. Pay fee (1000 BDT)\n5. Download admit card\n\nEligibility: Science background with Physics, Chemistry, Math required.';
+  }
+  else if (lowerMsg.includes('buet')) {
+    return 'BUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://ugadmission.buet.ac.bd\n2. Register during March\n3. Submit application online\n4. Pay application fee\n5. Appear for admission test in May\n\nEligibility: Science background with PCM required.';
+  }
+  else if (lowerMsg.includes('du') || lowerMsg.includes('dhaka university')) {
+    return 'Dhaka University (Ka Unit - Science) requires combined GPA ≥ 7.5.\n\nHow to apply:\n1. Visit https://admission.eis.du.ac.bd\n2. Application period: March-April\n3. Fill online form\n4. Exam in May\n\nEligibility: SSC and HSC GPA ≥ 3.50 each.';
+  }
+  else if (lowerMsg.includes('ruet')) {
+    return 'RUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://admission.ruet.ac.bd\nApplication: March-April\nExam: May\n\nEligibility: Science background with PCM.';
+  }
+  else if (lowerMsg.includes('cuet')) {
+    return 'CUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://cuet.ac.bd/admission\nApplication: March-April\nExam: May';
+  }
+  else if (lowerMsg.includes('medical') || lowerMsg.includes('dmc') || lowerMsg.includes('mbbs')) {
+    return 'Medical admission (MBBS/BDS) requires:\n• SSC GPA ≥ 3.50\n• HSC GPA ≥ 3.50\n• Biology GPA ≥ 3.50\n\nExam通常在 February\nApply at: http://dgsh.teletalk.com.bd\n\nTop medical colleges: DMC, MMC, SHMC, SSMC, Rangpur Medical.';
+  }
+  else if (lowerMsg.includes('eligibility') || lowerMsg.includes('qualify')) {
+    const gpaInfo = user && user.ssc_gpa && user.hsc_gpa 
+      ? `Based on your GPA (SSC: ${user.ssc_gpa}, HSC: ${user.hsc_gpa}), go to the Eligibility Checker page to see which universities you qualify for.`
+      : 'Go to the Eligibility Checker page and enter your SSC and HSC GPA to see which universities you qualify for.';
+    return gpaInfo;
+  }
+  else if (lowerMsg.includes('deadline') || lowerMsg.includes('application date')) {
+    return 'Current application deadlines:\n• BUET: March 1-30, 2026\n• DU: March 10 - April 5, 2026\n• RUET: March 5 - April 5, 2026\n• Medical: December 1-31, 2025\n\nCheck Live Circulars on dashboard for updates!';
+  }
+  else if (lowerMsg.includes('apply') || lowerMsg.includes('application process')) {
+    return 'Application process:\n1. Check circular on dashboard\n2. Visit university admission portal\n3. Register with HSC roll\n4. Fill form and upload photo\n5. Pay application fee (500-1500 BDT)\n6. Download admit card\n7. Take exam\n\nNeed help with a specific university?';
+  }
+  else if (lowerMsg.includes('admit') || lowerMsg.includes('admit card')) {
+    return 'Admit cards are usually available 1-2 weeks before the exam. Download from the university admission portal using your HSC roll and application ID.';
+  }
+  else if (lowerMsg.includes('result')) {
+    return 'Results are typically published 2-3 months after exams. Check the respective university website for updates.';
+  }
+  else if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
+    return `Hello ${user?.name || 'there'}! 👋 I'm UniBuddy. I can help you with:\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria and GPA requirements\n• Application deadlines and exam schedules\n• How to apply for specific universities\n\nWhat would you like to know?`;
+  }
+  else if (lowerMsg.includes('help') || lowerMsg.includes('what can you do')) {
+    return 'I can help you with:\n• University admission requirements (KUET, BUET, DU, RUET, CUET, Medical)\n• Eligibility criteria based on your GPA\n• Application deadlines and exam schedules\n• How to apply for different universities\n• Admit card and result information\n\nJust ask me anything about university admissions in Bangladesh!';
+  }
+  
+  return `I can help you with university admissions in Bangladesh! Ask me about:\n\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria and GPA requirements\n• Application deadlines and how to apply\n• Medical college admissions\n\nFor example: "How to apply for KUET?" or "What are the eligibility requirements for BUET?"`;
+}
 
 // ============ ADMIN ROUTES ============
 
@@ -538,11 +628,21 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 initDB().then(() => {
-  // Test chatbot endpoint (for debugging)
-app.post('/api/chatbuddy-test', auth, async (req, res) => {
-  const { message } = req.body;
-  console.log('Test endpoint received:', message);
-  res.json({ reply: `Test reply: You said "${message}". Gemini is ${geminiAI ? 'enabled' : 'disabled'}.` });
+// Test Gemini endpoint (remove in production)
+app.get('/api/test-gemini', async (req, res) => {
+  if (!geminiAI) {
+    return res.json({ error: 'Gemini not configured', geminiEnabled: false });
+  }
+  
+  try {
+    const model = geminiAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: 'Say "Hello from Path2Uni!"' }] }]
+    });
+    res.json({ success: true, reply: result.response.text(), geminiEnabled: true });
+  } catch (error) {
+    res.json({ error: error.message, geminiEnabled: true });
+  }
 });
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
