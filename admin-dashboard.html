@@ -5,21 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard | Path2Uni</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
 <style>
-  /* Additional admin-specific styles */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #05050f 0%, #0a0a1a 50%, #0d0d22 100%);
+    min-height: 100vh;
+    color: white;
+  }
+  
+  .bg-mesh {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(124,58,237,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+  
+  .page-wrap {
+    position: relative;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 4rem;
+    z-index: 1;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 50px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(120deg, #fff, #a0a0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .nav-link {
+    padding: 0.5rem 1rem;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+    border-radius: 30px;
+    cursor: pointer;
+  }
+  
+  .nav-link:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+  }
+  
+  .glass-card {
+    background: rgba(10,10,26,0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin-bottom: 1.5rem;
   }
+  
   .stat-card {
     text-align: center;
     padding: 1rem;
     background: rgba(255,255,255,0.03);
     border-radius: 16px;
   }
+  
   .stat-number {
     font-size: 32px;
     font-weight: 800;
@@ -27,12 +113,41 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+  
+  .stat-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+  }
+  
+  .sec-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
+  }
+  
+  .sec-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
+  }
+  
   .admin-tabs {
     display: flex;
     gap: 1rem;
     margin-bottom: 1.5rem;
     flex-wrap: wrap;
   }
+  
   .admin-tab {
     padding: 10px 20px;
     background: rgba(255,255,255,0.05);
@@ -40,44 +155,71 @@
     cursor: pointer;
     transition: all 0.2s;
   }
+  
   .admin-tab.active {
     background: linear-gradient(135deg, #3b82f6, #7c3aed);
   }
+  
+  .admin-tab:hover {
+    background: rgba(255,255,255,0.15);
+  }
+  
   .panel {
     display: none;
   }
+  
   .panel.active {
     display: block;
   }
+  
+  .field {
+    margin-bottom: 1rem;
+  }
+  
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+  }
+  
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+  }
+  
+  .field input[type="file"] {
+    padding: 8px;
+  }
+  
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
   }
-  .item-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 16px;
-    margin-bottom: 8px;
-  }
-  .item-info {
-    flex: 1;
-  }
-  .item-title {
+  
+  .calc-btn {
+    background: linear-gradient(135deg, #3b82f6, #7c3aed);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
     font-weight: 600;
-    margin-bottom: 4px;
+    transition: all 0.2s;
   }
-  .item-meta {
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
+  
+  .calc-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px -5px rgba(59,130,246,0.4);
   }
-  .item-actions {
-    display: flex;
-    gap: 8px;
-  }
+  
   .delete-btn {
     background: linear-gradient(135deg, #ef4444, #dc2626);
     padding: 5px 12px;
@@ -87,26 +229,84 @@
     color: white;
     cursor: pointer;
   }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  th {
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  
+  .item-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    margin-bottom: 8px;
+  }
+  
+  .item-info {
+    flex: 1;
+  }
+  
+  .item-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .item-meta {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+  }
+  
+  .item-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
   .success-msg, .error-msg {
     padding: 10px;
     border-radius: 12px;
     margin-top: 1rem;
     display: none;
   }
+  
   .success-msg {
     background: rgba(34,197,94,0.2);
     border: 1px solid rgba(34,197,94,0.3);
     color: #4ade80;
   }
+  
   .error-msg {
     background: rgba(239,68,68,0.2);
     border: 1px solid rgba(239,68,68,0.3);
     color: #f87171;
   }
+  
+  .hint {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 2rem;
+  }
+  
   hr {
     margin: 1.5rem 0;
     border-color: rgba(255,255,255,0.1);
   }
+  
   @media (max-width: 700px) {
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .form-row { grid-template-columns: 1fr; }
@@ -147,13 +347,13 @@
 
     <!-- ========== USERS PANEL ========== -->
     <div id="usersPanel" class="panel active">
-      <h3 class="sec-title" style="text-align: left; justify-content: flex-start;">Registered Users</h3>
+      <div class="sec-title">Registered Users</div>
       <div id="usersList"></div>
     </div>
 
     <!-- ========== CIRCULARS PANEL ========== -->
     <div id="circularsPanel" class="panel">
-      <h3 class="sec-title" style="text-align: left; justify-content: flex-start;">Add New Circular</h3>
+      <div class="sec-title">Add New Circular</div>
       <div class="form-row">
         <div class="field"><label>Circular Title *</label><input type="text" id="circTitle" placeholder="e.g., BUET Admission 2026"></div>
         <div class="field"><label>University *</label><input type="text" id="circUniversity" placeholder="e.g., BUET"></div>
@@ -168,18 +368,18 @@
         <div class="field"><label>Exam Date</label><input type="date" id="circExamDate"></div>
       </div>
       <div class="field"><label>PDF File (PDF only, max 10MB)</label><input type="file" id="circPdf" accept=".pdf"></div>
-      <button class="calc-btn" style="width: auto; padding: 10px 24px;" onclick="addCircular()">➕ Add Circular</button>
+      <button class="calc-btn" style="width: auto;" onclick="addCircular()">➕ Add Circular</button>
       <div id="circularsSuccessMsg" class="success-msg"></div>
       <div id="circularsErrorMsg" class="error-msg"></div>
       
       <hr>
-      <h3 class="sec-title" style="text-align: left; justify-content: flex-start;">Existing Circulars</h3>
+      <div class="sec-title">Existing Circulars</div>
       <div id="circularsList"></div>
     </div>
 
     <!-- ========== EXAM DATES PANEL ========== -->
     <div id="examDatesPanel" class="panel">
-      <h3 class="sec-title" style="text-align: left; justify-content: flex-start;">Add New Exam Date</h3>
+      <div class="sec-title">Add New Exam Date</div>
       <div class="form-row">
         <div class="field"><label>Exam Title *</label><input type="text" id="examTitle" placeholder="e.g., BUET Admission Test"></div>
         <div class="field"><label>University *</label><input type="text" id="examUniversity" placeholder="e.g., BUET"></div>
@@ -192,18 +392,18 @@
         <div class="field"><label>Venue</label><input type="text" id="examVenue" placeholder="e.g., BUET Campus"></div>
         <div class="field"><label>Description</label><input type="text" id="examDesc" placeholder="Additional info"></div>
       </div>
-      <button class="calc-btn" style="width: auto; padding: 10px 24px;" onclick="addExamDate()">➕ Add Exam Date</button>
+      <button class="calc-btn" style="width: auto;" onclick="addExamDate()">➕ Add Exam Date</button>
       <div id="examDatesSuccessMsg" class="success-msg"></div>
       <div id="examDatesErrorMsg" class="error-msg"></div>
       
       <hr>
-      <h3 class="sec-title" style="text-align: left; justify-content: flex-start;">Existing Exam Dates</h3>
+      <div class="sec-title">Existing Exam Dates</div>
       <div id="examDatesList"></div>
     </div>
 
     <!-- ========== QUESTION BANKS PANEL ========== -->
     <div id="questionBanksPanel" class="panel">
-      <h3 class="sec-title" style="text-align: left; justify-content: flex-start;">Upload Question Bank PDF</h3>
+      <div class="sec-title">Upload Question Bank PDF</div>
       <div class="form-row">
         <div class="field"><label>Title *</label><input type="text" id="qbTitle" placeholder="e.g., BUET Question 2024"></div>
         <div class="field"><label>University *</label>
@@ -218,12 +418,12 @@
         <div class="field"><label>Year</label><input type="number" id="qbYear" placeholder="e.g., 2024"></div>
       </div>
       <div class="field"><label>PDF File * (PDF only, max 10MB)</label><input type="file" id="qbPdf" accept=".pdf"></div>
-      <button class="calc-btn" style="width: auto; padding: 10px 24px;" onclick="uploadQuestionBank()">📤 Upload Question Bank</button>
+      <button class="calc-btn" style="width: auto;" onclick="uploadQuestionBank()">📤 Upload Question Bank</button>
       <div id="qbSuccessMsg" class="success-msg"></div>
       <div id="qbErrorMsg" class="error-msg"></div>
       
       <hr>
-      <h3 class="sec-title" style="text-align: left; justify-content: flex-start;">Existing Question Banks</h3>
+      <div class="sec-title">Existing Question Banks</div>
       <div id="questionBanksList"></div>
     </div>
   </div>
@@ -272,13 +472,15 @@ async function loadUsers() {
     const container = document.getElementById('usersList');
     if (!data.users?.length) { container.innerHTML = '<div class="hint">No users found</div>'; return; }
     container.innerHTML = `
-      <table style="width:100%; border-collapse:collapse;">
+      <table>
         <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th>Action</th></tr></thead>
         <tbody>${data.users.map(u => `
-          <tr><td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td>
-          <td>${u.is_admin ? 'Admin' : 'User'}</td>
-          <td>${new Date(u.created_at).toLocaleDateString()}</td>
-          <td>${!u.is_admin ? `<button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button>` : '-'}</td></tr>
+          <tr>
+            <td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td>
+            <td>${u.is_admin ? 'Admin' : 'User'}</td>
+            <td>${new Date(u.created_at).toLocaleDateString()}</td>
+            <td>${!u.is_admin ? `<button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button>` : '-'}</td>
+          </tr>
         `).join('')}</tbody>
       </table>
     `;
@@ -301,8 +503,10 @@ async function loadCirculars() {
     if (!data.circulars?.length) { container.innerHTML = '<div class="hint">No circulars yet</div>'; return; }
     container.innerHTML = data.circulars.map(c => `
       <div class="item-card">
-        <div class="item-info"><div class="item-title">${escapeHtml(c.title)}</div>
-        <div class="item-meta">🏛️ ${escapeHtml(c.university)} | Deadline: ${c.application_deadline}</div></div>
+        <div class="item-info">
+          <div class="item-title">${escapeHtml(c.title)}</div>
+          <div class="item-meta">🏛️ ${escapeHtml(c.university)} | Deadline: ${c.application_deadline}</div>
+        </div>
         <div class="item-actions"><button class="delete-btn" onclick="deleteCircular(${c.id})">Delete</button></div>
       </div>
     `).join('');
@@ -313,7 +517,7 @@ async function addCircular() {
   const title = document.getElementById('circTitle').value;
   const university = document.getElementById('circUniversity').value;
   const deadline = document.getElementById('circDeadline').value;
-  if (!title || !university || !deadline) { alert('Please fill required fields'); return; }
+  if (!title || !university || !deadline) { alert('Please fill Title, University, and Deadline'); return; }
   
   const formData = new FormData();
   formData.append('title', title);
@@ -358,8 +562,10 @@ async function loadExamDates() {
     if (!data.examDates?.length) { container.innerHTML = '<div class="hint">No exam dates yet</div>'; return; }
     container.innerHTML = data.examDates.map(e => `
       <div class="item-card">
-        <div class="item-info"><div class="item-title">${escapeHtml(e.title)}</div>
-        <div class="item-meta">🏛️ ${escapeHtml(e.university)} | 📅 ${e.exam_date} ${e.exam_time || ''}</div></div>
+        <div class="item-info">
+          <div class="item-title">${escapeHtml(e.title)}</div>
+          <div class="item-meta">🏛️ ${escapeHtml(e.university)} | 📅 ${e.exam_date} ${e.exam_time || ''}</div>
+        </div>
         <div class="item-actions"><button class="delete-btn" onclick="deleteExamDate(${e.id})">Delete</button></div>
       </div>
     `).join('');
@@ -370,7 +576,7 @@ async function addExamDate() {
   const title = document.getElementById('examTitle').value;
   const university = document.getElementById('examUniversity').value;
   const examDate = document.getElementById('examDate').value;
-  if (!title || !university || !examDate) { alert('Please fill required fields'); return; }
+  if (!title || !university || !examDate) { alert('Please fill Title, University, and Exam Date'); return; }
   
   const data = {
     title, university, exam_date: examDate,
@@ -408,9 +614,11 @@ async function loadQuestionBanks() {
     if (!data.questions?.length) { container.innerHTML = '<div class="hint">No question banks yet</div>'; return; }
     container.innerHTML = data.questions.map(q => `
       <div class="item-card">
-        <div class="item-info"><div class="item-title">${escapeHtml(q.title)}</div>
-        <div class="item-meta">🏛️ ${escapeHtml(q.university)} | ${q.subject || 'General'} | Year: ${q.year || 'N/A'}</div>
-        <div class="item-meta">📄 <a href="${API_URL}${q.pdf_path}" target="_blank" style="color:#60a5fa;">Download PDF</a></div></div>
+        <div class="item-info">
+          <div class="item-title">${escapeHtml(q.title)}</div>
+          <div class="item-meta">🏛️ ${escapeHtml(q.university)} | ${q.subject || 'General'} | Year: ${q.year || 'N/A'}</div>
+          <div class="item-meta">📄 <a href="${API_URL}${q.pdf_path}" target="_blank" style="color:#60a5fa;">Download PDF</a></div>
+        </div>
         <div class="item-actions"><button class="delete-btn" onclick="deleteQuestionBank(${q.id})">Delete</button></div>
       </div>
     `).join('');
