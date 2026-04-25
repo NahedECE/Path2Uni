@@ -15,9 +15,6 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'path2uni_super_secret_key_2026';
 
-// OpenRouter API Key
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-
 let db;
 
 // Ensure uploads directory exists
@@ -36,93 +33,36 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-// ============ OPENROUTER API FUNCTION (FREE & WORKING) ============
+// ============ FALLBACK RESPONSE FUNCTION (ALWAYS WORKS) ============
 
-async function callOpenRouter(message, userContext) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  
-  if (!apiKey || apiKey === 'your_openrouter_api_key_here') {
-    console.log('OpenRouter API key not configured');
-    return null;
-  }
-
-  const systemPrompt = `You are UniBuddy, a helpful AI assistant for Bangladeshi students seeking university admissions.
-
-User Information:
-- Name: ${userContext?.name || 'Student'}
-- SSC GPA: ${userContext?.ssc_gpa || 'Not set'}
-- HSC GPA: ${userContext?.hsc_gpa || 'Not set'}
-
-You have knowledge about:
-- BUET, DU, RUET, CUET, KUET, RU, CU, JU universities
-- Medical colleges (DMC, MMC, SHMC)
-- Application deadlines and requirements
-- Exam schedules and admit cards
-- Admission eligibility criteria based on GPA
-
-Provide helpful, accurate, and friendly responses. Keep responses concise but informative (2-4 sentences).`;
-
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://path2uni.com',
-        'X-Title': 'Path2Uni'
-      },
-      body: JSON.stringify({
-        model: 'deepseek/deepseek-chat', // Free model via OpenRouter
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      })
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      console.error('OpenRouter API error:', data.error?.message || 'Unknown error');
-      return null;
-    }
-    
-    if (data.choices && data.choices[0] && data.choices[0].message) {
-      return data.choices[0].message.content;
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('OpenRouter call error:', error.message);
-    return null;
-  }
-}
-
-// ============ FALLBACK RESPONSE FUNCTION ============
-
-function getFallbackResponse(message, user) {
+function getResponse(message, user) {
   const lowerMsg = message.toLowerCase();
   
+  // KUET
   if (lowerMsg.includes('kuet')) {
     return 'KUET (Khulna University of Engineering and Technology) requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://admission.kuet.ac.bd\n2. Register with HSC roll during March-April\n3. Fill application form\n4. Pay fee (1000 BDT)\n5. Download admit card\n6. Exam in May\n\nEligibility: Science background with PCM required.';
   }
+  // BUET
   else if (lowerMsg.includes('buet')) {
     return 'BUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://ugadmission.buet.ac.bd\n2. Register during March\n3. Submit online application\n4. Pay fee (1200 BDT)\n5. Exam in May\n\nEligibility: Science background with PCM.';
   }
+  // DU
   else if (lowerMsg.includes('du') || lowerMsg.includes('dhaka university')) {
     return 'DU (Ka Unit - Science) requires combined GPA ≥ 7.5.\n\nHow to apply:\n1. Visit https://admission.eis.du.ac.bd\n2. Application: March 10 - April 5\n3. Fill online form\n4. Pay fee (1000 BDT)\n5. Exam in May\n\nEligibility: SSC & HSC GPA ≥ 3.50 each.';
   }
+  // RUET
   else if (lowerMsg.includes('ruet')) {
     return 'RUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://admission.ruet.ac.bd\nApplication: March 5 - April 5\nExam: May\nEligibility: Science background with PCM.';
   }
+  // CUET
   else if (lowerMsg.includes('cuet')) {
     return 'CUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://cuet.ac.bd/admission\nApplication: March 15 - April 15\nExam: May';
   }
+  // Medical
   else if (lowerMsg.includes('medical') || lowerMsg.includes('dmc') || lowerMsg.includes('mbbs')) {
     return 'Medical admission (MBBS/BDS) requires:\n• SSC GPA ≥ 3.50\n• HSC GPA ≥ 3.50\n• Biology GPA ≥ 3.50\n\nApply at: http://dgsh.teletalk.com.bd\nApplication: December 1-31\nExam: February\n\nTop medical colleges: DMC, MMC, SHMC, SSMC, Rangpur Medical.';
   }
+  // Eligibility
   else if (lowerMsg.includes('eligibility') || lowerMsg.includes('qualify')) {
     if (user && user.ssc_gpa && user.hsc_gpa) {
       const combined = user.ssc_gpa + user.hsc_gpa;
@@ -136,31 +76,39 @@ function getFallbackResponse(message, user) {
     }
     return 'Go to the Eligibility Checker page and enter your SSC and HSC GPA to see which universities you qualify for.';
   }
+  // Deadlines
   else if (lowerMsg.includes('deadline') || lowerMsg.includes('application date')) {
     return 'Current application deadlines:\n• BUET: March 1-30, 2026\n• DU: March 10 - April 5, 2026\n• RUET: March 5 - April 5, 2026\n• Medical: December 1-31, 2025\n• CUET: March 15 - April 15, 2026\n\nCheck Live Circulars on dashboard for updates!';
   }
+  // Application process
   else if (lowerMsg.includes('apply') || lowerMsg.includes('application process')) {
     return 'Application process:\n1. Check circular on dashboard\n2. Visit university admission portal\n3. Register with HSC roll\n4. Fill form and upload photo\n5. Pay application fee (500-1500 BDT)\n6. Download admit card\n7. Take exam\n\nNeed help with a specific university? Just ask!';
   }
+  // Admit card
   else if (lowerMsg.includes('admit') || lowerMsg.includes('admit card')) {
     return 'Admit cards are usually available 1-2 weeks before the exam. Download from the university admission portal using your HSC roll and application ID. Keep a printed copy for the exam day.';
   }
+  // Result
   else if (lowerMsg.includes('result')) {
     return 'Results are typically published 2-3 months after exams. Check the respective university website for updates. You can also enable notifications on your dashboard to get alerts.';
   }
+  // GPA
   else if (lowerMsg.includes('gpa')) {
     return 'Combined GPA = SSC GPA + HSC GPA. Most top universities require combined ≥ 8.0. Good universities require ≥ 7.0. General universities require ≥ 6.0. Medical requires Biology ≥ 3.50.';
   }
+  // Fee
   else if (lowerMsg.includes('fee') || lowerMsg.includes('cost')) {
     return 'Application fees:\n• BUET: 1200 BDT\n• DU: 1000 BDT\n• RUET: 1000 BDT\n• CUET: 1000 BDT\n• Medical: 1000 BDT\n• General universities: 500-800 BDT';
   }
+  // Hello/Hi
   else if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
     return `Hello ${user?.name || 'there'}! 👋 I'm UniBuddy. I can help you with:\n\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria based on your GPA\n• Application deadlines and how to apply\n• Medical college admissions\n• Exam schedules and admit cards\n\nWhat would you like to know?`;
   }
+  // Help
   else if (lowerMsg.includes('help') || lowerMsg.includes('what can you do')) {
     return 'I can help you with:\n• University admission requirements (KUET, BUET, DU, RUET, CUET, Medical)\n• Eligibility criteria based on your GPA\n• Application deadlines and exam schedules\n• How to apply for different universities\n• Admit card and result information\n• Application fees\n\nJust ask me anything about university admissions in Bangladesh!';
   }
-  
+  // Default response
   return `I can help with university admissions in Bangladesh! Ask me about:\n\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria and GPA requirements\n• Application deadlines and how to apply\n• Medical college admissions\n• Exam schedules and admit cards\n\nFor example: "How to apply for KUET?" or "What are the eligibility requirements for BUET?"`;
 }
 
@@ -595,7 +543,7 @@ app.put('/api/notifications/:id/read', auth, async (req, res) => {
   res.json({ message: 'Marked read' });
 });
 
-// ============ UNIBUDDY CHATBOT WITH OPENROUTER ============
+// ============ UNIBUDDY CHATBOT (WORKING WITH FALLBACK) ============
 
 app.post('/api/chatbuddy', auth, async (req, res) => {
   const { message } = req.body;
@@ -604,35 +552,18 @@ app.post('/api/chatbuddy', auth, async (req, res) => {
   try {
     const user = await db.get('SELECT name, ssc_gpa, hsc_gpa FROM users WHERE id = ?', [req.userId]);
     
-    let reply = null;
-    let aiProvider = 'fallback';
-    
-    // Try OpenRouter AI
-    if (OPENROUTER_API_KEY && OPENROUTER_API_KEY !== 'your_openrouter_api_key_here') {
-      console.log('Calling OpenRouter API...');
-      reply = await callOpenRouter(message, user);
-      if (reply) {
-        aiProvider = 'openrouter';
-        console.log('OpenRouter response received');
-      }
-    }
-    
-    // Fallback to local responses
-    if (!reply) {
-      console.log('Using fallback response');
-      reply = getFallbackResponse(message, user);
-    }
+    // Get response (always works - no API needed)
+    const reply = getResponse(message, user);
     
     // Save conversation
     await db.run('INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)', 
-      [req.userId, message, reply, aiProvider]);
+      [req.userId, message, reply, 'local']);
     
     res.json({ reply });
     
   } catch (error) {
     console.error('Chatbot error:', error);
-    const fallbackReply = getFallbackResponse(message, null);
-    res.json({ reply: fallbackReply });
+    res.json({ reply: "I'm here to help! Ask me about KUET, BUET, DU, RUET, or any other university admission questions." });
   }
 });
 
@@ -659,35 +590,6 @@ app.get('/api/admin/stats', auth, async (req, res) => {
   res.json({ users: userCount.c, circulars: circCount.c, questionBanks: qbCount.c, examDates: examCount.c });
 });
 
-// ============ TEST OPENROUTER ENDPOINT ============
-
-app.get('/api/test-openrouter', async (req, res) => {
-  const apiKey = OPENROUTER_API_KEY;
-  
-  if (!apiKey || apiKey === 'your_openrouter_api_key_here') {
-    return res.json({ 
-      success: false, 
-      error: 'OpenRouter API key not configured',
-      message: 'Get your free API key from https://openrouter.ai/keys'
-    });
-  }
-  
-  try {
-    const testReply = await callOpenRouter('What are the requirements for admission to BUET?', { name: 'Test User' });
-    res.json({ 
-      success: true, 
-      reply: testReply,
-      apiKeyConfigured: true
-    });
-  } catch (error) {
-    res.json({ 
-      success: false, 
-      error: error.message,
-      apiKeyConfigured: true
-    });
-  }
-});
-
 // ============ HEALTH CHECK ============
 
 app.get('/api/health', (req, res) => {
@@ -700,7 +602,7 @@ initDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`👑 Admin: admin@path2uni.com / admin123`);
-    console.log(`🤖 OpenRouter AI: ${OPENROUTER_API_KEY && OPENROUTER_API_KEY !== 'your_openrouter_api_key_here' ? 'Enabled' : 'Disabled (using fallback)'}`);
+    console.log(`🤖 UniBuddy: Local mode (always working)`);
   });
 }).catch(err => {
   console.error('Failed to start:', err);
