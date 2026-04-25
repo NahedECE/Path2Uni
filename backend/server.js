@@ -21,48 +21,63 @@ let db;
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('📁 Uploads directory created');
 }
 
-// Multer configuration
+// Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
   }
 });
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
-// ============ FALLBACK RESPONSE FUNCTION (ALWAYS WORKS) ============
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'application/pdf') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PDF files are allowed'), false);
+  }
+};
+
+const upload = multer({ 
+  storage: storage, 
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: fileFilter
+});
+
+// Helper function to get base URL
+function getBaseUrl(req) {
+  return `${req.protocol}://${req.get('host')}`;
+}
+
+// ============ FALLBACK RESPONSE FUNCTION ============
 
 function getResponse(message, user) {
   const lowerMsg = message.toLowerCase();
   
-  // KUET
   if (lowerMsg.includes('kuet')) {
     return 'KUET (Khulna University of Engineering and Technology) requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://admission.kuet.ac.bd\n2. Register with HSC roll during March-April\n3. Fill application form\n4. Pay fee (1000 BDT)\n5. Download admit card\n6. Exam in May\n\nEligibility: Science background with PCM required.';
   }
-  // BUET
   else if (lowerMsg.includes('buet')) {
     return 'BUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nHow to apply:\n1. Visit https://ugadmission.buet.ac.bd\n2. Register during March\n3. Submit online application\n4. Pay fee (1200 BDT)\n5. Exam in May\n\nEligibility: Science background with PCM.';
   }
-  // DU
   else if (lowerMsg.includes('du') || lowerMsg.includes('dhaka university')) {
     return 'DU (Ka Unit - Science) requires combined GPA ≥ 7.5.\n\nHow to apply:\n1. Visit https://admission.eis.du.ac.bd\n2. Application: March 10 - April 5\n3. Fill online form\n4. Pay fee (1000 BDT)\n5. Exam in May\n\nEligibility: SSC & HSC GPA ≥ 3.50 each.';
   }
-  // RUET
   else if (lowerMsg.includes('ruet')) {
     return 'RUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://admission.ruet.ac.bd\nApplication: March 5 - April 5\nExam: May\nEligibility: Science background with PCM.';
   }
-  // CUET
   else if (lowerMsg.includes('cuet')) {
     return 'CUET requires SSC and HSC GPA ≥ 3.50 each, combined ≥ 8.00.\n\nApply at: https://cuet.ac.bd/admission\nApplication: March 15 - April 15\nExam: May';
   }
-  // Medical
   else if (lowerMsg.includes('medical') || lowerMsg.includes('dmc') || lowerMsg.includes('mbbs')) {
     return 'Medical admission (MBBS/BDS) requires:\n• SSC GPA ≥ 3.50\n• HSC GPA ≥ 3.50\n• Biology GPA ≥ 3.50\n\nApply at: http://dgsh.teletalk.com.bd\nApplication: December 1-31\nExam: February\n\nTop medical colleges: DMC, MMC, SHMC, SSMC, Rangpur Medical.';
   }
-  // Eligibility
   else if (lowerMsg.includes('eligibility') || lowerMsg.includes('qualify')) {
     if (user && user.ssc_gpa && user.hsc_gpa) {
       const combined = user.ssc_gpa + user.hsc_gpa;
@@ -76,39 +91,31 @@ function getResponse(message, user) {
     }
     return 'Go to the Eligibility Checker page and enter your SSC and HSC GPA to see which universities you qualify for.';
   }
-  // Deadlines
   else if (lowerMsg.includes('deadline') || lowerMsg.includes('application date')) {
     return 'Current application deadlines:\n• BUET: March 1-30, 2026\n• DU: March 10 - April 5, 2026\n• RUET: March 5 - April 5, 2026\n• Medical: December 1-31, 2025\n• CUET: March 15 - April 15, 2026\n\nCheck Live Circulars on dashboard for updates!';
   }
-  // Application process
   else if (lowerMsg.includes('apply') || lowerMsg.includes('application process')) {
     return 'Application process:\n1. Check circular on dashboard\n2. Visit university admission portal\n3. Register with HSC roll\n4. Fill form and upload photo\n5. Pay application fee (500-1500 BDT)\n6. Download admit card\n7. Take exam\n\nNeed help with a specific university? Just ask!';
   }
-  // Admit card
   else if (lowerMsg.includes('admit') || lowerMsg.includes('admit card')) {
     return 'Admit cards are usually available 1-2 weeks before the exam. Download from the university admission portal using your HSC roll and application ID. Keep a printed copy for the exam day.';
   }
-  // Result
   else if (lowerMsg.includes('result')) {
     return 'Results are typically published 2-3 months after exams. Check the respective university website for updates. You can also enable notifications on your dashboard to get alerts.';
   }
-  // GPA
   else if (lowerMsg.includes('gpa')) {
     return 'Combined GPA = SSC GPA + HSC GPA. Most top universities require combined ≥ 8.0. Good universities require ≥ 7.0. General universities require ≥ 6.0. Medical requires Biology ≥ 3.50.';
   }
-  // Fee
   else if (lowerMsg.includes('fee') || lowerMsg.includes('cost')) {
     return 'Application fees:\n• BUET: 1200 BDT\n• DU: 1000 BDT\n• RUET: 1000 BDT\n• CUET: 1000 BDT\n• Medical: 1000 BDT\n• General universities: 500-800 BDT';
   }
-  // Hello/Hi
   else if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
     return `Hello ${user?.name || 'there'}! 👋 I'm UniBuddy. I can help you with:\n\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria based on your GPA\n• Application deadlines and how to apply\n• Medical college admissions\n• Exam schedules and admit cards\n\nWhat would you like to know?`;
   }
-  // Help
   else if (lowerMsg.includes('help') || lowerMsg.includes('what can you do')) {
     return 'I can help you with:\n• University admission requirements (KUET, BUET, DU, RUET, CUET, Medical)\n• Eligibility criteria based on your GPA\n• Application deadlines and exam schedules\n• How to apply for different universities\n• Admit card and result information\n• Application fees\n\nJust ask me anything about university admissions in Bangladesh!';
   }
-  // Default response
+  
   return `I can help with university admissions in Bangladesh! Ask me about:\n\n• KUET, BUET, DU, RUET admission requirements\n• Eligibility criteria and GPA requirements\n• Application deadlines and how to apply\n• Medical college admissions\n• Exam schedules and admit cards\n\nFor example: "How to apply for KUET?" or "What are the eligibility requirements for BUET?"`;
 }
 
@@ -402,7 +409,7 @@ app.post('/api/auth/avatar', auth, async (req, res) => {
 app.get('/api/dashboard', auth, async (req, res) => {
   const user = await db.get('SELECT * FROM users WHERE id = ?', [req.userId]);
   const applications = await db.all('SELECT * FROM applications WHERE user_id = ?', [req.userId]);
-  const circulars = await db.all('SELECT * FROM circulars WHERE is_active = 1 AND application_deadline >= date("now")');
+  const circulars = await db.all('SELECT * FROM circulars WHERE is_active = 1 AND application_deadline >= date("now") ORDER BY application_deadline ASC');
   const notifications = await db.all('SELECT * FROM notifications WHERE user_id = ? AND is_read = 0', [req.userId]);
   const studyTasks = await db.all('SELECT * FROM study_tasks WHERE user_id = ?', [req.userId]);
   
@@ -450,7 +457,8 @@ app.delete('/api/study/task/:id', auth, async (req, res) => {
 // ============ EXAM DATES ============
 
 app.get('/api/exam-dates', async (req, res) => {
-  res.json({ examDates: await db.all('SELECT * FROM exam_dates ORDER BY exam_date ASC') });
+  const examDates = await db.all('SELECT * FROM exam_dates ORDER BY exam_date ASC');
+  res.json({ examDates });
 });
 
 app.post('/api/admin/exam-date', auth, async (req, res) => {
@@ -467,30 +475,72 @@ app.delete('/api/admin/exam-date/:id', auth, async (req, res) => {
   res.json({ message: 'Exam date deleted' });
 });
 
-// ============ CIRCULARS ============
+// ============ CIRCULARS WITH PDF UPLOAD ============
 
 app.get('/api/circulars', async (req, res) => {
-  res.json({ circulars: await db.all('SELECT * FROM circulars WHERE is_active = 1 ORDER BY application_deadline ASC') });
+  const circulars = await db.all('SELECT * FROM circulars WHERE is_active = 1 AND application_deadline >= date("now") ORDER BY application_deadline ASC');
+  res.json({ circulars });
 });
 
 app.post('/api/admin/circulars', auth, upload.single('pdf'), async (req, res) => {
   if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
-  const { title, university, description, application_link, application_start, application_deadline, exam_date } = req.body;
-  const pdfPath = req.file ? `/uploads/${req.file.filename}` : null;
-  await db.run(`INSERT INTO circulars (title, university, description, application_link, application_start, application_deadline, exam_date, pdf_path, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [title, university, description, application_link, application_start, application_deadline, exam_date, pdfPath, req.userId]);
-  res.json({ message: 'Circular created' });
+  
+  try {
+    const { title, university, description, application_link, application_start, application_deadline, exam_date } = req.body;
+    
+    if (!title || !university || !application_deadline) {
+      return res.status(400).json({ error: 'Title, university, and deadline are required' });
+    }
+    
+    let pdfPath = null;
+    if (req.file) {
+      pdfPath = `/uploads/${req.file.filename}`;
+      console.log(`📄 PDF uploaded: ${pdfPath}`);
+    }
+    
+    const result = await db.run(
+      `INSERT INTO circulars (title, university, description, application_link, application_start, application_deadline, exam_date, pdf_path, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, university, description, application_link, application_start, application_deadline, exam_date, pdfPath, req.userId]
+    );
+    
+    // Notify all users about new circular
+    const users = await db.all('SELECT id, name, email FROM users');
+    for (const user of users) {
+      await db.run(
+        `INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)`,
+        [user.id, `📢 New Circular: ${title}`, `${university} has published a new admission circular. Deadline: ${application_deadline}`, 'info']
+      );
+    }
+    
+    res.json({ 
+      message: 'Circular created successfully', 
+      id: result.lastID,
+      pdfPath: pdfPath 
+    });
+  } catch (error) {
+    console.error('Error creating circular:', error);
+    res.status(500).json({ error: 'Failed to create circular' });
+  }
 });
 
 app.delete('/api/admin/circulars/:id', auth, async (req, res) => {
   if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
+  
   const circ = await db.get('SELECT pdf_path FROM circulars WHERE id = ?', [req.params.id]);
-  if (circ?.pdf_path) { const p = path.join(__dirname, circ.pdf_path); if (fs.existsSync(p)) fs.unlinkSync(p); }
+  if (circ?.pdf_path) {
+    const filePath = path.join(__dirname, circ.pdf_path);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`📄 PDF deleted: ${circ.pdf_path}`);
+    }
+  }
+  
   await db.run('DELETE FROM circulars WHERE id = ?', [req.params.id]);
-  res.json({ message: 'Circular deleted' });
+  res.json({ message: 'Circular deleted successfully' });
 });
 
-// ============ QUESTION BANKS ============
+// ============ QUESTION BANKS WITH PDF UPLOAD ============
 
 app.get('/api/question-banks', async (req, res) => {
   const { university, subject } = req.query;
@@ -499,43 +549,83 @@ app.get('/api/question-banks', async (req, res) => {
   if (university) { query += ' AND university = ?'; params.push(university); }
   if (subject) { query += ' AND subject = ?'; params.push(subject); }
   query += ' ORDER BY year DESC';
-  res.json({ questions: await db.all(query, params) });
+  const questions = await db.all(query, params);
+  res.json({ questions });
 });
 
 app.post('/api/admin/question-banks', auth, upload.single('pdf'), async (req, res) => {
   if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
-  const { title, university, subject, year } = req.body;
-  if (!req.file) return res.status(400).json({ error: 'PDF required' });
-  const pdfPath = `/uploads/${req.file.filename}`;
-  await db.run('INSERT INTO question_banks (title, university, subject, year, pdf_path, uploaded_by) VALUES (?, ?, ?, ?, ?, ?)',
-    [title, university, subject, year, pdfPath, req.userId]);
-  res.json({ message: 'Question bank added' });
+  
+  try {
+    const { title, university, subject, year } = req.body;
+    
+    if (!title || !university) {
+      return res.status(400).json({ error: 'Title and university are required' });
+    }
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'PDF file is required' });
+    }
+    
+    const pdfPath = `/uploads/${req.file.filename}`;
+    console.log(`📄 Question Bank PDF uploaded: ${pdfPath}`);
+    
+    const result = await db.run(
+      `INSERT INTO question_banks (title, university, subject, year, pdf_path, uploaded_by)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [title, university, subject, year || null, pdfPath, req.userId]
+    );
+    
+    res.json({ 
+      message: 'Question bank uploaded successfully', 
+      id: result.lastID,
+      pdfPath: pdfPath 
+    });
+  } catch (error) {
+    console.error('Error uploading question bank:', error);
+    res.status(500).json({ error: 'Failed to upload question bank' });
+  }
 });
 
 app.delete('/api/admin/question-banks/:id', auth, async (req, res) => {
   if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
+  
   const qb = await db.get('SELECT pdf_path FROM question_banks WHERE id = ?', [req.params.id]);
-  if (qb?.pdf_path) { const p = path.join(__dirname, qb.pdf_path); if (fs.existsSync(p)) fs.unlinkSync(p); }
+  if (qb?.pdf_path) {
+    const filePath = path.join(__dirname, qb.pdf_path);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`📄 PDF deleted: ${qb.pdf_path}`);
+    }
+  }
+  
   await db.run('DELETE FROM question_banks WHERE id = ?', [req.params.id]);
-  res.json({ message: 'Question bank deleted' });
+  res.json({ message: 'Question bank deleted successfully' });
 });
 
 // ============ APPLICATIONS ============
 
 app.post('/api/applications', auth, async (req, res) => {
   const { university_name } = req.body;
-  await db.run('INSERT INTO applications (user_id, university_name) VALUES (?, ?)', [req.userId, university_name]);
+  await db.run('INSERT INTO applications (user_id, university_name, application_date) VALUES (?, ?, ?)', 
+    [req.userId, university_name, new Date().toISOString().split('T')[0]]);
+  
+  await db.run('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)', 
+    [req.userId, 'Application Submitted', `Your application to ${university_name} has been submitted successfully!`, 'success']);
+  
   res.json({ message: 'Applied successfully' });
 });
 
 app.get('/api/applications/my', auth, async (req, res) => {
-  res.json({ applications: await db.all('SELECT * FROM applications WHERE user_id = ?', [req.userId]) });
+  const applications = await db.all('SELECT * FROM applications WHERE user_id = ? ORDER BY created_at DESC', [req.userId]);
+  res.json({ applications });
 });
 
 // ============ NOTIFICATIONS ============
 
 app.get('/api/notifications', auth, async (req, res) => {
-  res.json({ notifications: await db.all('SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC', [req.userId]) });
+  const notifications = await db.all('SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC', [req.userId]);
+  res.json({ notifications });
 });
 
 app.put('/api/notifications/:id/read', auth, async (req, res) => {
@@ -543,7 +633,7 @@ app.put('/api/notifications/:id/read', auth, async (req, res) => {
   res.json({ message: 'Marked read' });
 });
 
-// ============ UNIBUDDY CHATBOT (WORKING WITH FALLBACK) ============
+// ============ UNIBUDDY CHATBOT ============
 
 app.post('/api/chatbuddy', auth, async (req, res) => {
   const { message } = req.body;
@@ -551,16 +641,12 @@ app.post('/api/chatbuddy', auth, async (req, res) => {
   
   try {
     const user = await db.get('SELECT name, ssc_gpa, hsc_gpa FROM users WHERE id = ?', [req.userId]);
-    
-    // Get response (always works - no API needed)
     const reply = getResponse(message, user);
     
-    // Save conversation
     await db.run('INSERT INTO chatbot_conversations (user_id, question, answer, ai_provider) VALUES (?, ?, ?, ?)', 
       [req.userId, message, reply, 'local']);
     
     res.json({ reply });
-    
   } catch (error) {
     console.error('Chatbot error:', error);
     res.json({ reply: "I'm here to help! Ask me about KUET, BUET, DU, RUET, or any other university admission questions." });
@@ -571,23 +657,36 @@ app.post('/api/chatbuddy', auth, async (req, res) => {
 
 app.get('/api/admin/users', auth, async (req, res) => {
   if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
-  res.json({ users: await db.all('SELECT id, name, email, is_admin, created_at FROM users') });
+  const users = await db.all('SELECT id, name, email, is_admin, created_at FROM users ORDER BY created_at DESC');
+  res.json({ users });
 });
 
 app.delete('/api/admin/users/:id', auth, async (req, res) => {
   if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
   await db.run('DELETE FROM sessions WHERE user_id = ?', [req.params.id]);
+  await db.run('DELETE FROM notifications WHERE user_id = ?', [req.params.id]);
+  await db.run('DELETE FROM applications WHERE user_id = ?', [req.params.id]);
+  await db.run('DELETE FROM study_tasks WHERE user_id = ?', [req.params.id]);
   await db.run('DELETE FROM users WHERE id = ?', [req.params.id]);
-  res.json({ message: 'User deleted' });
+  res.json({ message: 'User deleted successfully' });
 });
 
 app.get('/api/admin/stats', auth, async (req, res) => {
   if (!req.isAdmin) return res.status(403).json({ error: 'Admin only' });
+  
   const userCount = await db.get('SELECT COUNT(*) as c FROM users');
   const circCount = await db.get('SELECT COUNT(*) as c FROM circulars');
   const qbCount = await db.get('SELECT COUNT(*) as c FROM question_banks');
   const examCount = await db.get('SELECT COUNT(*) as c FROM exam_dates');
-  res.json({ users: userCount.c, circulars: circCount.c, questionBanks: qbCount.c, examDates: examCount.c });
+  const appCount = await db.get('SELECT COUNT(*) as c FROM applications');
+  
+  res.json({ 
+    users: userCount.c, 
+    circulars: circCount.c, 
+    questionBanks: qbCount.c, 
+    examDates: examCount.c,
+    applications: appCount.c
+  });
 });
 
 // ============ HEALTH CHECK ============
@@ -602,9 +701,11 @@ initDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`👑 Admin: admin@path2uni.com / admin123`);
-    console.log(`🤖 UniBuddy: Local mode (always working)`);
+    console.log(`📁 Uploads directory: ${uploadsDir}`);
+    console.log(`📄 PDF upload endpoint: /api/admin/circulars`);
+    console.log(`📚 Question bank endpoint: /api/admin/question-banks`);
   });
 }).catch(err => {
-  console.error('Failed to start:', err);
+  console.error('Failed to start server:', err);
   process.exit(1);
 });
