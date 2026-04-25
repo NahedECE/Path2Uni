@@ -5,92 +5,166 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eligibility Checker | Path2Uni</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #05050f, #0a0a1a, #0d0d22);
-    min-height: 100vh;
-    color: white;
+  .eligibility-container {
+    max-width: 800px;
+    margin: 0 auto;
   }
-  .bg-mesh { position: fixed; inset: 0; background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.08) 0%, transparent 50%); pointer-events: none; }
-  .page-wrap { position: relative; max-width: 800px; margin: 0 auto; padding: 1.5rem; z-index: 1; }
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.8rem 1.5rem;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 50px;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-  }
-  .logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 24px;
-    font-weight: 800;
-    background: linear-gradient(120deg, #fff, #a0a0ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-  .nav-link {
-    padding: 0.5rem 1rem;
-    color: rgba(255,255,255,0.7);
-    text-decoration: none;
-    font-size: 13px;
-    transition: all 0.2s;
-    border-radius: 30px;
-  }
-  .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
-  .glass-card {
+  .uni-card {
     background: rgba(10,10,26,0.6);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 24px;
+    border-radius: 20px;
     padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
   }
-  .field { margin-bottom: 1rem; }
-  .field label { font-size: 12px; color: rgba(255,255,255,0.6); display: block; margin-bottom: 6px; }
-  .field input, .field select {
+  .uni-card.eligible {
+    border-left: 4px solid #4ade80;
+    background: rgba(34,197,94,0.05);
+  }
+  .uni-card.not-eligible {
+    border-left: 4px solid #f87171;
+    background: rgba(239,68,68,0.05);
+    opacity: 0.7;
+  }
+  .uni-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .uni-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .status-eligible {
+    background: rgba(34,197,94,0.2);
+    color: #4ade80;
+    border: 1px solid rgba(34,197,94,0.3);
+  }
+  .status-not-eligible {
+    background: rgba(239,68,68,0.2);
+    color: #f87171;
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .requirements {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 0.5rem;
+  }
+  .requirement-met {
+    color: #4ade80;
+  }
+  .requirement-not-met {
+    color: #f87171;
+  }
+  .your-scores {
+    background: rgba(255,255,255,0.03);
+    padding: 0.75rem;
+    border-radius: 12px;
+    margin-top: 0.75rem;
+  }
+  .score-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+    font-size: 12px;
+  }
+  .tab-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 10px 24px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: rgba(255,255,255,0.7);
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, #3b82f6, #7c3aed);
+    color: white;
+    border-color: transparent;
+  }
+  .tab-panel {
+    display: none;
+  }
+  .tab-panel.active {
+    display: block;
+  }
+  .input-group {
+    margin-bottom: 1rem;
+  }
+  .input-group label {
+    display: block;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+  }
+  .input-group input, .input-group select {
     width: 100%;
-    padding: 12px;
+    padding: 10px 12px;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px;
     color: white;
   }
-  button {
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .calc-btn {
     background: linear-gradient(135deg, #3b82f6, #7c3aed);
     border: none;
-    padding: 12px;
+    padding: 12px 24px;
     border-radius: 30px;
     color: white;
     cursor: pointer;
     font-weight: 600;
     width: 100%;
+    margin-top: 1rem;
   }
-  .result {
+  .result-summary {
     margin-top: 1.5rem;
     padding: 1rem;
-    background: rgba(34,197,94,0.1);
+    background: rgba(255,255,255,0.03);
     border-radius: 16px;
-    display: none;
+    text-align: center;
   }
-  .uni-result {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+  .eligible-count {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #a0a0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  @media (max-width: 700px) {
+    .form-row { grid-template-columns: 1fr; }
+    .uni-header { flex-direction: column; text-align: center; }
   }
 </style>
 </head>
 <body>
 <div class="bg-mesh"></div>
+<div class="bg-grid"></div>
 <div class="page-wrap">
+
   <nav class="navbar">
     <div class="logo">Path2Uni</div>
     <div class="nav-links">
@@ -101,30 +175,85 @@
       <a href="circular-archive.html" class="nav-link">Circular Archive</a>
       <a href="question-banks.html" class="nav-link">Question Banks</a>
       <a href="application-status.html" class="nav-link">Application Status</a>
+      <a href="#" class="nav-link" onclick="showContactAlert()">Contact Us</a>
       <a href="#" class="nav-link logout-btn" onclick="logout()">Logout</a>
     </div>
   </nav>
 
-  <div class="glass-card">
-    <h2 style="margin-bottom: 1rem;">🎓 Eligibility Checker</h2>
-    <p class="circular-deadline" style="margin-bottom: 1rem;">Enter your GPA to see which universities you qualify for</p>
-    
-    <div class="field">
-      <label>SSC GPA (out of 5.00)</label>
-      <input type="number" id="sscGpa" step="0.01" min="1" max="5" placeholder="e.g., 5.00">
+  <div class="hero">
+    <div class="hero-eyebrow">Check Your Admission Eligibility</div>
+    <h1>Eligibility<br>Checker</h1>
+    <p>Enter your academic information to see which universities you qualify for.</p>
+  </div>
+
+  <div class="eligibility-container">
+    <div class="glass-card">
+      <div class="tab-buttons">
+        <button class="tab-btn active" onclick="showTab('engineering')">Engineering</button>
+        <button class="tab-btn" onclick="showTab('medical')">Medical</button>
+        <button class="tab-btn" onclick="showTab('general')">General University</button>
+      </div>
+
+      <!-- Engineering Tab -->
+      <div id="engineeringTab" class="tab-panel active">
+        <div class="form-row">
+          <div class="input-group"><label>SSC GPA (out of 5.00)</label><input type="number" id="eng-ssc" step="0.01" min="1" max="5" placeholder="e.g., 5.00"></div>
+          <div class="input-group"><label>HSC GPA (out of 5.00)</label><input type="number" id="eng-hsc" step="0.01" min="1" max="5" placeholder="e.g., 5.00"></div>
+        </div>
+        <div class="form-row">
+          <div class="input-group"><label>Physics GPA (out of 5.00)</label><input type="number" id="eng-physics" step="0.01" min="0" max="5" placeholder="e.g., 4.50"></div>
+          <div class="input-group"><label>Chemistry GPA (out of 5.00)</label><input type="number" id="eng-chemistry" step="0.01" min="0" max="5" placeholder="e.g., 4.50"></div>
+        </div>
+        <div class="form-row">
+          <div class="input-group"><label>Mathematics GPA (out of 5.00)</label><input type="number" id="eng-math" step="0.01" min="0" max="5" placeholder="e.g., 4.50"></div>
+          <div class="input-group"><label>HSC Group</label><select id="eng-group"><option value="science">Science</option><option value="commerce">Commerce</option><option value="arts">Arts</option></select></div>
+        </div>
+        <button class="calc-btn" onclick="checkEngineeringEligibility()">Check Engineering Eligibility →</button>
+        
+        <div id="engineeringResults"></div>
+      </div>
+
+      <!-- Medical Tab -->
+      <div id="medicalTab" class="tab-panel">
+        <div class="form-row">
+          <div class="input-group"><label>SSC GPA (out of 5.00)</label><input type="number" id="med-ssc" step="0.01" min="1" max="5" placeholder="e.g., 5.00"></div>
+          <div class="input-group"><label>HSC GPA (out of 5.00)</label><input type="number" id="med-hsc" step="0.01" min="1" max="5" placeholder="e.g., 5.00"></div>
+        </div>
+        <div class="form-row">
+          <div class="input-group"><label>Biology GPA (out of 5.00)</label><input type="number" id="med-bio" step="0.01" min="0" max="5" placeholder="e.g., 4.50"></div>
+          <div class="input-group"><label>HSC Group</label><select id="med-group"><option value="science">Science</option><option value="commerce">Commerce</option><option value="arts">Arts</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="input-group"><label>SSC Year</label><select id="med-sy"><option>2025</option><option>2024</option><option>2023</option><option>2022</option></select></div>
+          <div class="input-group"><label>HSC Year</label><select id="med-hy"><option>2025</option><option>2024</option><option>2023</option><option>2022</option></select></div>
+        </div>
+        <button class="calc-btn" onclick="checkMedicalEligibility()">Check Medical Eligibility →</button>
+        
+        <div id="medicalResults"></div>
+      </div>
+
+      <!-- General University Tab -->
+      <div id="generalTab" class="tab-panel">
+        <div class="form-row">
+          <div class="input-group"><label>SSC GPA (out of 5.00)</label><input type="number" id="gen-ssc" step="0.01" min="1" max="5" placeholder="e.g., 5.00"></div>
+          <div class="input-group"><label>HSC GPA (out of 5.00)</label><input type="number" id="gen-hsc" step="0.01" min="1" max="5" placeholder="e.g., 5.00"></div>
+        </div>
+        <div class="form-row">
+          <div class="input-group"><label>HSC Group</label><select id="gen-group"><option value="science">Science</option><option value="commerce">Commerce</option><option value="arts">Arts</option></select></div>
+          <div class="input-group"><label>University</label><select id="gen-uni" onchange="updateUnits()">
+            <option value="du">Dhaka University</option><option value="ju">Jahangirnagar University</option>
+            <option value="ru">Rajshahi University</option><option value="cu">Chittagong University</option>
+          </select></div>
+        </div>
+        <div class="form-row">
+          <div class="input-group"><label>Unit</label><select id="gen-unit"></select></div>
+          <div class="input-group"><label>SSC Year</label><select id="gen-sy"><option>2025</option><option>2024</option><option>2023</option><option>2022</option></select></div>
+        </div>
+        <button class="calc-btn" onclick="checkGeneralEligibility()">Check General Eligibility →</button>
+        
+        <div id="generalResults"></div>
+      </div>
     </div>
-    <div class="field">
-      <label>HSC GPA (out of 5.00)</label>
-      <input type="number" id="hscGpa" step="0.01" min="1" max="5" placeholder="e.g., 5.00">
-    </div>
-    <div class="field">
-      <label>Biology GPA (for Medical - optional)</label>
-      <input type="number" id="bioGpa" step="0.01" min="0" max="5" placeholder="e.g., 4.50">
-    </div>
-    
-    <button onclick="checkEligibility()">Check Eligibility</button>
-    
-    <div id="result" class="result"></div>
   </div>
 </div>
 
@@ -132,57 +261,296 @@
 const API_URL = 'https://path2uni-236v.onrender.com/api';
 let authToken = localStorage.getItem('path2uni_token');
 
-async function apiCall(endpoint, options = {}) {
-  const headers = { 'Content-Type': 'application/json' };
-  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
-  const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
-  return response;
+const user = JSON.parse(localStorage.getItem('path2uni_user') || '{}');
+if (!authToken) { window.location.href = 'index.html'; }
+
+function showTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`${tab}Tab`).classList.add('active');
+  event.target.classList.add('active');
 }
 
-async function checkEligibility() {
-  const ssc = parseFloat(document.getElementById('sscGpa').value);
-  const hsc = parseFloat(document.getElementById('hscGpa').value);
-  const bio = parseFloat(document.getElementById('bioGpa').value);
+// ============ ENGINEERING ELIGIBILITY ============
+function checkEngineeringEligibility() {
+  const ssc = parseFloat(document.getElementById('eng-ssc').value);
+  const hsc = parseFloat(document.getElementById('eng-hsc').value);
+  const physics = parseFloat(document.getElementById('eng-physics').value);
+  const chemistry = parseFloat(document.getElementById('eng-chemistry').value);
+  const math = parseFloat(document.getElementById('eng-math').value);
+  const group = document.getElementById('eng-group').value;
   
-  if (isNaN(ssc) || isNaN(hsc)) { alert('Please enter both SSC and HSC GPA'); return; }
-  
-  const resultDiv = document.getElementById('result');
-  resultDiv.style.display = 'block';
-  resultDiv.innerHTML = '<div class="loading">Checking eligibility...</div>';
-  
-  try {
-    // Save GPA to profile
-    await apiCall('/auth/profile', {
-      method: 'PUT',
-      body: JSON.stringify({ ssc_gpa: ssc, hsc_gpa: hsc, biology_gpa: bio })
-    });
-    
-    // Get dashboard to see eligible universities
-    const response = await apiCall('/dashboard');
-    const data = await response.json();
-    
-    if (data.eligibleUniversities && data.eligibleUniversities.length > 0) {
-      resultDiv.innerHTML = `
-        <strong>You are eligible for ${data.eligibleUniversities.length} universities!</strong><br><br>
-        ${data.eligibleUniversities.map(u => `<div class="uni-result"><span>${u.name}</span><span class="eligibility-badge">Eligible</span></div>`).join('')}
-      `;
-      resultDiv.style.background = 'rgba(34,197,94,0.1)';
-    } else {
-      resultDiv.innerHTML = 'No universities found with your current GPA. Try improving your grades.';
-      resultDiv.style.background = 'rgba(239,68,68,0.1)';
-    }
-  } catch(e) {
-    resultDiv.innerHTML = 'Error checking eligibility';
+  if (isNaN(ssc) || isNaN(hsc)) {
+    alert('Please enter SSC and HSC GPA');
+    return;
   }
+  
+  const combined = ssc + hsc;
+  
+  // Engineering universities requirements
+  const universities = [
+    { name: "BUET", minSSC: 3.5, minHSC: 3.5, minPhysics: 3.5, minChem: 3.5, minMath: 3.5, minCombined: 8.0, groupReq: "science" },
+    { name: "RUET", minSSC: 3.5, minHSC: 3.5, minPhysics: 3.5, minChem: 3.5, minMath: 3.5, minCombined: 8.0, groupReq: "science" },
+    { name: "CUET", minSSC: 3.5, minHSC: 3.5, minPhysics: 3.5, minChem: 3.5, minMath: 3.5, minCombined: 8.0, groupReq: "science" },
+    { name: "KUET", minSSC: 3.5, minHSC: 3.5, minPhysics: 3.5, minChem: 3.5, minMath: 3.5, minCombined: 8.0, groupReq: "science" }
+  ];
+  
+  let eligibleCount = 0;
+  let resultsHtml = '<div style="margin-top: 1.5rem;"><h3 class="section-title">Results</h3>';
+  
+  for (const uni of universities) {
+    let eligible = true;
+    let reasons = [];
+    
+    if (group !== uni.groupReq) {
+      eligible = false;
+      reasons.push(`Requires ${uni.groupReq} background`);
+    }
+    if (ssc < uni.minSSC) {
+      eligible = false;
+      reasons.push(`SSC GPA ${ssc} < ${uni.minSSC}`);
+    }
+    if (hsc < uni.minHSC) {
+      eligible = false;
+      reasons.push(`HSC GPA ${hsc} < ${uni.minHSC}`);
+    }
+    if (!isNaN(physics) && physics < uni.minPhysics) {
+      eligible = false;
+      reasons.push(`Physics ${physics} < ${uni.minPhysics}`);
+    }
+    if (!isNaN(chemistry) && chemistry < uni.minChem) {
+      eligible = false;
+      reasons.push(`Chemistry ${chemistry} < ${uni.minChem}`);
+    }
+    if (!isNaN(math) && math < uni.minMath) {
+      eligible = false;
+      reasons.push(`Mathematics ${math} < ${uni.minMath}`);
+    }
+    if (combined < uni.minCombined) {
+      eligible = false;
+      reasons.push(`Combined GPA ${combined} < ${uni.minCombined}`);
+    }
+    
+    if (eligible) {
+      eligibleCount++;
+      resultsHtml += `
+        <div class="uni-card eligible">
+          <div class="uni-header">
+            <span class="uni-name">${uni.name}</span>
+            <span class="status-badge status-eligible">✓ ELIGIBLE</span>
+          </div>
+          <div class="requirements">You meet all requirements for ${uni.name}</div>
+        </div>
+      `;
+    } else {
+      resultsHtml += `
+        <div class="uni-card not-eligible">
+          <div class="uni-header">
+            <span class="uni-name">${uni.name}</span>
+            <span class="status-badge status-not-eligible">✗ NOT ELIGIBLE</span>
+          </div>
+          <div class="requirements">Missing: ${reasons.join(', ')}</div>
+        </div>
+      `;
+    }
+  }
+  
+  resultsHtml += `
+    <div class="result-summary">
+      <div class="eligible-count">${eligibleCount} / ${universities.length}</div>
+      <div class="stat-label">Universities You Can Apply To</div>
+    </div>
+  `;
+  
+  resultsHtml += '</div>';
+  document.getElementById('engineeringResults').innerHTML = resultsHtml;
+  
+  // Save to backend
+  saveEligibility('engineering', { ssc, hsc, physics, chemistry, math, combined, eligibleCount });
 }
 
+// ============ MEDICAL ELIGIBILITY ============
+function checkMedicalEligibility() {
+  const ssc = parseFloat(document.getElementById('med-ssc').value);
+  const hsc = parseFloat(document.getElementById('med-hsc').value);
+  const bio = parseFloat(document.getElementById('med-bio').value);
+  const group = document.getElementById('med-group').value;
+  const sy = parseInt(document.getElementById('med-sy').value);
+  const hy = parseInt(document.getElementById('med-hy').value);
+  
+  if (isNaN(ssc) || isNaN(hsc)) {
+    alert('Please enter SSC and HSC GPA');
+    return;
+  }
+  
+  const combined = ssc + hsc;
+  const yearValid = sy >= 2022 && hy >= 2022;
+  let eligible = true;
+  let reasons = [];
+  
+  if (group !== 'science') {
+    eligible = false;
+    reasons.push('Medical requires Science background');
+  }
+  if (ssc < 3.5) {
+    eligible = false;
+    reasons.push(`SSC GPA ${ssc} < 3.50`);
+  }
+  if (hsc < 3.5) {
+    eligible = false;
+    reasons.push(`HSC GPA ${hsc} < 3.50`);
+  }
+  if (isNaN(bio) || bio < 3.5) {
+    eligible = false;
+    reasons.push(`Biology GPA ${bio || 'Not entered'} < 3.50`);
+  }
+  if (!yearValid) {
+    eligible = false;
+    reasons.push('Exam years must be 2022 or later');
+  }
+  
+  const medicalColleges = ['DMC', 'MMC', 'SHMC', 'SSMC', 'Rangpur Medical', 'Cumilla Medical', 'Barishal Medical'];
+  
+  let resultsHtml = '<div style="margin-top: 1.5rem;"><h3 class="section-title">Medical College Eligibility</h3>';
+  
+  if (eligible) {
+    resultsHtml += `
+      <div class="uni-card eligible">
+        <div class="uni-header">
+          <span class="uni-name">Medical Admission (MBBS/BDS)</span>
+          <span class="status-badge status-eligible">✓ ELIGIBLE</span>
+        </div>
+        <div class="requirements">You are eligible for all medical colleges!</div>
+        <div class="your-scores">
+          <div class="score-item"><span>SSC GPA:</span><span>${ssc.toFixed(2)}</span></div>
+          <div class="score-item"><span>HSC GPA:</span><span>${hsc.toFixed(2)}</span></div>
+          <div class="score-item"><span>Biology GPA:</span><span>${bio.toFixed(2)}</span></div>
+          <div class="score-item"><span>Combined GPA:</span><span>${combined.toFixed(2)}</span></div>
+        </div>
+      </div>
+      <div class="result-summary">
+        <div class="eligible-count">Eligible for All Medical Colleges</div>
+        <div class="stat-label">Apply through DGHS portal: http://dgsh.teletalk.com.bd</div>
+      </div>
+    `;
+  } else {
+    resultsHtml += `
+      <div class="uni-card not-eligible">
+        <div class="uni-header">
+          <span class="uni-name">Medical Admission (MBBS/BDS)</span>
+          <span class="status-badge status-not-eligible">✗ NOT ELIGIBLE</span>
+        </div>
+        <div class="requirements">Missing: ${reasons.join(', ')}</div>
+      </div>
+    `;
+  }
+  
+  resultsHtml += '</div>';
+  document.getElementById('medicalResults').innerHTML = resultsHtml;
+  saveEligibility('medical', { ssc, hsc, bio, combined, eligible });
+}
+
+// ============ GENERAL ELIGIBILITY ==========
+const uniData = {
+  du: { name: 'Dhaka University', units: { 'Ka — Science': { groupReq: 'science', minGPA: 3.5 }, 'Kha — Arts': { groupReq: 'arts', minGPA: 3.0 }, 'Ga — Business': { groupReq: 'commerce', minGPA: 3.0 } } },
+  ju: { name: 'Jahangirnagar University', units: { 'A — Science': { groupReq: 'science', minGPA: 3.5 }, 'B — Arts': { groupReq: 'arts', minGPA: 3.0 }, 'C — Business': { groupReq: 'commerce', minGPA: 3.0 } } },
+  ru: { name: 'Rajshahi University', units: { 'A — Science': { groupReq: 'science', minGPA: 3.5 }, 'B — Arts': { groupReq: 'arts', minGPA: 3.0 }, 'C — Business': { groupReq: 'commerce', minGPA: 3.0 } } },
+  cu: { name: 'Chittagong University', units: { 'A — Science': { groupReq: 'science', minGPA: 3.5 }, 'B — Arts': { groupReq: 'arts', minGPA: 3.0 }, 'C — Business': { groupReq: 'commerce', minGPA: 3.0 } } }
+};
+
+function updateUnits() {
+  const uni = document.getElementById('gen-uni').value;
+  const units = Object.keys(uniData[uni].units);
+  document.getElementById('gen-unit').innerHTML = units.map(u => `<option>${u}</option>`).join('');
+}
+
+function checkGeneralEligibility() {
+  const ssc = parseFloat(document.getElementById('gen-ssc').value);
+  const hsc = parseFloat(document.getElementById('gen-hsc').value);
+  const group = document.getElementById('gen-group').value;
+  const uni = document.getElementById('gen-uni').value;
+  const unit = document.getElementById('gen-unit').value;
+  const sy = parseInt(document.getElementById('gen-sy').value);
+  
+  if (isNaN(ssc) || isNaN(hsc)) {
+    alert('Please enter SSC and HSC GPA');
+    return;
+  }
+  
+  const unitData = uniData[uni].units[unit];
+  const yearValid = sy >= 2022;
+  let eligible = true;
+  let reasons = [];
+  
+  if (group !== unitData.groupReq) {
+    eligible = false;
+    reasons.push(`Requires ${unitData.groupReq} background`);
+  }
+  if (ssc < unitData.minGPA) {
+    eligible = false;
+    reasons.push(`SSC GPA ${ssc} < ${unitData.minGPA}`);
+  }
+  if (hsc < unitData.minGPA) {
+    eligible = false;
+    reasons.push(`HSC GPA ${hsc} < ${unitData.minGPA}`);
+  }
+  if (!yearValid) {
+    eligible = false;
+    reasons.push('SSC year must be 2022 or later');
+  }
+  
+  let resultsHtml = '<div style="margin-top: 1.5rem;"><h3 class="section-title">General University Eligibility</h3>';
+  
+  if (eligible) {
+    resultsHtml += `
+      <div class="uni-card eligible">
+        <div class="uni-header">
+          <span class="uni-name">${uniData[uni].name} - ${unit}</span>
+          <span class="status-badge status-eligible">✓ ELIGIBLE</span>
+        </div>
+        <div class="requirements">You meet all requirements for this unit!</div>
+        <div class="your-scores">
+          <div class="score-item"><span>SSC GPA:</span><span>${ssc.toFixed(2)}</span></div>
+          <div class="score-item"><span>HSC GPA:</span><span>${hsc.toFixed(2)}</span></div>
+          <div class="score-item"><span>Combined GPA:</span><span>${(ssc + hsc).toFixed(2)}</span></div>
+        </div>
+      </div>
+    `;
+  } else {
+    resultsHtml += `
+      <div class="uni-card not-eligible">
+        <div class="uni-header">
+          <span class="uni-name">${uniData[uni].name} - ${unit}</span>
+          <span class="status-badge status-not-eligible">✗ NOT ELIGIBLE</span>
+        </div>
+        <div class="requirements">Missing: ${reasons.join(', ')}</div>
+      </div>
+    `;
+  }
+  
+  resultsHtml += '</div>';
+  document.getElementById('generalResults').innerHTML = resultsHtml;
+  saveEligibility('general', { ssc, hsc, group, uni, unit, eligible });
+}
+
+async function saveEligibility(type, data) {
+  try {
+    await fetch(`${API_URL}/eligibility/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+      body: JSON.stringify({ type, ...data })
+    });
+  } catch(e) { console.error('Save error:', e); }
+}
+
+function showContactAlert() { alert('Contact: support@path2uni.com'); }
 async function logout() {
-  await apiCall('/auth/logout', { method: 'POST' });
+  await fetch(`${API_URL}/auth/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` } });
   localStorage.removeItem('path2uni_token');
   window.location.href = 'index.html';
 }
 
-if (!authToken) { window.location.href = 'index.html'; }
+updateUnits();
 </script>
 </body>
 </html>
