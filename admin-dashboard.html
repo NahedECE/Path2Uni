@@ -24,7 +24,7 @@
   
   .page-wrap {
     position: relative;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 1.5rem;
     z-index: 1;
@@ -54,7 +54,7 @@
   
   .nav-links {
     display: flex;
-    gap: 0.5rem;
+    gap: 1rem;
     flex-wrap: wrap;
   }
   
@@ -102,6 +102,12 @@
     background: linear-gradient(135deg, #fff, #a0a0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
   }
   
   .section-title {
@@ -164,9 +170,20 @@
     font-size: 14px;
   }
   
+  .form-group input[type="file"] {
+    padding: 8px;
+    background: rgba(255,255,255,0.03);
+  }
+  
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 1rem;
   }
   
@@ -196,6 +213,8 @@
     background: linear-gradient(135deg, #10b981, #059669);
     padding: 5px 12px;
     font-size: 12px;
+    text-decoration: none;
+    display: inline-block;
   }
   
   table {
@@ -237,6 +256,7 @@
   .item-meta {
     font-size: 11px;
     color: rgba(255,255,255,0.5);
+    margin-top: 2px;
   }
   
   .item-actions {
@@ -256,13 +276,23 @@
     color: #4ade80;
     padding: 10px;
     border-radius: 12px;
-    margin-bottom: 1rem;
+    margin-top: 1rem;
+    display: none;
+  }
+  
+  .error-msg {
+    background: rgba(239,68,68,0.2);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #f87171;
+    padding: 10px;
+    border-radius: 12px;
+    margin-top: 1rem;
     display: none;
   }
   
   @media (max-width: 700px) {
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .form-row { grid-template-columns: 1fr; }
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
     .admin-tabs { justify-content: center; }
     .item-card { flex-direction: column; gap: 10px; text-align: center; }
     .item-actions { justify-content: center; }
@@ -276,7 +306,6 @@
   <nav class="navbar">
     <div class="logo">Path2Uni Admin Panel</div>
     <div class="nav-links">
-      <a href="dashboard.html" class="nav-link">← Back to User Dashboard</a>
       <a href="#" class="nav-link" onclick="logout()">Logout</a>
     </div>
   </nav>
@@ -320,13 +349,14 @@
         <div class="form-group"><label>Application Deadline *</label><input type="date" id="circDeadline"></div>
         <div class="form-group"><label>Exam Date</label><input type="date" id="circExamDate"></div>
       </div>
-      <div class="form-group"><label>PDF File (Optional - Max 10MB, PDF only)</label>
-        <input type="file" id="circPdf" accept=".pdf">
-        <small style="color: rgba(255,255,255,0.4); font-size: 11px;">Upload circular PDF for users to download</small>
+      <div class="form-group">
+        <label>PDF File (Optional - Max 10MB, PDF only)</label>
+        <input type="file" id="circPdf" accept=".pdf" onchange="validateFile(this, 'circular')">
+        <small style="color: rgba(255,255,255,0.4); font-size: 11px; display: block; margin-top: 4px;">Upload circular PDF for users to download</small>
       </div>
       <button onclick="addCircular()">➕ Add Circular</button>
-      
-      <div id="circularsSuccessMsg" class="success-msg" style="margin-top: 1rem;"></div>
+      <div id="circularsSuccessMsg" class="success-msg"></div>
+      <div id="circularsErrorMsg" class="error-msg"></div>
       
       <h3 class="section-title" style="margin-top: 2rem;">Existing Circulars</h3>
       <div id="circularsList"></div>
@@ -348,8 +378,7 @@
         <div class="form-group"><label>Description</label><input type="text" id="examDesc" placeholder="Additional info"></div>
       </div>
       <button onclick="addExamDate()">➕ Add Exam Date</button>
-      
-      <div id="examDatesSuccessMsg" class="success-msg" style="margin-top: 1rem;"></div>
+      <div id="examDatesSuccessMsg" class="success-msg"></div>
       
       <h3 class="section-title" style="margin-top: 2rem;">Existing Exam Dates</h3>
       <div id="examDatesList"></div>
@@ -372,13 +401,14 @@
         <div class="form-group"><label>Subject</label><input type="text" id="qbSubject" placeholder="e.g., Mathematics"></div>
         <div class="form-group"><label>Year</label><input type="number" id="qbYear" placeholder="e.g., 2024"></div>
       </div>
-      <div class="form-group"><label>PDF File * (Max 10MB, PDF only)</label>
-        <input type="file" id="qbPdf" accept=".pdf">
-        <small style="color: rgba(255,255,255,0.4); font-size: 11px;">Upload question bank PDF for students to download</small>
+      <div class="form-group">
+        <label>PDF File * (Max 10MB, PDF only)</label>
+        <input type="file" id="qbPdf" accept=".pdf" onchange="validateFile(this, 'qb')">
+        <small style="color: rgba(255,255,255,0.4); font-size: 11px; display: block; margin-top: 4px;">Upload question bank PDF for students to download</small>
       </div>
       <button onclick="uploadQuestionBank()">📤 Upload Question Bank</button>
-      
-      <div id="qbSuccessMsg" class="success-msg" style="margin-top: 1rem;"></div>
+      <div id="qbSuccessMsg" class="success-msg"></div>
+      <div id="qbErrorMsg" class="error-msg"></div>
       
       <h3 class="section-title" style="margin-top: 2rem;">Existing Question Banks</h3>
       <div id="questionBanksList"></div>
@@ -389,6 +419,23 @@
 <script>
 const API_URL = 'https://path2uni-236v.onrender.com/api';
 let authToken = localStorage.getItem('path2uni_token');
+
+function validateFile(input, type) {
+  const file = input.files[0];
+  if (file) {
+    if (file.type !== 'application/pdf') {
+      alert('Only PDF files are allowed!');
+      input.value = '';
+      return false;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB!');
+      input.value = '';
+      return false;
+    }
+  }
+  return true;
+}
 
 async function apiCall(endpoint, options = {}) {
   const headers = {};
@@ -441,11 +488,14 @@ async function loadUsers() {
     
     container.innerHTML = `
       <table>
-        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th>Action</th></tr></thead>
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th>Action</th></tr>
+        </thead>
         <tbody>
           ${users.map(u => `
             <tr>
-              <td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td>
+              <td>${escapeHtml(u.name)}</td>
+              <td>${escapeHtml(u.email)}</td>
               <td>${u.is_admin ? '👑 Admin' : 'User'}</td>
               <td>${new Date(u.created_at).toLocaleDateString()}</td>
               <td>${!u.is_admin ? `<button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button>` : '-'}</td>
@@ -463,7 +513,7 @@ async function deleteUser(id) {
     if (response.ok) {
       loadUsers();
       loadStats();
-      alert('User deleted successfully!');
+      showMessage('User deleted successfully!', 'users');
     }
   }
 }
@@ -483,7 +533,7 @@ async function loadCirculars() {
         <div class="item-info">
           <div class="item-title">${escapeHtml(c.title)}</div>
           <div class="item-meta">🏛️ ${escapeHtml(c.university)} | Deadline: ${c.application_deadline || 'N/A'}</div>
-          ${c.pdf_path ? `<div class="item-meta">📄 PDF: <a href="${API_URL}${c.pdf_path}" target="_blank" style="color: #60a5fa;">Download</a></div>` : ''}
+          ${c.pdf_path ? `<div class="item-meta">📄 <a href="${API_URL}${c.pdf_path}" target="_blank" style="color: #60a5fa;">Download PDF</a></div>` : ''}
         </div>
         <div class="item-actions">
           <button class="delete-btn" onclick="deleteCircular(${c.id})">Delete</button>
@@ -522,11 +572,10 @@ async function addCircular() {
       body: formData
     });
     
+    const data = await response.json();
+    
     if (response.ok) {
-      const msgDiv = document.getElementById('circularsSuccessMsg');
-      msgDiv.textContent = 'Circular added successfully!';
-      msgDiv.style.display = 'block';
-      setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
+      showMessage('Circular added successfully!', 'circulars', true);
       
       document.getElementById('circTitle').value = '';
       document.getElementById('circUniversity').value = '';
@@ -539,10 +588,12 @@ async function addCircular() {
       loadCirculars();
       loadStats();
     } else {
-      const error = await response.json();
-      alert('Failed to add circular: ' + (error.error || 'Unknown error'));
+      showMessage(data.error || 'Failed to add circular', 'circulars', false);
     }
-  } catch(e) { console.error('Add circular error:', e); alert('Network error. Please try again.'); }
+  } catch(e) { 
+    console.error('Add circular error:', e); 
+    showMessage('Network error. Please try again.', 'circulars', false);
+  }
 }
 
 async function deleteCircular(id) {
@@ -551,7 +602,7 @@ async function deleteCircular(id) {
     if (response.ok) {
       loadCirculars();
       loadStats();
-      alert('Circular deleted successfully!');
+      showMessage('Circular deleted successfully!', 'circulars', true);
     }
   }
 }
@@ -605,11 +656,7 @@ async function addExamDate() {
     });
     
     if (response.ok) {
-      const msgDiv = document.getElementById('examDatesSuccessMsg');
-      msgDiv.textContent = 'Exam date added successfully!';
-      msgDiv.style.display = 'block';
-      setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
-      
+      showMessage('Exam date added successfully!', 'exam-dates', true);
       document.getElementById('examTitle').value = '';
       document.getElementById('examUniversity').value = '';
       document.getElementById('examDate').value = '';
@@ -619,9 +666,9 @@ async function addExamDate() {
       loadExamDates();
       loadStats();
     } else {
-      alert('Failed to add exam date');
+      showMessage('Failed to add exam date', 'exam-dates', false);
     }
-  } catch(e) { console.error('Add exam date error:', e); alert('Network error'); }
+  } catch(e) { console.error('Add exam date error:', e); showMessage('Network error', 'exam-dates', false); }
 }
 
 async function deleteExamDate(id) {
@@ -630,7 +677,7 @@ async function deleteExamDate(id) {
     if (response.ok) {
       loadExamDates();
       loadStats();
-      alert('Exam date deleted successfully!');
+      showMessage('Exam date deleted successfully!', 'exam-dates', true);
     }
   }
 }
@@ -650,7 +697,7 @@ async function loadQuestionBanks() {
         <div class="item-info">
           <div class="item-title">${escapeHtml(q.title || q.university + ' ' + q.subject)}</div>
           <div class="item-meta">🏛️ ${escapeHtml(q.university)} | ${q.subject || 'General'} | Year: ${q.year || 'N/A'}</div>
-          <div class="item-meta">📄 <a href="${API_URL}${q.pdf_path}" target="_blank" style="color: #60a5fa;">View/Download PDF</a></div>
+          <div class="item-meta">📄 <a href="${API_URL}${q.pdf_path}" target="_blank" style="color: #60a5fa;">Download PDF</a></div>
         </div>
         <div class="item-actions">
           <button class="delete-btn" onclick="deleteQuestionBank(${q.id})">Delete</button>
@@ -684,12 +731,10 @@ async function uploadQuestionBank() {
       body: formData
     });
     
+    const data = await response.json();
+    
     if (response.ok) {
-      const msgDiv = document.getElementById('qbSuccessMsg');
-      msgDiv.textContent = 'Question bank uploaded successfully!';
-      msgDiv.style.display = 'block';
-      setTimeout(() => { msgDiv.style.display = 'none'; }, 3000);
-      
+      showMessage('Question bank uploaded successfully!', 'question-banks', true);
       document.getElementById('qbTitle').value = '';
       document.getElementById('qbSubject').value = '';
       document.getElementById('qbYear').value = '';
@@ -697,10 +742,12 @@ async function uploadQuestionBank() {
       loadQuestionBanks();
       loadStats();
     } else {
-      const error = await response.json();
-      alert('Failed to upload: ' + (error.error || 'Unknown error'));
+      showMessage(data.error || 'Failed to upload question bank', 'question-banks', false);
     }
-  } catch(e) { console.error('Upload error:', e); alert('Network error'); }
+  } catch(e) { 
+    console.error('Upload error:', e); 
+    showMessage('Network error. Please try again.', 'question-banks', false);
+  }
 }
 
 async function deleteQuestionBank(id) {
@@ -709,12 +756,46 @@ async function deleteQuestionBank(id) {
     if (response.ok) {
       loadQuestionBanks();
       loadStats();
-      alert('Question bank deleted successfully!');
+      showMessage('Question bank deleted successfully!', 'question-banks', true);
     }
   }
 }
 
 // ============ HELPER FUNCTIONS ============
+function showMessage(message, panel, isSuccess) {
+  let msgElement;
+  let errorElement;
+  
+  if (panel === 'circulars') {
+    msgElement = document.getElementById('circularsSuccessMsg');
+    errorElement = document.getElementById('circularsErrorMsg');
+  } else if (panel === 'exam-dates') {
+    msgElement = document.getElementById('examDatesSuccessMsg');
+    errorElement = null;
+  } else if (panel === 'question-banks') {
+    msgElement = document.getElementById('qbSuccessMsg');
+    errorElement = document.getElementById('qbErrorMsg');
+  } else {
+    return;
+  }
+  
+  if (isSuccess) {
+    if (errorElement) errorElement.style.display = 'none';
+    msgElement.textContent = message;
+    msgElement.style.display = 'block';
+    setTimeout(() => { msgElement.style.display = 'none'; }, 3000);
+  } else {
+    if (msgElement) msgElement.style.display = 'none';
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.style.display = 'block';
+      setTimeout(() => { errorElement.style.display = 'none'; }, 3000);
+    } else {
+      alert(message);
+    }
+  }
+}
+
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/[&<>]/g, function(m) {
