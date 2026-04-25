@@ -503,10 +503,10 @@
     </div>
 
     <div>
-      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search universities by name (BUET, DU, RUET)..." onkeyup="searchUniversities()">
+      <input type="text" class="search-input" id="searchInput" placeholder=" Search universities by name (BUET, DU, RUET)..." onkeyup="searchUniversities()">
 
       <div class="glass-card countdown-timer">
-        <div class="section-title" style="justify-content: center;">📅 Next Exam Countdown</div>
+        <div class="section-title" style="justify-content: center;"> Next Exam Countdown</div>
         <div class="countdown-numbers">
           <div class="countdown-block"><div class="countdown-value" id="days">0</div><div class="stat-label">Days</div></div>
           <div class="countdown-block"><div class="countdown-value" id="hours">0</div><div class="stat-label">Hours</div></div>
@@ -517,12 +517,12 @@
       </div>
 
       <div class="glass-card">
-        <div class="section-title"><span>📢 Live Circulars</span><span id="circularCount" class="circular-deadline">0 active</span></div>
+        <div class="section-title"><span>Live Circulars</span><span id="circularCount" class="circular-deadline">0 active</span></div>
         <div id="circularsList"><div class="loading">Loading circulars...</div></div>
       </div>
 
       <div class="glass-card" style="margin-top: 1rem;">
-        <div class="section-title"><span>🎓 Eligible Universities</span><span id="uniCount" class="circular-deadline">0 found</span></div>
+        <div class="section-title"><span> Eligible Universities</span><span id="uniCount" class="circular-deadline">0 found</span></div>
         <div id="universitiesList"><div class="loading">Loading eligible universities...</div></div>
       </div>
     </div>
@@ -632,15 +632,15 @@ function displayCirculars(circulars) {
     
     if (c.pdf_path) {
       const pdfUrl = c.pdf_path.startsWith('http') ? c.pdf_path : `${BASE_URL}${c.pdf_path}`;
-      buttons += `<button class="btn-pdf" onclick="window.open('${pdfUrl}', '_blank')">📄 Download PDF</button>`;
+      buttons += `<button class="btn-pdf" onclick="window.open('${pdfUrl}', '_blank')"> Download PDF</button>`;
     }
     
     return `
       <div class="circular-item">
         <div>
           <div class="circular-title">${escapeHtml(c.title)}</div>
-          <div class="circular-deadline">🏛️ ${escapeHtml(c.university)} | Deadline: ${c.application_deadline || 'Not specified'}</div>
-          ${c.description ? `<div class="circular-deadline" style="color:#888;">📝 ${escapeHtml(c.description.substring(0, 80))}${c.description.length > 80 ? '...' : ''}</div>` : ''}
+          <div class="circular-deadline"> ${escapeHtml(c.university)} | Deadline: ${c.application_deadline || 'Not specified'}</div>
+          ${c.description ? `<div class="circular-deadline" style="color:#888;"> ${escapeHtml(c.description.substring(0, 80))}${c.description.length > 80 ? '...' : ''}</div>` : ''}
         </div>
         <div class="button-group">
           ${buttons}
