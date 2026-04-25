@@ -18,16 +18,14 @@
   .bg-mesh {
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(124,58,237,0.08) 0%, transparent 50%);
+    background: radial-gradient(circle at 20% 30%, rgba(168,85,247,0.1) 0%, transparent 50%);
     pointer-events: none;
   }
   
   .bg-grid {
     position: fixed;
     inset: 0;
-    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
     background-size: 48px 48px;
     pointer-events: none;
   }
@@ -36,7 +34,7 @@
     position: relative;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 1.5rem 2rem 4rem;
+    padding: 1.5rem;
     z-index: 1;
   }
   
@@ -45,12 +43,11 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.8rem 1.5rem;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 50px;
     margin-bottom: 2rem;
-    flex-wrap: wrap;
   }
   
   .logo {
@@ -65,7 +62,6 @@
   .nav-links {
     display: flex;
     gap: 1rem;
-    flex-wrap: wrap;
   }
   
   .nav-link {
@@ -120,25 +116,12 @@
     margin-top: 4px;
   }
   
-  .sec-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
+  .section-title {
+    font-size: 18px;
     font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
     margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: flex-start;
-  }
-  
-  .sec-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
   }
   
   .admin-tabs {
@@ -148,26 +131,20 @@
     flex-wrap: wrap;
   }
   
-  .tab-btn {
+  .admin-tab {
     padding: 10px 20px;
     background: rgba(255,255,255,0.05);
     border-radius: 30px;
     cursor: pointer;
-    border: none;
-    color: rgba(255,255,255,0.7);
-    font-size: 14px;
-    font-weight: 500;
     transition: all 0.2s;
   }
   
-  .tab-btn:hover {
-    background: rgba(255,255,255,0.1);
-    color: white;
+  .admin-tab.active {
+    background: linear-gradient(135deg, #3b82f6, #7c3aed);
   }
   
-  .tab-btn.active {
-    background: linear-gradient(135deg, #3b82f6, #7c3aed);
-    color: white;
+  .admin-tab:hover {
+    background: rgba(255,255,255,0.15);
   }
   
   .panel {
@@ -178,19 +155,18 @@
     display: block;
   }
   
-  .field {
+  .form-group {
     margin-bottom: 1rem;
   }
   
-  .field label {
+  .form-group label {
     display: block;
     font-size: 12px;
-    font-weight: 500;
     color: rgba(255,255,255,0.6);
     margin-bottom: 6px;
   }
   
-  .field input, .field select, .field textarea {
+  .form-group input, .form-group select, .form-group textarea {
     width: 100%;
     padding: 10px 12px;
     background: rgba(255,255,255,0.05);
@@ -200,7 +176,7 @@
     font-size: 14px;
   }
   
-  .field input[type="file"] {
+  .form-group input[type="file"] {
     padding: 8px;
   }
   
@@ -210,19 +186,18 @@
     gap: 1rem;
   }
   
-  .calc-btn {
+  button {
     background: linear-gradient(135deg, #3b82f6, #7c3aed);
     border: none;
-    padding: 10px 24px;
+    padding: 10px 20px;
     border-radius: 30px;
     color: white;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s;
-    margin-top: 0.5rem;
   }
   
-  .calc-btn:hover {
+  button:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px -5px rgba(59,130,246,0.4);
   }
@@ -235,23 +210,6 @@
     border: none;
     color: white;
     cursor: pointer;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  
-  th {
-    color: rgba(255,255,255,0.6);
-    font-weight: 600;
-    font-size: 12px;
   }
   
   .item-card {
@@ -303,10 +261,9 @@
   }
   
   .hint {
-    font-size: 12px;
-    color: rgba(255,255,255,0.4);
     text-align: center;
     padding: 2rem;
+    color: rgba(255,255,255,0.5);
   }
   
   hr {
@@ -314,11 +271,22 @@
     border-color: rgba(255,255,255,0.1);
   }
   
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  
   @media (max-width: 700px) {
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .form-row { grid-template-columns: 1fr; }
     .admin-tabs { justify-content: center; }
-    .item-card { flex-direction: column; text-align: center; gap: 10px; }
+    .item-card { flex-direction: column; gap: 10px; text-align: center; }
   }
 </style>
 </head>
@@ -335,7 +303,6 @@
     </div>
   </nav>
 
-  <!-- Stats Cards -->
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-number" id="userCount">0</div><div class="stat-label">Total Users</div></div>
     <div class="stat-card"><div class="stat-number" id="circCount">0</div><div class="stat-label">Circulars</div></div>
@@ -343,77 +310,76 @@
     <div class="stat-card"><div class="stat-number" id="examCount">0</div><div class="stat-label">Exam Dates</div></div>
   </div>
 
-  <!-- Admin Tabs -->
   <div class="glass-card">
     <div class="admin-tabs">
-      <button class="tab-btn active" onclick="showTab('users')">👥 Manage Users</button>
-      <button class="tab-btn" onclick="showTab('circulars')">📢 Manage Circulars</button>
-      <button class="tab-btn" onclick="showTab('examdates')">📅 Manage Exam Dates</button>
-      <button class="tab-btn" onclick="showTab('questionbanks')">📚 Manage Question Banks</button>
+      <div class="admin-tab active" onclick="showPanel('users')">👥 Manage Users</div>
+      <div class="admin-tab" onclick="showPanel('circulars')">📢 Manage Circulars</div>
+      <div class="admin-tab" onclick="showPanel('examdates')">📅 Manage Exam Dates</div>
+      <div class="admin-tab" onclick="showPanel('questionbanks')">📚 Manage Question Banks</div>
     </div>
 
-    <!-- ========== USERS PANEL ========== -->
+    <!-- Users Panel -->
     <div id="usersPanel" class="panel active">
-      <div class="sec-title">Registered Users</div>
-      <div id="usersList" class="hint">Loading users...</div>
+      <div class="section-title">Registered Users</div>
+      <div id="usersList"><div class="hint">Loading users...</div></div>
     </div>
 
-    <!-- ========== CIRCULARS PANEL ========== -->
+    <!-- Circulars Panel -->
     <div id="circularsPanel" class="panel">
-      <div class="sec-title">Add New Circular</div>
+      <div class="section-title">Add New Circular</div>
       <div class="form-row">
-        <div class="field"><label>Circular Title *</label><input type="text" id="circTitle" placeholder="e.g., BUET Admission 2026"></div>
-        <div class="field"><label>University *</label><input type="text" id="circUniversity" placeholder="e.g., BUET"></div>
+        <div class="form-group"><label>Circular Title *</label><input type="text" id="circTitle" placeholder="e.g., BUET Admission 2026"></div>
+        <div class="form-group"><label>University *</label><input type="text" id="circUniversity" placeholder="e.g., BUET"></div>
       </div>
-      <div class="field"><label>Description</label><textarea id="circDesc" rows="2" placeholder="Brief description"></textarea></div>
+      <div class="form-group"><label>Description</label><textarea id="circDesc" rows="2" placeholder="Brief description"></textarea></div>
       <div class="form-row">
-        <div class="field"><label>Application Link</label><input type="url" id="circLink" placeholder="https://..."></div>
-        <div class="field"><label>Application Start</label><input type="date" id="circStart"></div>
+        <div class="form-group"><label>Application Link</label><input type="url" id="circLink" placeholder="https://..."></div>
+        <div class="form-group"><label>Application Start</label><input type="date" id="circStart"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Application Deadline *</label><input type="date" id="circDeadline"></div>
-        <div class="field"><label>Exam Date</label><input type="date" id="circExamDate"></div>
+        <div class="form-group"><label>Application Deadline *</label><input type="date" id="circDeadline"></div>
+        <div class="form-group"><label>Exam Date</label><input type="date" id="circExamDate"></div>
       </div>
-      <div class="field"><label>PDF File (PDF only, max 10MB)</label><input type="file" id="circPdf" accept=".pdf"></div>
-      <button class="calc-btn" onclick="addCircular()">➕ Add Circular</button>
+      <div class="form-group"><label>PDF File (PDF only, max 10MB)</label><input type="file" id="circPdf" accept=".pdf"></div>
+      <button onclick="addCircular()">➕ Add Circular</button>
       <div id="circularsSuccessMsg" class="success-msg"></div>
       <div id="circularsErrorMsg" class="error-msg"></div>
       
       <hr>
-      <div class="sec-title">Existing Circulars</div>
-      <div id="circularsList" class="hint">Loading circulars...</div>
+      <div class="section-title">Existing Circulars</div>
+      <div id="circularsList"><div class="hint">Loading circulars...</div></div>
     </div>
 
-    <!-- ========== EXAM DATES PANEL ========== -->
+    <!-- Exam Dates Panel -->
     <div id="examdatesPanel" class="panel">
-      <div class="sec-title">Add New Exam Date</div>
+      <div class="section-title">Add New Exam Date</div>
       <div class="form-row">
-        <div class="field"><label>Exam Title *</label><input type="text" id="examTitle" placeholder="e.g., BUET Admission Test"></div>
-        <div class="field"><label>University *</label><input type="text" id="examUniversity" placeholder="e.g., BUET"></div>
+        <div class="form-group"><label>Exam Title *</label><input type="text" id="examTitle" placeholder="e.g., BUET Admission Test"></div>
+        <div class="form-group"><label>University *</label><input type="text" id="examUniversity" placeholder="e.g., BUET"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Exam Date *</label><input type="date" id="examDate"></div>
-        <div class="field"><label>Exam Time</label><input type="time" id="examTime"></div>
+        <div class="form-group"><label>Exam Date *</label><input type="date" id="examDate"></div>
+        <div class="form-group"><label>Exam Time</label><input type="time" id="examTime"></div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Venue</label><input type="text" id="examVenue" placeholder="e.g., BUET Campus"></div>
-        <div class="field"><label>Description</label><input type="text" id="examDesc" placeholder="Additional info"></div>
+        <div class="form-group"><label>Venue</label><input type="text" id="examVenue" placeholder="e.g., BUET Campus"></div>
+        <div class="form-group"><label>Description</label><input type="text" id="examDesc" placeholder="Additional info"></div>
       </div>
-      <button class="calc-btn" onclick="addExamDate()">➕ Add Exam Date</button>
+      <button onclick="addExamDate()">➕ Add Exam Date</button>
       <div id="examDatesSuccessMsg" class="success-msg"></div>
       <div id="examDatesErrorMsg" class="error-msg"></div>
       
       <hr>
-      <div class="sec-title">Existing Exam Dates</div>
-      <div id="examDatesList" class="hint">Loading exam dates...</div>
+      <div class="section-title">Existing Exam Dates</div>
+      <div id="examDatesList"><div class="hint">Loading exam dates...</div></div>
     </div>
 
-    <!-- ========== QUESTION BANKS PANEL ========== -->
+    <!-- Question Banks Panel -->
     <div id="questionbanksPanel" class="panel">
-      <div class="sec-title">Upload Question Bank PDF</div>
+      <div class="section-title">Upload Question Bank PDF</div>
       <div class="form-row">
-        <div class="field"><label>Title *</label><input type="text" id="qbTitle" placeholder="e.g., BUET Question 2024"></div>
-        <div class="field"><label>University *</label>
+        <div class="form-group"><label>Title *</label><input type="text" id="qbTitle" placeholder="e.g., BUET Question 2024"></div>
+        <div class="form-group"><label>University *</label>
           <select id="qbUniversity">
             <option value="BUET">BUET</option><option value="DU">DU</option><option value="RUET">RUET</option>
             <option value="CUET">CUET</option><option value="KUET">KUET</option><option value="Medical">Medical</option>
@@ -421,17 +387,17 @@
         </div>
       </div>
       <div class="form-row">
-        <div class="field"><label>Subject</label><input type="text" id="qbSubject" placeholder="e.g., Mathematics"></div>
-        <div class="field"><label>Year</label><input type="number" id="qbYear" placeholder="e.g., 2024"></div>
+        <div class="form-group"><label>Subject</label><input type="text" id="qbSubject" placeholder="e.g., Mathematics"></div>
+        <div class="form-group"><label>Year</label><input type="number" id="qbYear" placeholder="e.g., 2024"></div>
       </div>
-      <div class="field"><label>PDF File * (PDF only, max 10MB)</label><input type="file" id="qbPdf" accept=".pdf"></div>
-      <button class="calc-btn" onclick="uploadQuestionBank()">📤 Upload Question Bank</button>
+      <div class="form-group"><label>PDF File * (PDF only, max 10MB)</label><input type="file" id="qbPdf" accept=".pdf"></div>
+      <button onclick="uploadQuestionBank()">📤 Upload Question Bank</button>
       <div id="qbSuccessMsg" class="success-msg"></div>
       <div id="qbErrorMsg" class="error-msg"></div>
       
       <hr>
-      <div class="sec-title">Existing Question Banks</div>
-      <div id="questionBanksList" class="hint">Loading question banks...</div>
+      <div class="section-title">Existing Question Banks</div>
+      <div id="questionBanksList"><div class="hint">Loading question banks...</div></div>
     </div>
   </div>
 </div>
@@ -440,145 +406,99 @@
 const API_URL = 'https://path2uni-236v.onrender.com/api';
 let authToken = localStorage.getItem('path2uni_token');
 
-// Check if admin is logged in
+// Check if user is admin
+const user = JSON.parse(localStorage.getItem('path2uni_user') || '{}');
+const isAdmin = user.isAdmin === true || user.is_admin === true || user.is_admin === 1;
+if (!isAdmin) {
+  window.location.href = 'dashboard.html';
+}
+
 if (!authToken) {
   window.location.href = 'index.html';
 }
 
-// Function to show different tabs
-function showTab(tabName) {
-  // Hide all panels
-  document.querySelectorAll('.panel').forEach(panel => {
-    panel.classList.remove('active');
-  });
-  
-  // Remove active class from all tabs
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  
-  // Show selected panel
-  const selectedPanel = document.getElementById(`${tabName}Panel`);
-  if (selectedPanel) {
-    selectedPanel.classList.add('active');
-  }
-  
-  // Add active class to clicked button
-  event.target.classList.add('active');
-  
-  // Load data based on selected tab
-  if (tabName === 'users') loadUsers();
-  if (tabName === 'circulars') loadCirculars();
-  if (tabName === 'examdates') loadExamDates();
-  if (tabName === 'questionbanks') loadQuestionBanks();
+async function apiCall(endpoint, options = {}) {
+  const headers = { 'Authorization': `Bearer ${authToken}` };
+  if (!(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
+  const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+  if (response.status === 401) { localStorage.removeItem('path2uni_token'); window.location.href = 'index.html'; }
+  return response;
 }
 
-// Load all statistics
+function showPanel(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`${panel}Panel`).classList.add('active');
+  event.target.classList.add('active');
+  
+  if (panel === 'users') loadUsers();
+  if (panel === 'circulars') loadCirculars();
+  if (panel === 'examdates') loadExamDates();
+  if (panel === 'questionbanks') loadQuestionBanks();
+}
+
 async function loadStats() {
   try {
-    const response = await fetch(`${API_URL}/admin/stats`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
+    const response = await apiCall('/admin/stats');
     const data = await response.json();
     document.getElementById('userCount').innerHTML = data.users || 0;
     document.getElementById('circCount').innerHTML = data.circulars || 0;
     document.getElementById('qbCount').innerHTML = data.questionBanks || 0;
     document.getElementById('examCount').innerHTML = data.examDates || 0;
-  } catch(e) {
-    console.error('Stats error:', e);
-  }
+  } catch(e) { console.error(e); }
 }
 
-// ========== USERS MANAGEMENT ==========
+// ========== USERS ==========
 async function loadUsers() {
   try {
-    const response = await fetch(`${API_URL}/admin/users`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
+    const response = await apiCall('/admin/users');
     const data = await response.json();
     const container = document.getElementById('usersList');
-    
-    if (!data.users || data.users.length === 0) {
-      container.innerHTML = '<div class="hint">No users found</div>';
-      return;
-    }
-    
-    let html = '<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th>Action</th></tr></thead><tbody>';
-    for (const user of data.users) {
-      html += `<tr>
-        <td>${escapeHtml(user.name)}</td>
-        <td>${escapeHtml(user.email)}</td>
-        <td>${user.is_admin ? 'Admin' : 'User'}</td>
-        <td>${new Date(user.created_at).toLocaleDateString()}</td>
-        <td>${!user.is_admin ? `<button class="delete-btn" onclick="deleteUser(${user.id})">Delete</button>` : '-'}</td>
-      </tr>`;
-    }
-    html += '</tbody></table>';
-    container.innerHTML = html;
-  } catch(e) {
-    console.error('Load users error:', e);
-    document.getElementById('usersList').innerHTML = '<div class="hint">Error loading users</div>';
-  }
+    if (!data.users?.length) { container.innerHTML = '<div class="hint">No users found</div>'; return; }
+    container.innerHTML = `
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th>Action</th></tr></thead>
+        <tbody>${data.users.map(u => `
+          <tr>
+            <td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.email)}</td>
+            <td>${u.is_admin ? 'Admin' : 'User'}</td>
+            <td>${new Date(u.created_at).toLocaleDateString()}</td>
+            <td>${!u.is_admin ? `<button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button>` : '-'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    `;
+  } catch(e) { console.error(e); }
 }
 
 async function deleteUser(id) {
   if (confirm('Delete this user permanently?')) {
-    try {
-      await fetch(`${API_URL}/admin/users/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      loadUsers();
-      loadStats();
-      alert('User deleted successfully');
-    } catch(e) {
-      alert('Error deleting user');
-    }
+    await apiCall(`/admin/users/${id}`, { method: 'DELETE' });
+    loadUsers(); loadStats();
   }
 }
 
-// ========== CIRCULARS MANAGEMENT ==========
+// ========== CIRCULARS ==========
 async function loadCirculars() {
   try {
     const response = await fetch(`${API_URL}/circulars`);
     const data = await response.json();
     const container = document.getElementById('circularsList');
-    
-    if (!data.circulars || data.circulars.length === 0) {
-      container.innerHTML = '<div class="hint">No circulars yet</div>';
-      return;
-    }
-    
-    let html = '';
-    for (const c of data.circulars) {
-      html += `
-        <div class="item-card">
-          <div class="item-info">
-            <div class="item-title">${escapeHtml(c.title)}</div>
-            <div class="item-meta">🏛️ ${escapeHtml(c.university)} | Deadline: ${c.application_deadline}</div>
-          </div>
-          <div class="item-actions">
-            <button class="delete-btn" onclick="deleteCircular(${c.id})">Delete</button>
-          </div>
-        </div>
-      `;
-    }
-    container.innerHTML = html;
-  } catch(e) {
-    console.error('Load circulars error:', e);
-    document.getElementById('circularsList').innerHTML = '<div class="hint">Error loading circulars</div>';
-  }
+    if (!data.circulars?.length) { container.innerHTML = '<div class="hint">No circulars yet</div>'; return; }
+    container.innerHTML = data.circulars.map(c => `
+      <div class="item-card">
+        <div class="item-info"><div class="item-title">${escapeHtml(c.title)}</div><div class="item-meta">🏛️ ${escapeHtml(c.university)} | Deadline: ${c.application_deadline}</div></div>
+        <div class="item-actions"><button class="delete-btn" onclick="deleteCircular(${c.id})">Delete</button></div>
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
 }
 
 async function addCircular() {
   const title = document.getElementById('circTitle').value;
   const university = document.getElementById('circUniversity').value;
   const deadline = document.getElementById('circDeadline').value;
-  
-  if (!title || !university || !deadline) {
-    alert('Please fill Title, University, and Deadline');
-    return;
-  }
+  if (!title || !university || !deadline) { alert('Please fill required fields'); return; }
   
   const formData = new FormData();
   formData.append('title', title);
@@ -588,281 +508,175 @@ async function addCircular() {
   formData.append('application_start', document.getElementById('circStart').value);
   formData.append('application_deadline', deadline);
   formData.append('exam_date', document.getElementById('circExamDate').value);
-  
-  const pdfFile = document.getElementById('circPdf').files[0];
-  if (pdfFile) formData.append('pdf', pdfFile);
+  const pdf = document.getElementById('circPdf').files[0];
+  if (pdf) formData.append('pdf', pdf);
   
   try {
     const response = await fetch(`${API_URL}/admin/circulars`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${authToken}` },
-      body: formData
+      method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData
     });
-    
     if (response.ok) {
-      const msgDiv = document.getElementById('circularsSuccessMsg');
-      msgDiv.style.display = 'block';
-      setTimeout(() => msgDiv.style.display = 'none', 3000);
-      
-      // Clear form
-      document.getElementById('circTitle').value = '';
-      document.getElementById('circUniversity').value = '';
-      document.getElementById('circDesc').value = '';
-      document.getElementById('circLink').value = '';
-      document.getElementById('circStart').value = '';
-      document.getElementById('circDeadline').value = '';
-      document.getElementById('circExamDate').value = '';
-      document.getElementById('circPdf').value = '';
-      
-      loadCirculars();
-      loadStats();
-    } else {
-      const errorDiv = document.getElementById('circularsErrorMsg');
-      errorDiv.style.display = 'block';
-      setTimeout(() => errorDiv.style.display = 'none', 3000);
-    }
-  } catch(e) {
-    alert('Error adding circular');
-  }
+      showSuccess('Circular added successfully!', 'circulars');
+      clearCircularForm();
+      loadCirculars(); loadStats();
+    } else { showError('Failed to add circular', 'circulars'); }
+  } catch(e) { showError('Network error', 'circulars'); }
+}
+
+function clearCircularForm() {
+  document.getElementById('circTitle').value = '';
+  document.getElementById('circUniversity').value = '';
+  document.getElementById('circDesc').value = '';
+  document.getElementById('circLink').value = '';
+  document.getElementById('circStart').value = '';
+  document.getElementById('circDeadline').value = '';
+  document.getElementById('circExamDate').value = '';
+  document.getElementById('circPdf').value = '';
 }
 
 async function deleteCircular(id) {
   if (confirm('Delete this circular?')) {
-    try {
-      await fetch(`${API_URL}/admin/circulars/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      loadCirculars();
-      loadStats();
-      alert('Circular deleted');
-    } catch(e) {
-      alert('Error deleting circular');
-    }
+    await apiCall(`/admin/circulars/${id}`, { method: 'DELETE' });
+    loadCirculars(); loadStats();
   }
 }
 
-// ========== EXAM DATES MANAGEMENT ==========
+// ========== EXAM DATES ==========
 async function loadExamDates() {
   try {
     const response = await fetch(`${API_URL}/exam-dates`);
     const data = await response.json();
     const container = document.getElementById('examDatesList');
-    
-    if (!data.examDates || data.examDates.length === 0) {
-      container.innerHTML = '<div class="hint">No exam dates yet</div>';
-      return;
-    }
-    
-    let html = '';
-    for (const e of data.examDates) {
-      html += `
-        <div class="item-card">
-          <div class="item-info">
-            <div class="item-title">${escapeHtml(e.title)}</div>
-            <div class="item-meta">🏛️ ${escapeHtml(e.university)} | 📅 ${e.exam_date} ${e.exam_time || ''}</div>
-          </div>
-          <div class="item-actions">
-            <button class="delete-btn" onclick="deleteExamDate(${e.id})">Delete</button>
-          </div>
-        </div>
-      `;
-    }
-    container.innerHTML = html;
-  } catch(e) {
-    console.error('Load exam dates error:', e);
-    document.getElementById('examDatesList').innerHTML = '<div class="hint">Error loading exam dates</div>';
-  }
+    if (!data.examDates?.length) { container.innerHTML = '<div class="hint">No exam dates yet</div>'; return; }
+    container.innerHTML = data.examDates.map(e => `
+      <div class="item-card">
+        <div class="item-info"><div class="item-title">${escapeHtml(e.title)}</div><div class="item-meta">🏛️ ${escapeHtml(e.university)} | 📅 ${e.exam_date} ${e.exam_time || ''}</div></div>
+        <div class="item-actions"><button class="delete-btn" onclick="deleteExamDate(${e.id})">Delete</button></div>
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
 }
 
 async function addExamDate() {
   const title = document.getElementById('examTitle').value;
   const university = document.getElementById('examUniversity').value;
   const examDate = document.getElementById('examDate').value;
+  if (!title || !university || !examDate) { alert('Please fill required fields'); return; }
   
-  if (!title || !university || !examDate) {
-    alert('Please fill Exam Title, University, and Exam Date');
-    return;
-  }
-  
-  const examData = {
-    title: title,
-    university: university,
-    exam_date: examDate,
+  const data = {
+    title, university, exam_date: examDate,
     exam_time: document.getElementById('examTime').value,
     venue: document.getElementById('examVenue').value,
     description: document.getElementById('examDesc').value
   };
   
   try {
-    const response = await fetch(`${API_URL}/admin/exam-date`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`
-      },
-      body: JSON.stringify(examData)
-    });
-    
+    const response = await apiCall('/admin/exam-date', { method: 'POST', body: JSON.stringify(data) });
     if (response.ok) {
-      const msgDiv = document.getElementById('examDatesSuccessMsg');
-      msgDiv.style.display = 'block';
-      setTimeout(() => msgDiv.style.display = 'none', 3000);
-      
-      // Clear form
-      document.getElementById('examTitle').value = '';
-      document.getElementById('examUniversity').value = '';
-      document.getElementById('examDate').value = '';
-      document.getElementById('examTime').value = '';
-      document.getElementById('examVenue').value = '';
-      document.getElementById('examDesc').value = '';
-      
-      loadExamDates();
-      loadStats();
-    } else {
-      const errorDiv = document.getElementById('examDatesErrorMsg');
-      errorDiv.style.display = 'block';
-      setTimeout(() => errorDiv.style.display = 'none', 3000);
-    }
-  } catch(e) {
-    alert('Error adding exam date');
-  }
+      showSuccess('Exam date added successfully!', 'examdates');
+      clearExamDateForm();
+      loadExamDates(); loadStats();
+    } else { showError('Failed to add exam date', 'examdates'); }
+  } catch(e) { showError('Network error', 'examdates'); }
+}
+
+function clearExamDateForm() {
+  document.getElementById('examTitle').value = '';
+  document.getElementById('examUniversity').value = '';
+  document.getElementById('examDate').value = '';
+  document.getElementById('examTime').value = '';
+  document.getElementById('examVenue').value = '';
+  document.getElementById('examDesc').value = '';
 }
 
 async function deleteExamDate(id) {
   if (confirm('Delete this exam date?')) {
-    try {
-      await fetch(`${API_URL}/admin/exam-date/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      loadExamDates();
-      loadStats();
-      alert('Exam date deleted');
-    } catch(e) {
-      alert('Error deleting exam date');
-    }
+    await apiCall(`/admin/exam-date/${id}`, { method: 'DELETE' });
+    loadExamDates(); loadStats();
   }
 }
 
-// ========== QUESTION BANKS MANAGEMENT ==========
+// ========== QUESTION BANKS ==========
 async function loadQuestionBanks() {
   try {
     const response = await fetch(`${API_URL}/question-banks`);
     const data = await response.json();
     const container = document.getElementById('questionBanksList');
-    
-    if (!data.questions || data.questions.length === 0) {
-      container.innerHTML = '<div class="hint">No question banks yet</div>';
-      return;
-    }
-    
-    let html = '';
-    for (const q of data.questions) {
-      html += `
-        <div class="item-card">
-          <div class="item-info">
-            <div class="item-title">${escapeHtml(q.title)}</div>
-            <div class="item-meta">🏛️ ${escapeHtml(q.university)} | ${q.subject || 'General'} | Year: ${q.year || 'N/A'}</div>
-            <div class="item-meta">📄 <a href="${API_URL}${q.pdf_path}" target="_blank" style="color:#60a5fa;">Download PDF</a></div>
-          </div>
-          <div class="item-actions">
-            <button class="delete-btn" onclick="deleteQuestionBank(${q.id})">Delete</button>
-          </div>
+    if (!data.questions?.length) { container.innerHTML = '<div class="hint">No question banks yet</div>'; return; }
+    container.innerHTML = data.questions.map(q => `
+      <div class="item-card">
+        <div class="item-info">
+          <div class="item-title">${escapeHtml(q.title)}</div>
+          <div class="item-meta">🏛️ ${escapeHtml(q.university)} | ${q.subject || 'General'} | Year: ${q.year || 'N/A'}</div>
+          <div class="item-meta">📄 <a href="${API_URL}${q.pdf_path}" target="_blank" style="color:#60a5fa;">Download PDF</a></div>
         </div>
-      `;
-    }
-    container.innerHTML = html;
-  } catch(e) {
-    console.error('Load question banks error:', e);
-    document.getElementById('questionBanksList').innerHTML = '<div class="hint">Error loading question banks</div>';
-  }
+        <div class="item-actions"><button class="delete-btn" onclick="deleteQuestionBank(${q.id})">Delete</button></div>
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
 }
 
 async function uploadQuestionBank() {
   const title = document.getElementById('qbTitle').value;
-  const pdfFile = document.getElementById('qbPdf').files[0];
-  
-  if (!title || !pdfFile) {
-    alert('Please fill Title and select a PDF file');
-    return;
-  }
+  const pdf = document.getElementById('qbPdf').files[0];
+  if (!title || !pdf) { alert('Please fill Title and select PDF'); return; }
   
   const formData = new FormData();
   formData.append('title', title);
   formData.append('university', document.getElementById('qbUniversity').value);
   formData.append('subject', document.getElementById('qbSubject').value);
   formData.append('year', document.getElementById('qbYear').value);
-  formData.append('pdf', pdfFile);
+  formData.append('pdf', pdf);
   
   try {
     const response = await fetch(`${API_URL}/admin/question-banks`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${authToken}` },
-      body: formData
+      method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData
     });
-    
     if (response.ok) {
-      const msgDiv = document.getElementById('qbSuccessMsg');
-      msgDiv.style.display = 'block';
-      setTimeout(() => msgDiv.style.display = 'none', 3000);
-      
-      // Clear form
-      document.getElementById('qbTitle').value = '';
-      document.getElementById('qbSubject').value = '';
-      document.getElementById('qbYear').value = '';
-      document.getElementById('qbPdf').value = '';
-      
-      loadQuestionBanks();
-      loadStats();
-    } else {
-      const errorDiv = document.getElementById('qbErrorMsg');
-      errorDiv.style.display = 'block';
-      setTimeout(() => errorDiv.style.display = 'none', 3000);
-    }
-  } catch(e) {
-    alert('Error uploading question bank');
-  }
+      showSuccess('Question bank uploaded successfully!', 'questionbanks');
+      clearQbForm();
+      loadQuestionBanks(); loadStats();
+    } else { showError('Failed to upload', 'questionbanks'); }
+  } catch(e) { showError('Network error', 'questionbanks'); }
+}
+
+function clearQbForm() {
+  document.getElementById('qbTitle').value = '';
+  document.getElementById('qbSubject').value = '';
+  document.getElementById('qbYear').value = '';
+  document.getElementById('qbPdf').value = '';
 }
 
 async function deleteQuestionBank(id) {
   if (confirm('Delete this question bank?')) {
-    try {
-      await fetch(`${API_URL}/admin/question-banks/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${authToken}` }
-      });
-      loadQuestionBanks();
-      loadStats();
-      alert('Question bank deleted');
-    } catch(e) {
-      alert('Error deleting question bank');
-    }
+    await apiCall(`/admin/question-banks/${id}`, { method: 'DELETE' });
+    loadQuestionBanks(); loadStats();
   }
+}
+
+// ========== HELPER FUNCTIONS ==========
+function showSuccess(msg, panel) {
+  const msgDiv = document.getElementById(`${panel}SuccessMsg`);
+  if (msgDiv) { msgDiv.textContent = msg; msgDiv.style.display = 'block'; setTimeout(() => msgDiv.style.display = 'none', 3000); }
+}
+
+function showError(msg, panel) {
+  const errorDiv = document.getElementById(`${panel}ErrorMsg`);
+  if (errorDiv) { errorDiv.textContent = msg; errorDiv.style.display = 'block'; setTimeout(() => errorDiv.style.display = 'none', 3000); }
 }
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/[&<>]/g, function(m) {
-    if (m === '&') return '&amp;';
-    if (m === '<') return '&lt;';
-    if (m === '>') return '&gt;';
-    return m;
-  });
+  return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
 }
 
 async function logout() {
-  try {
-    await fetch(`${API_URL}/auth/logout`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-  } catch(e) {}
+  await apiCall('/auth/logout', { method: 'POST' });
   localStorage.removeItem('path2uni_token');
+  localStorage.removeItem('path2uni_user');
   window.location.href = 'index.html';
 }
 
-// Initialize page
 loadStats();
 loadUsers();
 </script>
