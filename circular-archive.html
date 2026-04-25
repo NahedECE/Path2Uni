@@ -111,6 +111,7 @@
 
 <script>
 const API_URL = 'https://path2uni-236v.onrender.com/api';
+const BASE_URL = 'https://path2uni-236v.onrender.com';
 let authToken = localStorage.getItem('path2uni_token');
 let allCirculars = [];
 
@@ -136,6 +137,7 @@ async function loadCirculars() {
   }
 }
 
+// FIXED: PDF links use BASE_URL not API_URL
 function displayCirculars(circulars) {
   const container = document.getElementById('circularsList');
   if (!circulars.length) {
@@ -143,16 +145,31 @@ function displayCirculars(circulars) {
     return;
   }
   
-  container.innerHTML = circulars.map(c => `
-    <div class="circular-card">
-      <h3>${escapeHtml(c.title)}</h3>
-      <div class="circular-meta">🏛️ ${escapeHtml(c.university)}</div>
-      <div class="circular-meta">📅 Deadline: ${c.application_deadline || 'Not specified'}</div>
-      <div class="circular-meta">📝 ${c.description ? c.description.substring(0, 100) + '...' : 'No description'}</div>
-      ${c.application_link ? `<a href="${c.application_link}" target="_blank" class="pdf-link">🌐 Apply Online</a>` : ''}
-      ${c.pdf_path ? `<a href="${API_URL}${c.pdf_path}" target="_blank" class="pdf-link">📄 Download Circular PDF</a>` : ''}
-    </div>
-  `).join('');
+  container.innerHTML = circulars.map(c => {
+    let pdfLink = '';
+    if (c.pdf_path) {
+      const pdfUrl = c.pdf_path.startsWith('http') ? c.pdf_path : `${BASE_URL}${c.pdf_path}`;
+      pdfLink = `<a href="${pdfUrl}" target="_blank" class="pdf-link">📄 Download Circular PDF</a>`;
+    }
+    
+    let applyLink = '';
+    if (c.application_link) {
+      applyLink = `<a href="${c.application_link}" target="_blank" class="pdf-link" style="margin-left: 10px; background: rgba(59,130,246,0.2);">🌐 Apply Online</a>`;
+    }
+    
+    return `
+      <div class="circular-card">
+        <h3>${escapeHtml(c.title)}</h3>
+        <div class="circular-meta">🏛️ ${escapeHtml(c.university)}</div>
+        <div class="circular-meta">📅 Deadline: ${c.application_deadline || 'Not specified'}</div>
+        <div class="circular-meta">📝 ${c.description ? c.description.substring(0, 100) + '...' : 'No description'}</div>
+        <div>
+          ${pdfLink}
+          ${applyLink}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function filterCirculars() {
