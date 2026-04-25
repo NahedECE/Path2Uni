@@ -566,6 +566,7 @@
 
 <script>
 const API_URL = 'https://path2uni-236v.onrender.com/api';
+const BASE_URL = 'https://path2uni-236v.onrender.com';
 let authToken = localStorage.getItem('path2uni_token');
 let allUniversities = [];
 let countdownInterval;
@@ -621,7 +622,7 @@ async function loadDashboard() {
   } catch(e) { console.error(e); }
 }
 
-// FIXED: displayCirculars function now shows PDF download links
+// FIXED: displayCirculars function - PDF links use BASE_URL not API_URL
 function displayCirculars(circulars) {
   const container = document.getElementById('circularsList');
   if (!circulars.length) { container.innerHTML = '<div class="loading">No active circulars</div>'; return; }
@@ -634,9 +635,10 @@ function displayCirculars(circulars) {
       buttons += `<button class="btn-small" onclick="window.open('${c.application_link}', '_blank')">Apply →</button>`;
     }
     
-    // PDF download button
+    // PDF download button - FIXED: use BASE_URL not API_URL
     if (c.pdf_path) {
-      buttons += `<button class="btn-pdf" onclick="window.open('${API_URL}${c.pdf_path}', '_blank')">📄 Download PDF</button>`;
+      const pdfUrl = c.pdf_path.startsWith('http') ? c.pdf_path : `${BASE_URL}${c.pdf_path}`;
+      buttons += `<button class="btn-pdf" onclick="window.open('${pdfUrl}', '_blank')">📄 Download PDF</button>`;
     }
     
     return `
