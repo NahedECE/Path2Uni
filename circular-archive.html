@@ -149,7 +149,7 @@ function displayCirculars(circulars) {
     let pdfLink = '';
     if (c.pdf_path) {
       const pdfUrl = c.pdf_path.startsWith('http') ? c.pdf_path : `${BASE_URL}${c.pdf_path}`;
-      pdfLink = `<a href="${pdfUrl}" target="_blank" class="pdf-link">📄 Download Circular PDF</a>`;
+      pdfLink = `<a href="${pdfUrl}" target="_blank" class="pdf-link"> Download Circular PDF</a>`;
     }
     
     let applyLink = '';
@@ -160,9 +160,9 @@ function displayCirculars(circulars) {
     return `
       <div class="circular-card">
         <h3>${escapeHtml(c.title)}</h3>
-        <div class="circular-meta">🏛️ ${escapeHtml(c.university)}</div>
+        <div class="circular-meta"> ${escapeHtml(c.university)}</div>
         <div class="circular-meta">📅 Deadline: ${c.application_deadline || 'Not specified'}</div>
-        <div class="circular-meta">📝 ${c.description ? c.description.substring(0, 100) + '...' : 'No description'}</div>
+        <div class="circular-meta"> ${c.description ? c.description.substring(0, 100) + '...' : 'No description'}</div>
         <div>
           ${pdfLink}
           ${applyLink}
