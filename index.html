@@ -5,31 +5,421 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Path2Uni | University Admission Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
 <style>
-  .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
-  .auth-card { max-width: 450px; width: 100%; margin: 0 auto; }
-  .carousel-container { text-align: center; min-height: 450px; display: flex; flex-direction: column; justify-content: center; }
-  .carousel-slide { display: none; animation: fadeIn 0.8s ease; }
-  .carousel-slide.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .uni-img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 1rem; border: 2px solid rgba(255,255,255,0.1); }
-  .uni-name { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; margin: 1rem 0; background: linear-gradient(135deg, #ffffff, #e0e0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .uni-stats { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
-  .uni-stats span { font-size: 12px; padding: 4px 16px; background: rgba(255,255,255,0.05); border-radius: 20px; }
-  .carousel-dots { display: flex; justify-content: center; gap: 10px; margin-top: 1.5rem; }
-  .dot { width: 8px; height: 8px; background: rgba(255,255,255,0.3); border-radius: 50%; cursor: pointer; transition: all 0.3s; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #05050f 0%, #0a0a1a 50%, #0d0d22 100%);
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+  }
+  
+  .bg-mesh {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 20% 30%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(124,58,237,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+  
+  .page-wrap {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 4rem;
+    z-index: 1;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 50px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(120deg, #fff, #a0a0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .nav-link {
+    padding: 0.5rem 1rem;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+    border-radius: 30px;
+    cursor: pointer;
+  }
+  
+  .nav-link:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+  }
+  
+  .hero {
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 1.5rem;
+  }
+  
+  .hero-eyebrow::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #60a5fa;
+    animation: pulse-dot 2s ease infinite;
+  }
+  
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 7vw, 72px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #ffffff, #c4c4ff, #e0e0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .hero p {
+    font-size: 18px;
+    color: rgba(255,255,255,0.6);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  
+  .main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+  
+  .glass-card {
+    background: rgba(10, 10, 26, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 28px;
+    padding: 2rem;
+    transition: all 0.3s;
+  }
+  
+  .glass-card:hover {
+    border-color: rgba(255,255,255,0.15);
+  }
+  
+  .carousel-container {
+    text-align: center;
+    min-height: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .carousel-slide {
+    display: none;
+    animation: fadeIn 0.8s ease;
+  }
+  
+  .carousel-slide.active {
+    display: block;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .uni-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 60px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: all 0.3s;
+  }
+  
+  .uni-img:hover {
+    transform: scale(1.05);
+    border-color: #3b82f6;
+  }
+  
+  .uni-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    margin: 1rem 0;
+    background: linear-gradient(135deg, #ffffff, #e0e0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .uni-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .uni-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  
+  .uni-stats span {
+    font-size: 12px;
+    padding: 4px 16px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 30px;
+    color: #fcd34d;
+  }
+  
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 2rem;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .dot:hover { background: rgba(255,255,255,0.6); }
   .dot.active { width: 24px; border-radius: 10px; background: linear-gradient(90deg, #3b82f6, #7c3aed); }
-  .founders-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem; }
-  .founder-card { text-align: center; padding: 2rem; }
-  .founder-avatar { width: 80px; height: 80px; background: linear-gradient(135deg, #1a1a3a, #0f0f2a); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; }
-  .tab-auth { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-  .auth-tab { padding: 0.75rem 1.5rem; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.5); transition: all 0.2s; }
-  .auth-tab.active { color: white; border-bottom: 2px solid #3b82f6; }
+  
+  .auth-card {
+    max-width: 450px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .tab-auth {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .auth-tab {
+    padding: 0.75rem 1.5rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.5);
+    transition: all 0.2s;
+  }
+  
+  .auth-tab.active {
+    color: white;
+    border-bottom: 2px solid #3b82f6;
+  }
+  
   .auth-form { display: none; }
   .auth-form.active { display: block; }
-  .error-msg { color: #f87171; text-align: center; margin-top: 0.5rem; display: none; font-size: 12px; }
-  @media (max-width: 900px) { .main-content { grid-template-columns: 1fr; } .founders-grid { grid-template-columns: 1fr; } }
+  
+  .field { margin-bottom: 1rem; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+  }
+  
+  .field input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+  }
+  
+  .field input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: rgba(59,130,246,0.05);
+  }
+  
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  
+  .calc-btn {
+    background: linear-gradient(135deg, #3b82f6, #7c3aed);
+    border: none;
+    padding: 14px;
+    border-radius: 30px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+  }
+  
+  .calc-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(59,130,246,0.5);
+  }
+  
+  .hint {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+    margin-top: 1rem;
+  }
+  
+  .error-msg {
+    color: #f87171;
+    text-align: center;
+    margin-top: 0.5rem;
+    display: none;
+    font-size: 12px;
+  }
+  
+  .founders-section { margin-top: 2rem; }
+  
+  .sec-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+  }
+  
+  .sec-title::after,
+  .sec-title::before {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  }
+  
+  .founders-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .founder-card {
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .founder-avatar {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #1a1a3a, #0f0f2a);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+  }
+  
+  .founder-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  
+  .founder-title {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  
+  .founder-bio {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+  }
+  
+  .copyright {
+    text-align: center;
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+  }
+  
+  @media (max-width: 900px) {
+    .main-content { grid-template-columns: 1fr; }
+    .founders-grid { grid-template-columns: 1fr; }
+    .page-wrap { padding: 1rem; }
+    .navbar { flex-direction: column; }
+    .nav-links { justify-content: center; }
+    .row2 { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -59,19 +449,19 @@
       <div class="carousel-slide active" id="slide-0">
         <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=BUET" class="uni-img" alt="BUET">
         <h3 class="uni-name">BUET</h3>
-        <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution in Bangladesh, established in 1912.</p>
+        <p class="uni-desc">Bangladesh University of Engineering and Technology - Premier engineering institution.</p>
         <div class="uni-stats"><span>Est. 1912</span><span>Dhaka</span></div>
       </div>
       <div class="carousel-slide" id="slide-1">
         <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=DU" class="uni-img" alt="DU">
         <h3 class="uni-name">DU</h3>
-        <p class="uni-desc">University of Dhaka - The oldest university in Bangladesh, founded in 1921. Known as the "Oxford of the East".</p>
+        <p class="uni-desc">University of Dhaka - The oldest university in Bangladesh.</p>
         <div class="uni-stats"><span>Est. 1921</span><span>Dhaka</span></div>
       </div>
       <div class="carousel-slide" id="slide-2">
         <img src="https://placehold.co/120x120/1a1a2e/ffffff?text=RUET" class="uni-img" alt="RUET">
         <h3 class="uni-name">RUET</h3>
-        <p class="uni-desc">Rajshahi University of Engineering and Technology - Leading engineering university in northern Bangladesh.</p>
+        <p class="uni-desc">Rajshahi University of Engineering and Technology.</p>
         <div class="uni-stats"><span>Est. 1964</span><span>Rajshahi</span></div>
       </div>
       <div class="carousel-dots">
@@ -112,9 +502,9 @@
   <div class="founders-section">
     <div class="sec-title">Meet Our Founders</div>
     <div class="founders-grid">
-      <div class="founder-card glass-card"><div class="founder-avatar">SA</div><h3 class="founder-name">Shakil Ahmed</h3><p class="founder-title">CEO & Co-Founder</p><p class="founder-bio">Former BUET student with a vision to simplify university admissions for all Bangladeshi students.</p></div>
-      <div class="founder-card glass-card"><div class="founder-avatar">RH</div><h3 class="founder-name">Rifat Hasan</h3><p class="founder-title">CTO & Co-Founder</p><p class="founder-bio">Full-stack developer passionate about educational technology and accessibility.</p></div>
-      <div class="founder-card glass-card"><div class="founder-avatar">NI</div><h3 class="founder-name">Nafis Islam</h3><p class="founder-title">COO & Co-Founder</p><p class="founder-bio">Education consultant with experience helping thousands of students achieve their dreams.</p></div>
+      <div class="founder-card glass-card"><div class="founder-avatar">SA</div><h3 class="founder-name">Shakil Ahmed</h3><p class="founder-title">CEO & Co-Founder</p><p class="founder-bio">Former BUET student with a vision to simplify university admissions.</p></div>
+      <div class="founder-card glass-card"><div class="founder-avatar">RH</div><h3 class="founder-name">Rifat Hasan</h3><p class="founder-title">CTO & Co-Founder</p><p class="founder-bio">Full-stack developer passionate about educational technology.</p></div>
+      <div class="founder-card glass-card"><div class="founder-avatar">NI</div><h3 class="founder-name">Nafis Islam</h3><p class="founder-title">COO & Co-Founder</p><p class="founder-bio">Education consultant helping thousands of students achieve their dreams.</p></div>
     </div>
   </div>
 
@@ -143,7 +533,6 @@ window.goToSlide = function(index) { showSlide(index); resetInterval(); }
 function resetInterval() { clearInterval(carouselInterval); carouselInterval = setInterval(nextSlide, 5000); }
 carouselInterval = setInterval(nextSlide, 5000);
 
-// Auth Functions
 function switchAuth(type) {
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
@@ -179,10 +568,10 @@ async function handleLogin(e) {
       localStorage.setItem('path2uni_token', data.token);
       localStorage.setItem('path2uni_user', JSON.stringify(data.user));
       
-      // FIXED: Check both possible admin field names
-      const isAdminUser = data.user.isAdmin === true || data.user.is_admin === true || data.user.is_admin === 1;
+      // Check if user is admin (supports both formats)
+      const isAdmin = data.user.isAdmin === true || data.user.is_admin === true || data.user.is_admin === 1;
       
-      if (isAdminUser) {
+      if (isAdmin) {
         window.location.href = 'admin-dashboard.html';
       } else {
         window.location.href = 'dashboard.html';
@@ -229,10 +618,9 @@ async function handleRegister(e) {
       localStorage.setItem('path2uni_token', data.token);
       localStorage.setItem('path2uni_user', JSON.stringify(data.user));
       
-      // FIXED: Check both possible admin field names
-      const isAdminUser = data.user.isAdmin === true || data.user.is_admin === true || data.user.is_admin === 1;
+      const isAdmin = data.user.isAdmin === true || data.user.is_admin === true || data.user.is_admin === 1;
       
-      if (isAdminUser) {
+      if (isAdmin) {
         window.location.href = 'admin-dashboard.html';
       } else {
         window.location.href = 'dashboard.html';
